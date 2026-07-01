@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
   // If admin, return all events; otherwise filter by client_id (assuming user.id is client_id)
   const { data, error } = await supabase
-    .from<Event>('events')
+    .from('events')
     .select('*')
     .eq(role === 'admin' ? undefined : 'client_id', user?.id);
 
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  const { data, error } = await supabase.from<Event>('events').insert({
+  const { data, error } = await supabase.from('events').insert({
     ...payload,
     client_id: payload.client_id || null,
   });

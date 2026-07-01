@@ -9,7 +9,7 @@ export default function ApiDocsPage() {
         url="/swagger.yaml"
         docExpansion="none"
         persistAuthorization={true}
-        requestInterceptor={(req) => {
+        requestInterceptor={(req: any) => {
           // Forward cookies (supersession) for authenticated API calls
           if (typeof document !== 'undefined') {
             const cookies = document.cookie;

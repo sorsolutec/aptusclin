@@ -1,15 +1,17 @@
 import { createClient } from '@/utils/supabase/server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { Event } from '@/types/event';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const role = user?.user_metadata?.role ?? user?.app_metadata?.role;
-  const { id } = params;
+
 
   const { data, error } = await supabase
-    .from<Event>('events')
+    .from('events')
     .select('*')
     .eq('id', id)
     .single();
@@ -26,7 +28,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
   return NextResponse.json(data);
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const role = user?.user_metadata?.role ?? user?.app_metadata?.role;
@@ -35,11 +39,11 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const { id } = params;
+
   const payload: Partial<Event> = await request.json();
 
   const { data, error } = await supabase
-    .from<Event>('events')
+    .from('events')
     .update(payload)
     .eq('id', id)
     .select('*')
@@ -51,7 +55,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   return NextResponse.json(data);
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const role = user?.user_metadata?.role ?? user?.app_metadata?.role;
@@ -60,8 +66,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const { id } = params;
-  const { error } = await supabase.from<Event>('events').delete().eq('id', id);
+
+  const { error } = await supabase.from('events').delete().eq('id', id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
