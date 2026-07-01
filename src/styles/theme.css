@@ -1,0 +1,41 @@
+/* src/styles/theme.css */
+:root {
+  /* Core corporate colors */
+  --color-primary: #003380; /* Dark Blue – Aptus text */
+  --color-primary-hover: #002966; /* Darker shade for hover states */
+  --color-accent: #009933; /* Green accent */
+
+  /* Light mode background and text */
+  --bg-page: #ffffff;
+  --text-primary: #003380;
+
+  /* Dark mode variables */
+  --bg-page-dark: #121212;
+  --text-primary-dark: #66b2ff;
+}
+
+/* Apply background and text color based on prefers-color-scheme */
+html {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    background-color: var(--bg-page-dark);
+    color: var(--text-primary-dark);
+  }
+}
+
+/* Utility class for background */
+.bg-page {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .bg-page {
+    background-color: var(--bg-page-dark);
+    color: var(--text-primary-dark);
+  }
+}

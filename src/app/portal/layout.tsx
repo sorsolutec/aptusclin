@@ -8,6 +8,7 @@ import {
   Bell,
   ChevronRight,
   User,
+  Calendar,
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -17,6 +18,7 @@ const navItems = [
   { href: '/portal/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/portal/documentos', label: 'Documentos', icon: FileText },
   { href: '/portal/empresa', label: 'Minha Empresa', icon: Building2 },
+  { href: '/portal/agenda', label: 'Agenda', icon: Calendar },
 ]
 
 export default async function PortalLayout({
@@ -31,7 +33,7 @@ export default async function PortalLayout({
   const initials = email.slice(0, 2).toUpperCase()
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-page flex">
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-slate-200 flex flex-col fixed h-full z-10">
         {/* Logo */}
@@ -45,7 +47,7 @@ export default async function PortalLayout({
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#0b3c7d] transition-colors group"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-primary hover:text-primary transition-colors group"
             >
               <Icon className="w-4 h-4" />
               <span className="text-sm font-medium">{label}</span>
@@ -57,7 +59,7 @@ export default async function PortalLayout({
         {/* User */}
         <div className="p-4 border-t border-slate-100">
           <div className="flex items-center gap-3 mb-3 px-1">
-            <div className="w-8 h-8 bg-blue-50 text-[#0b3c7d] rounded-full flex items-center justify-center text-xs font-bold">
+            <div className="w-8 h-8 bg-primary text-primary rounded-full flex items-center justify-center text-xs font-bold">
               {initials}
             </div>
             <div className="flex-1 min-w-0">

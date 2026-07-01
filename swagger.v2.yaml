@@ -1,0 +1,235 @@
+openapi: 3.0.3
+info:
+  title: AptusClin Events API
+  version: 2.0.0
+  description: API endpoints for managing events and notifications in the AptusClin portal.
+servers:
+  - url: https://anolzttfkkwuympfxohs.supabase.co
+    description: Supabase backend (production)
+  - url: http://localhost:3005
+    description: Local development server
+paths:
+  /api/events:
+    get:
+      summary: List events
+      description: Returns a list of events. Admins receive all events; regular clients receive only their own.
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Successful response with an array of events.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          description: Bad request / Supabase error
+    post:
+      summary: Create a new event
+      description: Admins can create an event.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCreate'
+      responses:
+        '201':
+          description: Event created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          description: Validation or Supabase error
+        '403':
+          description: Forbidden – only admins may create events
+  /api/events/{id}:
+    get:
+      summary: Get a single event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Event UUID
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Event details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          description: Bad request / Supabase error
+        '403':
+          description: Forbidden – client tried to access another client's event
+    put:
+      summary: Update an event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Event UUID
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventUpdate'
+      responses:
+        '200':
+          description: Updated event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          description: Validation or Supabase error
+        '403':
+          description: Forbidden – only admins may update events
+    delete:
+      summary: Delete an event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Event UUID
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Deletion success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '400':
+          description: Supabase error
+        '403':
+          description: Forbidden – only admins may delete events
+  /api/events/notifications:
+    get:
+      summary: List event notifications for the logged‑in user
+      description: Returns a list of upcoming event notifications (e.g., 30 min before start).
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Array of notification objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        '400':
+          description: Bad request
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: supersession
+  schemas:
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        client_id:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    EventCreate:
+      type: object
+      required:
+        - title
+        - start_at
+      properties:
+        client_id:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+        description:
+          type: string
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        location:
+          type: string
+    EventUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        location:
+          type: string
+        client_id:
+          type: string
+          format: uuid
+    Notification:
+      type: object
+      properties:
+        event_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        scheduled_at:
+          type: string
+          format: date-time
+        message:
+          type: string

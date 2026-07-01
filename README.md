@@ -34,3 +34,33 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## CI – Validação da Spec OpenAPI
+
+A validação automática da especificação OpenAPI é feita via GitHub Actions. O workflow verifica a spec a cada push ou Pull Request que altera arquivos `swagger*.yaml`.
+
+![API Spec CI](https://github.com/<owner>/<repo>/actions/workflows/api-spec.yml/badge.svg)
+
+**Workflow:** `.github/workflows/api-spec.yml`
+
+```yaml
+name: API Spec Validation
+
+on:
+  push:
+    paths:
+      - 'swagger*.yaml'
+  pull_request:
+    paths:
+      - 'swagger*.yaml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install swagger-cli
+        run: npm install -g swagger-cli
+      - name: Validate OpenAPI spec
+        run: swagger-cli validate swagger.v2.yaml
+```

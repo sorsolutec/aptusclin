@@ -23,24 +23,24 @@ const statCards = [
     value: '—',
     description: 'Aguardando retirada',
     icon: FileText,
-    color: 'text-blue-600',
-    bg: 'bg-blue-50',
+    color: 'text-primary',
+    bg: 'bg-primary',
   },
   {
     title: 'Concluídos',
     value: '—',
     description: 'Últimos 30 dias',
     icon: CheckCircle,
-    color: 'text-emerald-600',
-    bg: 'bg-emerald-50',
+    color: 'text-accent',
+    bg: 'bg-accent',
   },
   {
     title: 'Em Análise',
     value: '—',
     description: 'Em processamento',
     icon: Clock,
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
+    color: 'text-accent',
+    bg: 'bg-accent',
   },
   {
     title: 'Pendentes',
@@ -171,7 +171,7 @@ export default async function DashboardPage() {
               return (
                 <Link key={action.href} href={action.href}>
                   <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer group">
-                    <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                    <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                       <Icon className="w-4 h-4 text-blue-600" />
                     </div>
                     <span className="text-sm text-slate-700 flex-1">{action.label}</span>

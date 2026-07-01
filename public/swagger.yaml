@@ -1,0 +1,12 @@
+openapi: 3.0.3
+info:
+  title: AptusClin Events API
+  version: 1.0.0
+  description: API endpoints for managing events in the AptusClin portal.
+servers:
+  - url: https://anolzttfkkwuympfxohs.supabase.co
+    description: Supabase backend (production)
+  - url: http://localhost:3005
+    description: Local development server
+paths: {}
+components: {}
