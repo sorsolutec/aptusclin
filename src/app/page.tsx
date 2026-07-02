@@ -90,10 +90,10 @@ export default function LandingPage() {
             </span>
           </div>
           <Link
-            href="/resultados"
+            href="/portal/agenda"
             className="flex items-center gap-1.5 bg-[#1B8B3A] hover:bg-[#125d27] text-white px-3 py-1 rounded text-xs font-semibold transition-colors"
           >
-            🔒 Resultados de Exames
+            📅 Agendar
           </Link>
         </div>
       </div>
@@ -116,10 +116,10 @@ export default function LandingPage() {
 
           <div className="flex items-center gap-3">
             <Link
-              href="/login"
+              href="/portal/agenda"
               className="hidden sm:flex items-center gap-2 bg-[#0b3c7d] hover:bg-[#093063] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
             >
-              Portal do Cliente
+              Agendar
               <ChevronRight className="w-4 h-4" />
             </Link>
             <button className="md:hidden p-2 text-slate-600">
@@ -131,23 +131,16 @@ export default function LandingPage() {
 
       {/* ===== HERO ===== */}
       <section className="relative bg-[#002855] min-h-[580px] flex items-center overflow-hidden">
-        {/* Background image overlay */}
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: 'url(/hero-clinica.png)' }}
-        />
         <div className="absolute inset-0 bg-gradient-to-r from-[#002855] via-[#002855]/90 to-[#002855]/60" />
 
-        <div className="relative max-w-7xl mx-auto px-4 py-20 grid md:grid-cols-2 gap-12 items-center">
+        <div className="relative max-w-7xl mx-auto px-4 py-20 grid md:grid-cols-2 gap-12 items-center w-full">
           <div>
             <div className="inline-flex items-center gap-2 bg-[#00b4d8]/20 border border-[#00b4d8]/30 text-[#00b4d8] text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
               <CheckCircle2 className="w-3.5 h-3.5" />
               Referência em medicina ocupacional
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-5">
-              Eficiência em{' '}
-              <span className="text-[#00b4d8]">exames</span>{' '}
-              ocupacionais para sua empresa
+              Eficiência em exames ocupacionais para sua empresa
             </h1>
             <p className="text-slate-300 text-lg leading-relaxed mb-8">
               Garantimos a saúde e segurança dos seus colaboradores com exames ágeis, laudos precisos e atendimento humanizado. Mais de 15 anos de experiência no mercado.
@@ -209,9 +202,6 @@ export default function LandingPage() {
                     {s.title}
                   </h3>
                   <p className="text-slate-500 text-sm leading-relaxed">{s.desc}</p>
-                  <div className="flex items-center gap-1 text-[#00b4d8] text-sm font-semibold mt-4">
-                    Saiba mais <ChevronRight className="w-4 h-4" />
-                  </div>
                 </div>
               )
             })}
@@ -228,7 +218,7 @@ export default function LandingPage() {
               Excelência em cada atendimento
             </h2>
             <p className="text-slate-500 text-base leading-relaxed mb-8">
-              A Aptusclin é referência em medicina ocupacional, combinando tecnologia de ponta com um atendimento humanizado. Nossa missão é garantir saúde, segurança e produtividade para as empresas parceiras.
+              A Aptusclin é referência em medicina ocupacional, combinando tecnologia de ponta com um atendimento humanizado. Nossa missão é garantir saúde, segurança e produtividade para você.
             </p>
             <div className="grid sm:grid-cols-2 gap-4">
               {diferenciais.map(({ icon: Icon, text }) => (
@@ -268,9 +258,6 @@ export default function LandingPage() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-            {/* Decorative element */}
-            <div className="absolute -top-4 -right-4 w-24 h-24 bg-[#00b4d8]/10 rounded-full -z-10" />
-            <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-[#002855]/10 rounded-full -z-10" />
           </div>
         </div>
       </section>
@@ -305,66 +292,29 @@ export default function LandingPage() {
 
       {/* ===== CONTATO ===== */}
       <section id="contato" className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-16">
-          <div>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
             <span className="text-[#00b4d8] text-sm font-bold uppercase tracking-widest">Fale conosco</span>
-            <h2 className="text-3xl font-extrabold text-[#002855] mt-2 mb-4">
+            <h2 className="text-3xl font-extrabold text-[#002855] mt-2">
               Entre em contato com nossa equipe
             </h2>
-            <p className="text-slate-500 mb-8">
-              Atendemos empresas de todos os portes. Nossa equipe está pronta para apresentar a melhor solução para o seu negócio.
-            </p>
-
-            <div className="space-y-4">
-              {[
-                { icon: Phone, label: 'Telefone', value: '(11) 4000-0000' },
-                { icon: Mail, label: 'E-mail', value: 'contato@aptusclin.com.br' },
-                { icon: MapPin, label: 'Endereço', value: 'São Paulo – SP' },
-                { icon: Clock, label: 'Horário', value: 'Seg–Sex: 07h às 18h' },
-              ].map(({ icon: Icon, label, value }) => (
-                <div key={label} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200">
-                  <div className="w-10 h-10 bg-[#002855]/10 rounded-lg flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-[#002855]" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500">{label}</p>
-                    <p className="text-sm font-semibold text-slate-800">{value}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
 
-          {/* Form */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
-            <h3 className="text-xl font-bold text-[#002855] mb-6">Solicite um orçamento</h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Nome</label>
-                  <input type="text" placeholder="Seu nome" className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00b4d8] focus:border-transparent" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[
+              { icon: Phone, label: 'Telefone', value: '(11) 4000-0000' },
+              { icon: Mail, label: 'E-mail', value: 'contato@aptusclin.com.br' },
+              { icon: MapPin, label: 'Endereço', value: 'São Paulo – SP' },
+              { icon: Clock, label: 'Horário', value: 'Seg–Sex: 07h às 18h' },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} className="bg-white rounded-xl border border-slate-200 p-6 text-center">
+                <div className="w-10 h-10 bg-[#002855]/10 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                  <Icon className="w-5 h-5 text-[#002855]" />
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Empresa</label>
-                  <input type="text" placeholder="Razão social" className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00b4d8] focus:border-transparent" />
-                </div>
+                <p className="text-xs text-slate-500 mb-1">{label}</p>
+                <p className="text-sm font-semibold text-slate-800">{value}</p>
               </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-600 mb-1.5 block">E-mail corporativo</label>
-                <input type="email" placeholder="email@empresa.com.br" className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00b4d8] focus:border-transparent" />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Telefone</label>
-                <input type="tel" placeholder="(11) 9 0000-0000" className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00b4d8] focus:border-transparent" />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Mensagem</label>
-                <textarea rows={4} placeholder="Descreva sua necessidade..." className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00b4d8] focus:border-transparent resize-none" />
-              </div>
-              <button className="w-full bg-[#002855] hover:bg-[#001a3d] text-white font-bold py-3 rounded-lg transition-colors">
-                Enviar mensagem
-              </button>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -414,8 +364,8 @@ export default function LandingPage() {
         <div className="border-t border-white/10">
           <div className="max-w-7xl mx-auto px-4 py-5 flex flex-wrap items-center justify-between gap-4">
             <p className="text-slate-500 text-xs">© 2025 Aptusclin – Medicina Ocupacional. Todos os direitos reservados.</p>
-            <Link href="/login" className="text-[#00b4d8] hover:underline text-xs font-semibold flex items-center gap-1">
-              🔒 Portal do Cliente
+            <Link href="/portal/agenda" className="text-[#00b4d8] hover:underline text-xs font-semibold flex items-center gap-1">
+              📅 Agendar
             </Link>
           </div>
         </div>
