@@ -19,7 +19,7 @@ const mapEventsByDate = (events: Event[]) => {
 
 export default function Calendar() {
   const [events, setEvents] = useState<Event[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [eventsByDate, setEventsByDate] = useState<Record<string, Event[]>>({});
 
   // Load events from API
@@ -47,20 +47,30 @@ export default function Calendar() {
     return null;
   };
 
-  const dayEvents = eventsByDate[selectedDate.toISOString().split('T')[0]] || [];
+  const dayKey = selectedDate ? selectedDate.toISOString().split('T')[0] : '';
+  const dayEvents = eventsByDate[dayKey] || [];
 
   return (
     <section className="bg-page p-6 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold text-primary mb-4">Agenda de Eventos</h2>
       <ReactCalendar
-        onChange={setSelectedDate}
+        onChange={(value) => {
+          if (Array.isArray(value)) {
+            // If range selection, pick first date
+            setSelectedDate(value[0] ?? null);
+          } else if (value) {
+            setSelectedDate(value as Date);
+          } else {
+            setSelectedDate(null);
+          }
+        }}
         value={selectedDate}
         tileContent={tileContent}
         className="bg-white rounded"
       />
       <div className="mt-6">
         <h3 className="text-xl font-semibold text-primary mb-2">
-          Eventos em {selectedDate.toLocaleDateString()}
+          Eventos em {selectedDate ? selectedDate.toLocaleDateString() : '---'}
         </h3>
         {dayEvents.length === 0 ? (
           <p className="text-muted">Nenhum evento para esta data.</p>

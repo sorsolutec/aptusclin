@@ -9,10 +9,11 @@ export async function GET(request: Request) {
   const role = user?.user_metadata?.role ?? user?.app_metadata?.role;
 
   // If admin, return all events; otherwise filter by client_id (assuming user.id is client_id)
-  const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .eq(role === 'admin' ? undefined : 'client_id', user?.id);
+  let query = supabase.from('events').select('*');
+  if (role !== 'admin') {
+    query = query.eq('client_id', user?.id ?? '');
+  }
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
