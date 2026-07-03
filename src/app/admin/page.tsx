@@ -14,7 +14,7 @@ const atalhos = [
     cor: 'bg-[#002855] text-white hover:bg-[#001a3d]',
   },
   {
-    href: '/admin/empresas/nova',
+    href: '/admin/clientes/novo',
     icon: Building2,
     label: 'Cadastrar empresa',
     desc: 'Adicionar nova empresa cliente ao sistema',

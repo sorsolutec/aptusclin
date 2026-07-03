@@ -13,6 +13,8 @@ import {
   Building2,
   User,
   Plus,
+  Edit,
+  Trash2,
   RefreshCw,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -264,51 +266,44 @@ export default function AdminExamesPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
               {examesFiltrados.length > 0 ? (
-                examesFiltrados.map((exame) => {
-                  const vencido = isVencido(exame.dataVencimento) && exame.status !== 'Pendente'
-                  return (
-                    <tr key={exame.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="font-semibold text-slate-800 text-sm">{exame.colaborador}</div>
-                        <div className="text-xs text-slate-400 font-mono mt-0.5">{exame.cpf}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-1.5 text-slate-700 text-sm font-medium">
-                          <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                          {exame.empresa}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-slate-800 text-sm font-medium">{exame.tipoExame}</div>
-                        <div className="text-xs text-slate-500 mt-0.5">{exame.funcao}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-slate-600 text-sm font-medium flex items-center gap-1">
-                          <CalendarDays className="w-3.5 h-3.5 text-slate-400" />
-                          {new Date(exame.dataExame).toLocaleDateString('pt-BR')}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`text-sm font-medium flex items-center gap-1 ${vencido ? 'text-red-600 font-bold' : 'text-slate-600'}`}>
-                          <CalendarDays className="w-3.5 h-3.5 text-slate-400" />
-                          {new Date(exame.dataVencimento).toLocaleDateString('pt-BR')}
-                          {vencido && <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-extrabold ml-1 uppercase">Vencido</span>}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">{getStatusBadge(exame.status)}</td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-slate-800" title="Visualizar">
-                            <Eye className="w-4 h-4" />
+                examesFiltrados.map((exame) => (
+                  <tr key={exame.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-semibold text-slate-800">{exame.colaborador}</div>
+                      <div className="text-xs text-slate-400">{exame.cpf}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      {exame.empresa}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      <div>{exame.tipoExame}</div>
+                      <div className="text-xs text-slate-400">{exame.funcao}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      {new Date(exame.dataExame).toLocaleDateString('pt-BR')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={isVencido(exame.dataVencimento) ? 'text-red-600 font-semibold' : 'text-slate-600'}>
+                        {new Date(exame.dataVencimento).toLocaleDateString('pt-BR')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(exame.status)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link href={`/admin/exames/editar/${exame.id}`}>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-slate-600">
+                            <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-slate-800" title="Download PDF">
-                            <Download className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })
+                        </Link>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-red-600">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center text-slate-500 text-sm">

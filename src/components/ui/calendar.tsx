@@ -17,21 +17,22 @@ const mapEventsByDate = (events: Event[]) => {
   return map;
 };
 
-export default function Calendar() {
+export default function Calendar({ companyId }: { companyId?: string }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [eventsByDate, setEventsByDate] = useState<Record<string, Event[]>>({});
 
   // Load events from API
   useEffect(() => {
-    fetch('/api/events')
+    const url = companyId ? `/api/events?companyId=${companyId}` : '/api/events';
+    fetch(url)
       .then((res) => res.json())
       .then((data) => {
         setEvents(data);
         setEventsByDate(mapEventsByDate(data));
       })
       .catch((err) => console.error('Failed to load events', err));
-  }, []);
+  }, [companyId]);
 
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view !== 'month') return null;

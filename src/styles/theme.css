@@ -1,9 +1,9 @@
 /* src/styles/theme.css */
 :root {
   /* Core corporate colors */
-  --color-primary: #003380; /* Dark Blue – Aptus text */
-  --color-primary-hover: #002966; /* Darker shade for hover states */
-  --color-accent: #009933; /* Green accent */
+  --color-primary: #004080; /* Dark Blue – new brand */
+  --color-primary-hover: #003366; /* Hover shade */
+  --color-accent: #00A3E0; /* Accent teal */
 
   /* Light mode background and text */
   --bg-page: #ffffff;

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Upload,
   User,
@@ -28,6 +28,14 @@ const TIPOS_EXAME = [
   'Avaliação Clínica Complementar',
 ]
 
+type EmpresaOpt = { id: string; nome: string }
+
+const MOCK_EMPRESAS: EmpresaOpt[] = [
+  { id: 'empresa1', nome: 'Empresa Alpha Ltda' },
+  { id: 'empresa2', nome: 'Beta Indústrias S.A.' },
+  { id: 'empresa3', nome: 'Gama Comércio Eireli' },
+]
+
 const STATUS_OPTIONS: Status[] = ['Apto', 'Inapto', 'Apto com Restrições', 'Pendente']
 
 const statusColors: Record<Status, string> = {
@@ -42,6 +50,8 @@ export default function NovoExamePage() {
   const [sucesso, setSucesso] = useState(false)
   const [arquivo, setArquivo] = useState<File | null>(null)
   const [status, setStatus] = useState<Status>('Apto')
+  const [empresas, setEmpresas] = useState<EmpresaOpt[]>([])
+  const [dbError, setDbError] = useState('')
 
   const [form, setForm] = useState({
     empresa: '',
@@ -56,6 +66,24 @@ export default function NovoExamePage() {
     observacoes: '',
   })
 
+  useEffect(() => {
+    fetch('/api/admin/empresas')
+      .then((res) => {
+        if (!res.ok) throw new Error('Não foi possível carregar as empresas.');
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setEmpresas(data);
+        } else {
+          setEmpresas(MOCK_EMPRESAS);
+        }
+      })
+      .catch(() => {
+        setEmpresas(MOCK_EMPRESAS);
+      });
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
@@ -63,12 +91,41 @@ export default function NovoExamePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSalvando(true)
+    setDbError('')
 
-    // TODO: Integrar com Supabase — insert na tabela exames + upload do PDF no Storage
-    await new Promise((r) => setTimeout(r, 1500))
+    const isUUID = (val: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+    const companyId = isUUID(form.empresa) ? form.empresa : null;
 
-    setSalvando(false)
-    setSucesso(true)
+    const start_at = form.dataExame ? new Date(form.dataExame).toISOString() : new Date().toISOString();
+    const end_at = form.dataVencimento ? new Date(form.dataVencimento).toISOString() : start_at;
+
+    const payload = {
+      title: `${form.tipoExame} - ${form.colaborador}`,
+      description: `CPF: ${form.cpf} | Função: ${form.funcao} | Médico: ${form.medico} (${form.crm}) | Obs: ${form.observacoes}`,
+      start_at,
+      end_at,
+      location: status,
+      company_id: companyId,
+    };
+
+    try {
+      const res = await fetch('/api/exames', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Erro ao cadastrar exame no Supabase.');
+      }
+
+      setSalvando(false)
+      setSucesso(true)
+    } catch (err: any) {
+      setDbError(err.message || 'Erro de conexão com o banco.');
+      setSalvando(false)
+    }
   }
 
   if (sucesso) {
@@ -109,6 +166,13 @@ export default function NovoExamePage() {
         </div>
       </div>
 
+      {dbError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+          <span>{dbError}</span>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Empresa */}
         <Card className="border-slate-200 shadow-sm">
@@ -127,9 +191,9 @@ export default function NovoExamePage() {
               className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#002855]/20 focus:border-[#002855] transition-all"
             >
               <option value="">Selecione a empresa...</option>
-              <option value="empresa1">Empresa Alpha Ltda</option>
-              <option value="empresa2">Beta Indústrias S.A.</option>
-              <option value="empresa3">Gama Comércio Eireli</option>
+              {empresas.map((emp) => (
+                <option key={emp.id} value={emp.id}>{emp.nome}</option>
+              ))}
             </select>
           </CardContent>
         </Card>

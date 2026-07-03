@@ -18,9 +18,15 @@ export async function login(formData: FormData) {
     redirect('/login?error=invalid_credentials')
   }
 
-  // Verifica role do usuário para redirecionar corretamente
+  // Verifica role do usuário e firstLogin para redirecionar corretamente
   const { data: { user } } = await supabase.auth.getUser()
   const role = user?.user_metadata?.role ?? user?.app_metadata?.role
+  const firstLogin = user?.user_metadata?.firstLogin ?? false
+
+  if (firstLogin) {
+    // Usuário admin que ainda não trocou a senha
+    redirect('/auth/change-password')
+  }
 
   if (role === 'admin') {
     redirect('/admin')

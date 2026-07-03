@@ -1,211 +1,298 @@
-import Link from 'next/link'
+import Link from 'next/link';
+import { headers } from 'next/headers';
 import {
   HeartPulse,
   Phone,
   Mail,
   MapPin,
-  Clock,
-  CheckCircle2,
-  ChevronRight,
-  Building2,
   FileText,
   Activity,
   Shield,
-  Users,
-  Award,
+  Building2,
+  CalendarDays,
+  ExternalLink,
   ArrowRight,
-  Star,
-  MessageCircle,
-} from 'lucide-react'
-import { Logo } from '@/components/ui/logo'
+  Stethoscope,
+} from 'lucide-react';
+import { Logo } from '@/components/ui/logo';
+import { createClient } from '@/utils/supabase/server';
+import { tenantConfig } from '@/lib/tenant';
 
 export const metadata = {
-  title: 'Aptusclin | Medicina Ocupacional',
+  title: 'Aptusclin | Medicina Ocupacional & Saúde do Trabalhador',
   description:
-    'Clínica especializada em medicina ocupacional. Exames admissionais, periódicos, demissionais e check-ups corporativos para sua empresa.',
+    'Soluções completas em Medicina Ocupacional, Segurança do Trabalho e eSocial. Atendimento em Sorriso, Nova Ubiratã, Boa Esperança do Norte e Nova Mutum.',
+};
+
+interface Unidade {
+  id: string;
+  nome: string;
+  cidade: string;
+  estado: string;
+  descricao: string;
+  telefone?: string;
+  email?: string;
+  slides: { url: string; caption?: string }[];
 }
 
-const services = [
+function getUnitUrl(unitId: string, host: string) {
+  const cleanHost = host.split(':')[0];
+  const port = host.includes(':') ? `:${host.split(':')[1]}` : '';
+
+  if (cleanHost === 'localhost' || cleanHost === '127.0.0.1') {
+    return `http://${unitId}.localhost${port}`;
+  }
+
+  const parts = cleanHost.split('.');
+  let baseDomain = cleanHost;
+  // Se for subdomínio (ex: sorriso.aptusclin.com.br), remove a primeira parte
+  if (parts.length > 2) {
+    baseDomain = parts.slice(-2).join('.');
+  }
+  return `http://${unitId}.${baseDomain}${port}`;
+}
+
+const SERVICES = [
   {
     icon: FileText,
     title: 'Exames Ocupacionais',
-    desc: 'ASO admissional, periódico, demissional, mudança de função e retorno ao trabalho, com emissão ágil e segura.',
-    color: 'bg-blue-50 text-blue-700',
-    border: 'border-blue-100',
+    desc: 'ASO admissional, periódico, demissional, mudança de função e retorno ao trabalho.',
   },
   {
     icon: Activity,
     title: 'Exames Clínicos',
-    desc: 'Amplo portfólio de exames laboratoriais, imagem e funcional para suporte à saúde ocupacional e preventiva.',
-    color: 'bg-teal-50 text-teal-700',
-    border: 'border-teal-100',
-  },
-  {
-    icon: Building2,
-    title: 'Atendimento In-Company',
-    desc: 'Levamos a clínica até a sua empresa com unidades móveis e equipes treinadas para reduzir o absenteísmo.',
-    color: 'bg-indigo-50 text-indigo-700',
-    border: 'border-indigo-100',
+    desc: 'Audiometria, espirometria, ECG, EEG, acuidade visual e exames laboratoriais.',
   },
   {
     icon: Shield,
     title: 'Programas de SST',
-    desc: 'Elaboração e gestão de PGR, PCMSO, LTCAT e envio dos eventos de eSocial de SST para conformidade legal.',
-    color: 'bg-emerald-50 text-emerald-700',
-    border: 'border-emerald-100',
+    desc: 'PGR, PCMSO, LTCAT, laudos ergonômicos e envio dos eventos de eSocial de SST.',
   },
-]
+  {
+    icon: Building2,
+    title: 'Gestão Corporativa',
+    desc: 'Controle de absenteísmo, gestão de exames periódicos vencidos e relatórios estatísticos.',
+  },
+];
 
-const stats = [
-  { value: '15+', label: 'Anos de experiência' },
-  { value: '500+', label: 'Empresas atendidas' },
-  { value: '50k+', label: 'Exames realizados' },
-  { value: '98%', label: 'Satisfação dos clientes' },
-]
+export default async function MainLandingPage() {
+  const headersList = await headers();
+  const host = headersList.get('host') || 'localhost:3005';
 
-export default function LandingPage() {
+  const supabase = await createClient();
+  let unidades: Unidade[] = [];
+
+  try {
+    const { data } = await supabase
+      .from('unidades')
+      .select('*')
+      .eq('ativo', true);
+    if (data && data.length > 0) {
+      unidades = data;
+    }
+  } catch {
+    // Silently fallback
+  }
+
+  if (unidades.length === 0) {
+    unidades = Object.values(tenantConfig).map(u => ({
+      id: u.id,
+      nome: u.nome,
+      cidade: u.cidade,
+      estado: u.estado,
+      descricao: u.descricao || '',
+      telefone: u.telefone,
+      email: u.email,
+      slides: u.slides || [],
+    }));
+  }
+
+  // Coleta slides das unidades para preencher o banner principal
+  const allSlides = unidades.flatMap(u => u.slides).filter(Boolean);
+  const heroSlides = allSlides.length > 0 ? allSlides.slice(0, 5) : [
+    { url: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80', caption: 'Estrutura moderna para exames ocupacionais' },
+    { url: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80', caption: 'Atendimento humanizado e focado na saúde do trabalhador' },
+  ];
+
   return (
-    <div className="min-h-screen bg-white font-sans">
-      {/* TOP BAR */}
-      <div className="bg-[#0b3c7d] text-white text-xs py-2 px-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <span className="flex items-center gap-1">
-            <Phone className="w-3.5 h-3.5 text-[#1B8B3A]" />
-            (11) 4004-3005
-          </span>
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-700">
+      {/* TOP HEADER */}
+      <div className="bg-[#002855] text-white py-2 px-4 text-xs font-medium border-b border-white/5">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+          <span>Aptusclin Saúde Ocupacional Integrada</span>
+          <div className="flex gap-4">
+            <span className="flex items-center gap-1">
+              <Phone className="w-3.5 h-3.5 text-[#1B8B3A]" /> (66) 3544-0000
+            </span>
+            <span className="flex items-center gap-1">
+              <Mail className="w-3.5 h-3.5 text-blue-300" /> contato@aptusclin.com.br
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* HEADER */}
-      <header className="bg-white border-b border-slate-100 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Logo className="scale-90 sm:scale-100" />
+      {/* NAVBAR */}
+      <header className="bg-white sticky top-0 z-40 shadow-sm border-b border-slate-100">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Link href="/">
+            <Logo className="scale-95" />
           </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-            <Link href="#servicos" className="hover:text-[#0b3c7d]">Serviços</Link>
-            <Link href="#sobre" className="hover:text-[#0b3c7d]">Sobre</Link>
-          </nav>
-          <Link
-            href="/portal/agenda"
-            className="bg-[#0b3c7d] text-white text-sm font-semibold px-4 py-2 rounded-lg"
-          >
-            Agenda
-          </Link>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              title="Painel Administrativo"
+              className="flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 text-slate-500 hover:text-[#002855] hover:bg-slate-50 transition"
+            >
+              <Shield className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/resultados"
+              className="bg-[#1B8B3A] hover:bg-[#166b2d] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-md flex items-center gap-1.5"
+            >
+              <FileText className="w-4 h-4" />
+              Resultados de Exames
+            </Link>
+          </div>
         </div>
       </header>
 
-      {/* HERO */}
-      <section className="bg-[#002855] py-20 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl font-extrabold text-white mb-4">
-            Medicina Ocupacional de Qualidade
-          </h1>
-          <p className="text-xl text-slate-300 mb-8">
-            Mais de 15 anos cuidando da saúde dos seus colaboradores
-          </p>
-          <Link
-            href="/portal/agenda"
-            className="inline-block bg-[#00b4d8] hover:bg-[#0096c7] text-white font-bold px-8 py-3 rounded-lg"
-          >
-            Agendar Agora
-          </Link>
+      {/* HERO SECTION WITH STATIC CAROUSEL & MAIN ACTION */}
+      <section className="relative bg-[#002855] py-20 px-4 overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl" />
+
+        <div className="max-w-6xl mx-auto relative z-10 grid md:grid-cols-12 gap-12 items-center">
+          <div className="md:col-span-7 text-center md:text-left text-white">
+            <span className="bg-[#1B8B3A]/20 text-[#25D366] text-xs font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider">
+              Medicina & Segurança do Trabalho
+            </span>
+            <h1 className="text-4xl md:text-5xl font-black mt-4 leading-tight">
+              Excelência na gestão da saúde ocupacional da sua empresa
+            </h1>
+            <p className="text-slate-300 text-base md:text-lg mt-4 max-w-xl">
+              Simplificamos o PCMSO, PGR, exames ocupacionais e conformidade legal com o eSocial de forma inteligente e integrada.
+            </p>
+
+            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+              <Link
+                href="#unidades"
+                className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-8 py-4 rounded-xl text-base transition"
+              >
+                Nossas Clínicas
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="md:col-span-5">
+            {/* Visual preview do carrossel no site principal */}
+            <div className="bg-slate-950 rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl relative aspect-[4/3]">
+              <img
+                src={heroSlides[0].url}
+                alt="Aptusclin"
+                className="w-full h-full object-cover opacity-85"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-5 py-4 text-white">
+                <p className="text-xs text-blue-300 font-semibold uppercase tracking-widest">Aptusclin</p>
+                <p className="text-sm font-bold mt-0.5">{heroSlides[0].caption}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* SERVICES */}
-      <section id="servicos" className="py-20 bg-slate-50 px-4">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-extrabold text-center text-[#002855] mb-12">
-            Nossos Serviços
-          </h2>
+      {/* UNIDADES SECTION (DASHBOARD CHOOSE UNIT) */}
+      <section id="unidades" className="py-20 px-4 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="text-xs text-slate-400 font-extrabold uppercase tracking-widest">Cidades Atendidas</span>
+            <h2 className="text-3xl font-extrabold text-[#002855] mt-2">Escolha uma de Nossas Unidades</h2>
+            <p className="text-slate-500 mt-2 max-w-lg mx-auto text-sm">
+              Cada unidade possui canais próprios de agendamento, atendimento dedicado e telefones de contato locais.
+            </p>
+          </div>
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((s) => {
-              const Icon = s.icon
+            {unidades.map(u => {
+              const url = getUnitUrl(u.id, host);
               return (
-                <div key={s.title} className="bg-white border rounded-2xl p-6 hover:shadow-lg transition-shadow">
-                  <div className={`w-12 h-12 rounded-xl ${s.color} flex items-center justify-center mb-4`}>
-                    <Icon className="w-6 h-6" />
+                <div
+                  key={u.id}
+                  className="bg-white border border-slate-100 rounded-3xl p-6 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                >
+                  <div>
+                    <div className="w-10 h-10 bg-[#002855]/5 text-[#002855] rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#002855] group-hover:text-white transition-colors">
+                      <Stethoscope className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-bold text-[#002855] text-lg mb-1 leading-snug">{u.nome}</h3>
+                    <p className="text-xs text-slate-400 font-medium mb-3">
+                      {u.cidade} – {u.estado}
+                    </p>
+                    <p className="text-slate-500 text-xs line-clamp-3 leading-relaxed">
+                      {u.descricao || 'Clínica de medicina ocupacional e segurança do trabalho apta a atender todos os examesadmissionais, periódicos e demissionais.'}
+                    </p>
                   </div>
-                  <h3 className="font-bold text-[#002855] text-lg mb-2">
-                    {s.title}
-                  </h3>
-                  <p className="text-slate-500 text-sm">{s.desc}</p>
+
+                  <div className="mt-6 border-t border-slate-100 pt-4">
+                    {u.telefone && (
+                      <p className="text-[11px] text-slate-400 mb-2">Tel: {u.telefone}</p>
+                    )}
+                    <a
+                      href={url}
+                      className="w-full inline-flex items-center justify-center gap-1.5 bg-[#002855] hover:bg-[#001a3d] text-white text-xs font-bold py-2.5 rounded-xl transition"
+                    >
+                      Acessar Unidade
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
                 </div>
-              )
+              );
             })}
           </div>
         </div>
       </section>
 
-      {/* ABOUT */}
-      <section id="sobre" className="py-20 bg-white px-4">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="text-4xl font-extrabold text-[#002855] mb-4">
-              Por que nos escolher?
-            </h2>
-            <p className="text-slate-600 mb-6">
-              Somos referência em medicina ocupacional com tecnologia de ponta e atendimento humanizado.
-            </p>
-            <ul className="space-y-3">
-              {['Mais de 15 anos de atuação', 'Equipe qualificada', 'Estrutura moderna'].map((item) => (
-                <li key={item} className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-[#002855]" />
-                  <span className="text-slate-700">{item}</span>
-                </li>
-              ))}
-            </ul>
+      {/* SERVICES */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="text-xs text-slate-400 font-extrabold uppercase tracking-widest">Soluções</span>
+            <h2 className="text-3xl font-extrabold text-[#002855] mt-2">Nossos Serviços</h2>
           </div>
-          <div className="bg-[#002855] rounded-2xl p-8 text-white">
-            <HeartPulse className="w-12 h-12 text-[#00b4d8] mb-4" />
-            <h3 className="text-2xl font-bold mb-4">Nosso Compromisso</h3>
-            <p className="text-slate-300">
-              Garantir a saúde e segurança dos seus colaboradores com excelência em cada atendimento.
-            </p>
-          </div>
-        </div>
-      </section>
 
-      {/* CONTACT */}
-      <section className="py-20 bg-slate-50 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl font-extrabold text-[#002855] mb-12">
-            Entre em Contato
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-xl p-6">
-              <Phone className="w-8 h-8 text-[#002855] mx-auto mb-4" />
-              <p className="font-semibold text-[#002855]">(11) 4000-0000</p>
-            </div>
-            <div className="bg-white rounded-xl p-6">
-              <Mail className="w-8 h-8 text-[#002855] mx-auto mb-4" />
-              <p className="font-semibold text-[#002855]">contato@aptusclin.com.br</p>
-            </div>
-            <div className="bg-white rounded-xl p-6">
-              <MapPin className="w-8 h-8 text-[#002855] mx-auto mb-4" />
-              <p className="font-semibold text-[#002855]">São Paulo – SP</p>
-            </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {SERVICES.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="bg-slate-50 rounded-2xl p-6 border border-slate-100 hover:shadow-sm transition-shadow">
+                <div className="w-10 h-10 bg-[#002855]/10 rounded-xl flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-[#002855]" />
+                </div>
+                <h3 className="font-bold text-[#002855] text-sm mb-2">{title}</h3>
+                <p className="text-slate-500 text-xs leading-relaxed">{desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-[#071224] text-white py-12 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-slate-400">© 2025 Aptusclin – Medicina Ocupacional. Todos os direitos reservados.</p>
+      <footer className="bg-[#071224] text-white py-12 px-4 border-t border-white/5">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <Logo className="brightness-0 invert scale-90" />
+          <p className="text-slate-400 text-xs">
+            © {new Date().getFullYear()} Aptusclin Saúde Ocupacional – Todos os direitos reservados.
+          </p>
+          <div className="flex gap-4">
+            <Link href="/login" className="text-xs text-slate-400 hover:text-white transition">
+              Painel Interno
+            </Link>
+            <Link href="/resultados" className="text-xs text-slate-400 hover:text-white transition">
+              Exames
+            </Link>
+          </div>
         </div>
       </footer>
-
-      {/* WHATSAPP */}
-      <a
-        href="https://wa.me/5511400000000"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform"
-      >
-        <MessageCircle className="w-7 h-7" />
-      </a>
     </div>
-  )
+  );
 }

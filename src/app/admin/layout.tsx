@@ -9,6 +9,7 @@ import {
   Upload,
   ChevronRight,
   Shield,
+  MapPin,
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -17,8 +18,9 @@ import { Logo } from '@/components/ui/logo'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/unidades', label: 'Unidades Clínicas', icon: MapPin },
   { href: '/admin/exames', label: 'Lançar Exames / ASO', icon: Upload },
-  { href: '/admin/empresas', label: 'Empresas Clientes', icon: Building2 },
+  { href: '/admin/clientes', label: 'Clientes', icon: Building2 },
   { href: '/admin/colaboradores', label: 'Colaboradores', icon: Users },
   { href: '/admin/documentos', label: 'Todos os Documentos', icon: FileText },
 ]

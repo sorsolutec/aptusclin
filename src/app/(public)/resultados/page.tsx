@@ -1,126 +1,196 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
-import {
-  FileText,
-  ClipboardCheck,
-  ChevronRight,
-  ArrowLeft,
-  Lock,
-} from 'lucide-react'
+import { FileText, ArrowLeft, Lock, Eye, EyeOff, User, AlertCircle, Loader2 } from 'lucide-react'
 import { Logo } from '@/components/ui/logo'
 
-export const metadata = {
-  title: 'Resultados | Portal Aptusclin',
-  description: 'Acesse seus resultados de exames e ASO da Aptusclin.',
-}
-
-const opcoes = [
-  {
-    href: '/login',
-    icon: ClipboardCheck,
-    titulo: 'ASO',
-    subtitulo: 'Atestado de Saúde Ocupacional',
-    descricao:
-      'Acesse, visualize e faça o download do ASO dos colaboradores da sua empresa de forma segura.',
-    cor: 'from-[#0b3c7d] to-[#07244a]',
-    badge: 'NR-7',
-    badgeCor: 'bg-blue-400/20 text-blue-200',
-  },
-  {
-    href: '/login',
-    icon: FileText,
-    titulo: 'Exames',
-    subtitulo: 'Laudos e Resultados Clínicos',
-    descricao:
-      'Consulte os laudos de exames laboratoriais, de imagem e funcionais dos seus colaboradores.',
-    cor: 'from-[#1B8B3A] to-[#125d27]',
-    badge: 'RESULTADOS',
-    badgeCor: 'bg-emerald-400/20 text-emerald-100',
-  },
-]
-
 export default function ResultadosPage() {
+  const [usuario, setUsuario] = useState('')
+  const [senha, setSenha] = useState('')
+  const [mostrarSenha, setMostrarSenha] = useState(false)
+  const [erro, setErro] = useState('')
+  const [carregando, setCarregando] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setErro('')
+
+    if (!usuario.trim() || !senha.trim()) {
+      setErro('Preencha o usuário e a senha.')
+      return
+    }
+
+    setCarregando(true)
+    try {
+      const res = await fetch('/api/resultados/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario: usuario.trim(), senha: senha.trim() }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        // Redireciona para a página de exames do paciente
+        window.location.href = `/resultados/${data.pacienteId}`
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setErro(data.message || 'Usuário ou senha incorretos.')
+      }
+    } catch {
+      setErro('Erro de conexão. Tente novamente.')
+    } finally {
+      setCarregando(false)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-[#00183a] via-[#002855] to-[#071e3d] flex flex-col">
+
       {/* Top bar */}
-      <div className="bg-[#0b3c7d] py-2 px-4">
+      <div className="py-3 px-4 border-b border-white/10">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-white/70 hover:text-white text-xs transition-colors">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-white/60 hover:text-white text-xs transition-colors"
+          >
             <ArrowLeft className="w-3.5 h-3.5" />
             Voltar ao site
           </Link>
-          <Link href="/login" className="flex items-center gap-1.5 text-white/70 hover:text-white text-xs transition-colors">
+          <span className="text-white/40 text-xs flex items-center gap-1.5">
             <Lock className="w-3 h-3" />
-            Área restrita
-          </Link>
+            Conexão segura
+          </span>
         </div>
       </div>
 
       {/* Main */}
-      <main className="flex-1 flex items-center justify-center px-4 py-16">
-        <div className="w-full max-w-3xl">
-          {/* Logo */}
-          <div className="text-center mb-12 flex flex-col items-center">
-            <Logo className="mb-4 transform scale-110" />
-            <h1 className="text-2xl font-bold text-[#0b3c7d] tracking-tight mt-4">
-              Portal de Resultados
+      <main className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+
+          {/* Logo + título */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-[#1B8B3A]/20 border border-[#1B8B3A]/40 rounded-2xl mb-5">
+              <FileText className="w-8 h-8 text-[#25D366]" />
+            </div>
+            <Logo className="mx-auto mb-4 brightness-0 invert scale-90" />
+            <h1 className="text-2xl font-extrabold text-white tracking-tight">
+              Resultados de Exames
             </h1>
-            <p className="text-slate-500 mt-2 text-sm">
-              Selecione o tipo de documento que deseja acessar
+            <p className="text-white/50 mt-2 text-sm leading-relaxed">
+              Acesse com o <strong className="text-white/70">usuário e senha</strong> fornecidos
+              no seu cadastro de paciente.
             </p>
           </div>
 
-          {/* Cards de opção */}
-          <div className="grid sm:grid-cols-2 gap-5">
-            {opcoes.map((op) => {
-              const Icon = op.icon
-              return (
-                <Link key={op.titulo} href={op.href}>
-                  <div
-                    className={`relative rounded-2xl bg-gradient-to-br ${op.cor} p-7 text-white shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer group overflow-hidden`}
+          {/* Card do formulário */}
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 shadow-2xl">
+            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+
+              {/* Campo Usuário */}
+              <div>
+                <label className="block text-xs font-semibold text-white/70 mb-2 uppercase tracking-wider">
+                  Usuário
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
+                  <input
+                    id="campo-usuario"
+                    type="text"
+                    autoComplete="username"
+                    placeholder="Ex.: joao.silva ou CPF"
+                    value={usuario}
+                    onChange={e => { setUsuario(e.target.value); setErro('') }}
+                    className="w-full bg-white/10 border border-white/15 text-white placeholder-white/30 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-[#1B8B3A] focus:ring-2 focus:ring-[#1B8B3A]/40 transition"
+                  />
+                </div>
+              </div>
+
+              {/* Campo Senha */}
+              <div>
+                <label className="block text-xs font-semibold text-white/70 mb-2 uppercase tracking-wider">
+                  Senha
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
+                  <input
+                    id="campo-senha"
+                    type={mostrarSenha ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    placeholder="Senha fornecida no cadastro"
+                    value={senha}
+                    onChange={e => { setSenha(e.target.value); setErro('') }}
+                    className="w-full bg-white/10 border border-white/15 text-white placeholder-white/30 rounded-xl pl-10 pr-11 py-3 text-sm focus:outline-none focus:border-[#1B8B3A] focus:ring-2 focus:ring-[#1B8B3A]/40 transition"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setMostrarSenha(v => !v)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition"
+                    aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
                   >
-                    {/* Decoração de fundo */}
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-12 -mt-12 pointer-events-none" />
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-8 -mb-8 pointer-events-none" />
+                    {mostrarSenha ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
 
-                    {/* Badge */}
-                    <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-4 tracking-widest ${op.badgeCor}`}>
-                      {op.badge}
-                    </span>
+              {/* Mensagem de erro */}
+              {erro && (
+                <div className="flex items-start gap-2.5 bg-red-500/15 border border-red-500/30 rounded-xl px-4 py-3">
+                  <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+                  <p className="text-red-300 text-sm">{erro}</p>
+                </div>
+              )}
 
-                    {/* Ícone */}
-                    <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-white" />
-                    </div>
+              {/* Botão */}
+              <button
+                id="btn-acessar-resultados"
+                type="submit"
+                disabled={carregando}
+                className="w-full flex items-center justify-center gap-2 bg-[#1B8B3A] hover:bg-[#166b2d] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-green-900/30"
+              >
+                {carregando ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Verificando...
+                  </>
+                ) : (
+                  <>
+                    <FileText className="w-4 h-4" />
+                    Acessar Meus Resultados
+                  </>
+                )}
+              </button>
+            </form>
 
-                    {/* Texto */}
-                    <h2 className="text-2xl font-extrabold leading-tight">{op.titulo}</h2>
-                    <p className="text-white/70 text-sm font-medium mt-0.5">{op.subtitulo}</p>
-                    <p className="text-white/60 text-sm leading-relaxed mt-3">{op.descricao}</p>
-
-                    {/* CTA */}
-                    <div className="flex items-center gap-1 mt-5 text-sm font-bold group-hover:gap-2 transition-all">
-                      Acessar agora
-                      <ChevronRight className="w-4 h-4" />
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
+            {/* Divisor + info */}
+            <div className="mt-6 pt-6 border-t border-white/10 text-center">
+              <p className="text-white/40 text-xs leading-relaxed">
+                O usuário e a senha são fornecidos pela clínica no momento do
+                cadastro do paciente. Caso não os tenha, entre em contato com a
+                unidade Aptusclin mais próxima.
+              </p>
+            </div>
           </div>
 
-          {/* Footer info */}
-          <p className="text-center text-xs text-slate-400 mt-10">
-            🔒 Acesso seguro via credenciais corporativas.{' '}
-            <Link href="/login" className="text-[#0b3c7d] hover:underline font-semibold">
-              Entrar no portal
-            </Link>
-          </p>
+          {/* Nota sobre acesso empresarial */}
+          <div className="mt-5 text-center">
+            <p className="text-white/30 text-xs">
+              É uma empresa?{' '}
+              <Link
+                href="/login"
+                className="text-[#25D366] hover:text-[#1B8B3A] font-semibold transition-colors"
+              >
+                Acesse o portal corporativo →
+              </Link>
+            </p>
+          </div>
         </div>
       </main>
 
-      {/* Footer simples */}
-      <footer className="py-5 text-center text-xs text-slate-400 border-t border-slate-200">
-        © 2025 Aptusclin – Medicina Ocupacional. Todos os direitos reservados.
+      {/* Footer */}
+      <footer className="py-5 text-center text-xs text-white/20 border-t border-white/10">
+        © {new Date().getFullYear()} Aptusclin – Medicina Ocupacional. Todos os direitos reservados.
       </footer>
     </div>
   )

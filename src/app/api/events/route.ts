@@ -10,8 +10,10 @@ export async function GET(request: Request) {
 
   // If admin, return all events; otherwise filter by client_id (assuming user.id is client_id)
   let query = supabase.from('events').select('*');
-  if (role !== 'admin') {
-    query = query.eq('client_id', user?.id ?? '');
+  const { searchParams } = new URL(request.url);
+  const companyId = searchParams.get('companyId');
+  if (companyId) {
+    query = query.eq('client_id', companyId);
   }
   const { data, error } = await query;
 
