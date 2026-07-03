@@ -19,11 +19,12 @@ import { Logo } from '@/components/ui/logo'
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/unidades', label: 'Unidades Clínicas', icon: MapPin },
+  { href: '/admin/unidades/boa-esperanca', label: 'Unidade Boa Esperança do Norte', icon: MapPin },
   { href: '/admin/exames', label: 'Lançar Exames / ASO', icon: Upload },
   { href: '/admin/clientes', label: 'Clientes', icon: Building2 },
   { href: '/admin/colaboradores', label: 'Colaboradores', icon: Users },
   { href: '/admin/documentos', label: 'Todos os Documentos', icon: FileText },
-]
+];
 
 export default async function AdminLayout({
   children,
@@ -74,25 +75,41 @@ export default async function AdminLayout({
         {/* User */}
         <div className="p-4 border-t border-white/10">
           <div className="flex items-center gap-3 mb-3 px-1">
-            <div className="w-8 h-8 bg-white/10 text-white rounded-full flex items-center justify-center text-xs font-bold">
-              {initials}
+            <div className="w-8 h-8 bg-white/10 text-white rounded-full flex items-center justify-center text-xs font-bold overflow-hidden">
+              {user?.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                initials
+              )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-white truncate">{email}</p>
+              <p className="text-xs font-medium text-white truncate">{user?.user_metadata?.name || email}</p>
               <p className="text-xs text-white/40">Administrador</p>
             </div>
           </div>
-          <form action={logout}>
-            <Button
-              type="submit"
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start gap-2 text-white/50 hover:text-red-400 hover:bg-white/5"
-            >
-              <LogOut className="w-4 h-4" />
-              Sair
-            </Button>
-          </form>
+          <div className="space-y-1">
+            <Link href="/perfil">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start gap-2 text-white/50 hover:text-white hover:bg-white/5"
+              >
+                <Users className="w-4 h-4" />
+                Meu Perfil
+              </Button>
+            </Link>
+            <form action={logout}>
+              <Button
+                type="submit"
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start gap-2 text-white/50 hover:text-red-400 hover:bg-white/5"
+              >
+                <LogOut className="w-4 h-4" />
+                Sair
+              </Button>
+            </form>
+          </div>
         </div>
       </aside>
 

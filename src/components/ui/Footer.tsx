@@ -26,19 +26,22 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-semibold mb-4">Links</h3>
           <ul className="space-y-2">
-            <li>
-              <Link href="/" className="hover:underline">Home</Link>
-            </li>
-            <li>
-              <Link href="#servicos" className="hover:underline">Serviços</Link>
-            </li>
-            <li>
-              <Link href="#sobre" className="hover:underline">Sobre</Link>
-            </li>
-            <li>
-              <Link href="/contato" className="hover:underline">Contato</Link>
-            </li>
-          </ul>
+  <li>
+    <Link href="/" className="hover:underline">Home</Link>
+  </li>
+  <li>
+    <Link href="#servicos" className="hover:underline">Serviços</Link>
+  </li>
+  <li>
+    <Link href="#sobre" className="hover:underline">Sobre</Link>
+  </li>
+  <li>
+    <Link href="/contato" className="hover:underline">Contato</Link>
+  </li>
+  <li>
+    <Link href="/clinica/boa-esperanca" className="hover:underline">Unidade Boa Esperança do Norte</Link>
+  </li>
+</ul>
         </div>
         <div>
           <h3 className="text-lg font-semibold mb-4">Redes Sociais</h3>

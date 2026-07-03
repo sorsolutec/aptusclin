@@ -28,6 +28,14 @@ export default function NavBar() {
           <li>
             <Link href="#contato" className="hover:text-[#00A3E0]">Contato</Link>
           </li>
+          <li className="relative group">
+            <Link href="/admin/unidades" className="hover:text-[#00A3E0]">Clínicas</Link>
+            <ul className="absolute left-0 mt-2 hidden group-hover:block bg-white shadow-lg rounded-md">
+              <li>
+                <Link href="/clinica/boa-esperanca" className="block px-4 py-2 text-[#004080] hover:bg-[#f0f4ff]">Unidade Boa Esperança do Norte</Link>
+              </li>
+            </ul>
+          </li>
           <li>
             <Link href="/portal/agenda" className="bg-[#004080] text-white px-4 py-2 rounded-md hover:bg-[#003366]">
               Área do Cliente
