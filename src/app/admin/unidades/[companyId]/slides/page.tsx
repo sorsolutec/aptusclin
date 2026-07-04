@@ -1,7 +1,7 @@
 'use client';
 
 import { use, useEffect, useState, useRef } from 'react';
-import { Image as ImageIcon, Plus, Trash2, GripVertical, Loader2, Save, UploadCloud, AlertCircle } from 'lucide-react';
+import { Image as ImageIcon, Plus, Trash2, GripVertical, Loader2, Save, UploadCloud, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface Slide { url: string; caption: string }
 

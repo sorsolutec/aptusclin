@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const companyId = searchParams.get('companyId');
   if (companyId) {
-    query = query.eq('client_id', companyId);
+    query = query.eq('unit', companyId);
   }
   const { data, error } = await query;
 
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
   const { data, error } = await supabase.from('events').insert({
     ...payload,
-    client_id: payload.client_id || null,
+    unit: payload.client_id || null, // Map the frontend `client_id` to `unit` in the DB
   });
 
   if (error) {
