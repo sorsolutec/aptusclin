@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { use } from 'react';
 import {
   FlaskConical, CalendarDays, Image, Users,
-  CheckCircle, Clock, AlertCircle, ArrowUpRight
+  CheckCircle, Clock, AlertCircle, ArrowUpRight, Stethoscope
 } from 'lucide-react';
 
 interface StatCardProps {
@@ -113,6 +113,7 @@ export default function UnitDashboardPage({
         {[
           { href: `/admin/unidades/${companyId}/foto`, title: 'Foto da Unidade', desc: 'Adicione ou substitua a foto exibida na página pública da unidade.', icon: Image, color: '#e11d48' },
           { href: `/admin/unidades/${companyId}/slides`, title: 'Gerenciar Fotos / Slides', desc: 'Adicione ou remova imagens do carrossel da home.', icon: Image, color: '#1B8B3A' },
+          { href: `/admin/unidades/${companyId}/servicos`, title: 'Serviços e Exames Oferecidos', desc: 'Defina quais exames estão disponíveis para atendimento nesta unidade.', icon: Stethoscope, color: '#0ea5e9' },
           { href: `/admin/unidades/${companyId}/exames`, title: 'Gerenciar Exames', desc: 'Cadastre, edite e organize os exames disponíveis.', icon: FlaskConical, color: '#002855' },
           { href: `/admin/unidades/${companyId}/agenda`, title: 'Ver Agendamentos', desc: 'Consulte os agendamentos da unidade.', icon: CalendarDays, color: '#d97706' },
           { href: `/admin/unidades/${companyId}/usuarios`, title: 'Usuários da Unidade', desc: 'Gerencie os usuários e acessos desta unidade.', icon: Users, color: '#7c3aed' },

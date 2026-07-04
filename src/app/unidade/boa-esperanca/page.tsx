@@ -28,22 +28,25 @@ export default async function BoaEsperancaPage() {
   const unit = await getUnitData();
   const fotoUrl: string | null = unit?.foto_url ?? null;
 
-  const exams = [
-    "Exame clínico",
-    "Acuidade visual",
-    "Teste de Ishihara",
-    "Audiometria",
-    "Espirometria",
-    "Eletrocardiograma",
-    "Eletroencefalograma",
-    "Raio X",
-    "Toxicológico",
-    "Psicossocial",
-    "Exames laboratoriais",
-    "Teste de Romberg",
-    "Ultrassonografia",
-    "Dinamometria palmar / lombar",
-  ];
+  const exams = Array.isArray(unit?.exames_disponiveis) && unit.exames_disponiveis.length > 0
+    ? unit.exames_disponiveis
+    : [
+        "Exame clínico",
+        "Acuidade visual",
+        "Teste de Ishihara",
+        "Audiometria",
+        "Espirometria",
+        "Eletrocardiograma",
+        "Eletroencefalograma",
+        "Raio X",
+        "Toxicológico",
+        "Psicossocial",
+        "Exames laboratoriais",
+        "Teste de Romberg",
+        "Ultrassonografia",
+        "Dinamometria palmar / lombar",
+      ];
+
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-700 flex flex-col justify-between">
