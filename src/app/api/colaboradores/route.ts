@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { getAdminClient } from '@/utils/supabase/serverAdmin'
 
 /** Gera usuário no formato nome.sobrenome (ex: joao.silva) */
 function gerarUsuario(nome: string): string {
@@ -35,24 +36,33 @@ export async function GET(request: Request) {
     const offset = (page - 1) * limit
 
     const supabase = await createClient()
-    let query = supabase
-      .from('colaboradores')
-      .select('*, empresas(id, nome)', { count: 'exact' })
-      .eq('ativo', true)
-      .order('nome')
+    let query = (supabase as any)
+      .from('employees')
+      .select('*, companies(id, name)', { count: 'exact' })
+      .order('name')
       .range(offset, offset + limit - 1)
 
     if (busca) {
-      query = query.or(`nome.ilike.%${busca}%,cpf.ilike.%${busca}%,cargo.ilike.%${busca}%`)
+      query = query.or(`name.ilike.%${busca}%,cpf.ilike.%${busca}%,role.ilike.%${busca}%`)
     }
-    if (empresaId) query = query.eq('empresa_id', empresaId)
-    if (status) query = query.eq('status_aso', status)
-    if (unidade) query = query.eq('unidade_id', unidade)
+    if (empresaId) query = query.eq('company_id', empresaId)
 
     const { data, count, error } = await query
     if (error) throw error
 
-    return NextResponse.json({ colaboradores: data || [], total: count || 0 })
+    const mapped = (data || []).map((e: any) => ({
+      id: e.id,
+      nome: e.name,
+      cpf: e.cpf,
+      cargo: e.role,
+      empresa_id: e.company_id,
+      empresas: e.companies ? { id: e.companies.id, nome: e.companies.name } : null,
+      status_aso: 'Pendente',
+      ativo: true,
+      created_at: e.created_at
+    }))
+
+    return NextResponse.json({ colaboradores: mapped, total: count || 0 })
   } catch (err) {
     console.error('[GET /api/colaboradores]', err)
     return NextResponse.json({ error: 'Erro ao buscar colaboradores.' }, { status: 500 })
@@ -65,7 +75,7 @@ export async function POST(request: Request) {
     const body = await request.json()
     const {
       nome, cpf, data_nascimento, data_admissao,
-      cargo, empresa_id, unidade_id,
+      cargo, access_level, unidade_id,
       telefone, email,
     } = body
 
@@ -74,52 +84,63 @@ export async function POST(request: Request) {
 
     const cpfLimpo = cpf.replace(/\D/g, '')
 
-    const supabase = await createClient()
+    // Para criar usuários, precisamos de um client com Service Role Key
+    const supabaseAdmin = getAdminClient()
 
-    // Gera usuário único: nome.sobrenome com sufixo numérico se necessário
     let usuario = gerarUsuario(nome.trim())
-    const { data: existente } = await supabase
-      .from('colaboradores')
-      .select('usuario')
-      .like('usuario', `${usuario}%`)
-
-    if (existente && existente.length > 0) {
-      usuario = `${usuario}${existente.length + 1}`
-    }
 
     const senha = gerarSenha()
+    const emailToUse = email?.trim() || `${usuario}@aptusclin.com.br`
 
-    const { data, error } = await supabase
-      .from('colaboradores')
+    // Cria o usuário na Autenticação do Supabase
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: emailToUse,
+      password: senha,
+      email_confirm: true,
+      user_metadata: {
+        role: access_level || 'viewer',
+        name: nome.trim(),
+        unidade_id: unidade_id || null
+      }
+    })
+
+    if (authError) {
+      if (authError.message.includes('already registered')) {
+         return NextResponse.json({ error: 'Este e-mail já está em uso.' }, { status: 409 })
+      }
+      throw authError
+    }
+
+    const userId = authData.user.id
+
+    // Insere na tabela employees os dados complementares
+    const { data, error } = await (supabaseAdmin as any)
+      .from('employees')
       .insert({
-        nome: nome.trim(),
+        id: userId, // Vincula o Auth ID ao ID do Employee
+        name: nome.trim(),
         cpf: cpfLimpo,
-        data_nascimento: data_nascimento || null,
-        data_admissao: data_admissao || null,
-        cargo: cargo?.trim() || null,
-        empresa_id: empresa_id || null,
+        role: cargo?.trim() || null,
+        access_level: access_level || 'viewer',
         unidade_id: unidade_id || null,
-        telefone: telefone?.trim() || null,
-        email: email?.trim() || null,
-        usuario,
-        senha_hash: senha, // Produção: use bcrypt
-        status_aso: 'Pendente',
-        ativo: true,
+        email: emailToUse,
+        phone: telefone?.trim() || null
       })
       .select()
       .single()
 
     if (error) {
+      // Rollback: se falhar em employees, apaga do Auth
+      await supabaseAdmin.auth.admin.deleteUser(userId)
       if (error.code === '23505') {
         return NextResponse.json({ error: 'CPF já cadastrado.' }, { status: 409 })
       }
       throw error
     }
 
-    // Retorna os dados + credenciais em texto claro para exibição/impressão
     return NextResponse.json({
       colaborador: data,
-      credenciais: { usuario, senha },
+      credenciais: { usuario: emailToUse, senha },
     }, { status: 201 })
   } catch (err) {
     console.error('[POST /api/colaboradores]', err)

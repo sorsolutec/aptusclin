@@ -10,7 +10,10 @@ import { Event } from '@/types/event';
 const mapEventsByDate = (events: Event[]) => {
   const map: Record<string, Event[]> = {};
   events.forEach((ev) => {
-    const date = new Date(ev.start_at).toISOString().split('T')[0];
+    if (!ev.start_at) return;
+    const d = new Date(ev.start_at);
+    if (isNaN(d.getTime())) return;
+    const date = d.toISOString().split('T')[0];
     if (!map[date]) map[date] = [];
     map[date].push(ev);
   });
@@ -81,9 +84,13 @@ export default function Calendar({ companyId }: { companyId?: string }) {
               <li key={ev.id} className="p-3 bg-white rounded shadow">
                 <strong className="block text-primary">{ev.title}</strong>
                 <span className="block text-sm text-muted">
-                  {new Date(ev.start_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {ev.start_at && !isNaN(new Date(ev.start_at).getTime()) 
+                    ? new Date(ev.start_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                    : '--:--'}
                   {' - '}
-                  {new Date(ev.end_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {ev.end_at && !isNaN(new Date(ev.end_at).getTime()) 
+                    ? new Date(ev.end_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                    : '--:--'}
                 </span>
                 {ev.location && <span className="block text-sm">Local: {ev.location}</span>}
                 {ev.description && (

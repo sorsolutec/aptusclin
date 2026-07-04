@@ -57,7 +57,7 @@ const UNIDADES_SEED = [
 export async function GET() {
   const supabase = getAdminClient();
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('unidades')
     .upsert(UNIDADES_SEED, { onConflict: 'id' })
     .select();
@@ -69,5 +69,5 @@ export async function GET() {
     }, { status: 500 });
   }
 
-  return NextResponse.json({ seeded: data.length, unidades: data.map(u => u.id) });
+  return NextResponse.json({ seeded: (data as any[]).length, unidades: (data as any[]).map((u: any) => u.id) });
 }

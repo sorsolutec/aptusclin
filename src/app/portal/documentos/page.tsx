@@ -361,7 +361,7 @@ export default function DocumentosPage() {
                       </td>
                       <td className="px-4 py-3 text-slate-500 font-mono text-xs">{r.cpf}</td>
                       <td className="px-4 py-3">
-                        <span className="inline-flex items-center gap-1.5 bg-primary text-primary text-xs font-semibold px-2.5 py-1 rounded-full border border-primary/20">
+                        <span className="inline-flex items-center gap-1.5 bg-[#002855]/10 text-[#002855] text-xs font-semibold px-2.5 py-1 rounded-full border border-[#002855]/20">
                           <FileText className="w-3 h-3" />
                           {r.tipoExame}
                         </span>

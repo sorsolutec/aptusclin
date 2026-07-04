@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 
 interface LogoProps {
   variant?: 'full' | 'icon'
@@ -8,33 +9,35 @@ interface LogoProps {
 export function Logo({ variant = 'full', className = 'h-12' }: LogoProps) {
   if (variant === 'icon') {
     return (
-      <svg
-        viewBox="0 0 100 100"
-        className={className}
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* Círculo/Arco Verde */}
-        <path
-          d="M 50 10 A 40 40 0 0 1 90 50 A 40 40 0 0 1 50 90 A 40 40 0 0 1 10 50 A 40 40 0 0 1 50 10"
-          stroke="#1B8B3A"
-          strokeWidth="8"
-          strokeLinecap="round"
-          strokeDasharray="200 40"
-        />
-        {/* Cruz Verde */}
-        <path
-          d="M 50 30 V 70 M 30 50 H 70"
-          stroke="#1B8B3A"
-          strokeWidth="12"
-          strokeLinecap="round"
-        />
-      </svg>
+      <Link href="/" className="inline-block">
+        <svg
+          viewBox="0 0 100 100"
+          className={className}
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Círculo/Arco Verde */}
+          <path
+            d="M 50 10 A 40 40 0 0 1 90 50 A 40 40 0 0 1 50 90 A 40 40 0 0 1 10 50 A 40 40 0 0 1 50 10"
+            stroke="#1B8B3A"
+            strokeWidth="8"
+            strokeLinecap="round"
+            strokeDasharray="200 40"
+          />
+          {/* Cruz Verde */}
+          <path
+            d="M 50 30 V 70 M 30 50 H 70"
+            stroke="#1B8B3A"
+            strokeWidth="12"
+            strokeLinecap="round"
+          />
+        </svg>
+      </Link>
     )
   }
 
   return (
-    <div className={`flex flex-col select-none ${className}`}>
+    <Link href="/" className={`flex flex-col select-none inline-block hover:opacity-90 transition-opacity ${className}`}>
       {/* Parte de cima: Aptus + Símbolo + clin */}
       <div className="flex items-center gap-1 leading-none">
         {/* Texto Aptus em Azul Escuro */}
@@ -79,6 +82,6 @@ export function Logo({ variant = 'full', className = 'h-12' }: LogoProps) {
       <div className="text-[8px] sm:text-[9px] font-medium text-[#333333] tracking-[0.22em] text-center sm:text-left mt-1 font-sans uppercase">
         Medicina do Trabalho
       </div>
-    </div>
+    </Link>
   )
 }

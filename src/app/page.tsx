@@ -13,6 +13,7 @@ import {
   ExternalLink,
   ArrowRight,
   Stethoscope,
+  Settings,
 } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import { createClient } from '@/utils/supabase/server';
@@ -83,7 +84,7 @@ export default async function MainLandingPage() {
   let unidades: Unidade[] = [];
 
   try {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from('unidades')
       .select('*')
       .eq('ativo', true);
@@ -134,9 +135,7 @@ export default async function MainLandingPage() {
       {/* NAVBAR */}
       <header className="bg-white sticky top-0 z-40 shadow-sm border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/">
-            <Logo className="scale-95" />
-          </Link>
+          <Logo className="scale-95" />
 
           <div className="flex items-center gap-3">
             <Link
@@ -144,7 +143,7 @@ export default async function MainLandingPage() {
               title="Painel Administrativo"
               className="flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 text-slate-500 hover:text-[#002855] hover:bg-slate-50 transition"
             >
-              <Shield className="w-4 h-4" />
+              <Settings className="w-4 h-4" />
             </Link>
             <Link
               href="/resultados"

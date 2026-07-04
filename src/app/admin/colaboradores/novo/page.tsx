@@ -34,7 +34,7 @@ export default function NovoColaboradorPage() {
     data_nascimento: '',
     data_admissao: '',
     cargo: '',
-    empresa_id: '',
+    access_level: 'viewer',
     unidade_id: '',
     telefone: '',
     email: '',
@@ -163,7 +163,7 @@ export default function NovoColaboradorPage() {
           <Button
             onClick={() => {
               setCredenciais(null)
-              setForm({ nome:'',cpf:'',data_nascimento:'',data_admissao:'',cargo:'',empresa_id:'',unidade_id:'',telefone:'',email:'' })
+              setForm({ nome:'',cpf:'',data_nascimento:'',data_admissao:'',cargo:'',access_level:'viewer',unidade_id:'',telefone:'',email:'' })
             }}
             variant="outline"
             className="flex-1 border-slate-200 text-slate-600"
@@ -303,16 +303,16 @@ export default function NovoColaboradorPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Empresa Cliente</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Nível de Acesso ao Sistema</label>
                 <select
-                  value={form.empresa_id}
-                  onChange={e => set('empresa_id', e.target.value)}
+                  value={form.access_level}
+                  onChange={e => set('access_level', e.target.value)}
                   className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#002855]/20 focus:border-[#002855] transition-all text-slate-600"
+                  required
                 >
-                  <option value="">Selecione a empresa...</option>
-                  {empresas.map(emp => (
-                    <option key={emp.id} value={emp.id}>{emp.nome}</option>
-                  ))}
+                  <option value="viewer">Apenas Consultar Exames</option>
+                  <option value="editor">Consultar e Lançar Exames</option>
+                  <option value="admin">Acesso Total (Administrador da Unidade)</option>
                 </select>
               </div>
 

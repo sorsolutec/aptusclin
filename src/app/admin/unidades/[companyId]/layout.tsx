@@ -13,12 +13,12 @@ export default async function UnitAdminLayout({
   const { companyId } = await params;
   // Busca o nome completo da unidade (fallback para o ID)
   const supabase = await createClient();
-  const { data: unidade } = await supabase
+  const { data: unidade } = await (supabase as any)
     .from('unidades')
     .select('nome')
     .eq('id', companyId)
     .single();
-  const nomeUnidade = unidade?.nome ?? companyId;
+  const nomeUnidade = (unidade as any)?.nome ?? companyId;
 
   return (
     <UnitAdminShell companyId={companyId}>
