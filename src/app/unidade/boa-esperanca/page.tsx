@@ -6,7 +6,28 @@ export const metadata = {
   title: "Unidade de Boa Esperança do Norte | Aptusclin",
 };
 
-export default function BoaEsperancaPage() {
+const UNIT_ID = "boa-esperanca";
+
+async function getUnitData() {
+  try {
+    const baseUrl =
+      process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000";
+    const res = await fetch(`${baseUrl}/api/unidades/${UNIT_ID}`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
+export default async function BoaEsperancaPage() {
+  const unit = await getUnitData();
+  const fotoUrl: string | null = unit?.foto_url ?? null;
+
   const exams = [
     "Exame clínico",
     "Acuidade visual",
@@ -56,20 +77,21 @@ export default function BoaEsperancaPage() {
           </div>
         </header>
 
-        {/* MAIN HERO/CONTENT */}
+        {/* MAIN */}
         <main className="max-w-6xl mx-auto px-4 py-12 grid md:grid-cols-12 gap-8 items-start">
-          
-          {/* LEFT SIDE: INFO & PHOTO PLACEHOLDER */}
+
+          {/* LEFT: INFO & FOTO */}
           <div className="md:col-span-5 space-y-6">
             <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
               <span className="bg-[#1B8B3A]/15 text-[#1B8B3A] text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider">
-                Medicina & Segurança do Trabalho
+                Medicina &amp; Segurança do Trabalho
               </span>
               <h1 className="text-3xl font-black text-[#002855] leading-tight">
                 Unidade Boa Esperança do Norte
               </h1>
               <p className="text-slate-500 text-sm leading-relaxed">
-                Estrutura completa e equipamentos de última geração para atender as demandas ocupacionais e de segurança do trabalho de toda a região.
+                Estrutura completa e equipamentos de última geração para atender as demandas
+                ocupacionais e de segurança do trabalho de toda a região.
               </p>
 
               <div className="space-y-3 pt-2 text-sm border-t border-slate-100">
@@ -104,19 +126,30 @@ export default function BoaEsperancaPage() {
               </div>
             </div>
 
-            {/* MODERN PHOTO PLACEHOLDER CARD */}
-            <div className="bg-slate-100 border-2 border-dashed border-slate-300 rounded-3xl p-8 flex flex-col items-center justify-center text-center aspect-[4/3] shadow-inner group hover:border-[#1B8B3A] transition duration-300">
-              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-slate-400 group-hover:text-[#1B8B3A] transition duration-300">
-                <UploadCloud className="w-6 h-6" />
+            {/* FOTO DA UNIDADE */}
+            {fotoUrl ? (
+              <div className="rounded-3xl overflow-hidden aspect-[4/3] shadow-sm border border-slate-100">
+                <img
+                  src={fotoUrl}
+                  alt="Foto da Unidade Boa Esperança do Norte"
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <h3 className="font-bold text-[#002855] text-sm mt-4">Foto da Unidade</h3>
-              <p className="text-slate-400 text-xs mt-1 max-w-xs leading-relaxed">
-                Placeholder de imagem. Você poderá gerenciar e fazer o upload desta imagem através do painel de administração da Aptusclin.
-              </p>
-            </div>
+            ) : (
+              <div className="bg-slate-100 border-2 border-dashed border-slate-300 rounded-3xl p-8 flex flex-col items-center justify-center text-center aspect-[4/3] shadow-inner group hover:border-[#1B8B3A] transition duration-300">
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-slate-400 group-hover:text-[#1B8B3A] transition duration-300">
+                  <UploadCloud className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-[#002855] text-sm mt-4">Foto da Unidade</h3>
+                <p className="text-slate-400 text-xs mt-1 max-w-xs leading-relaxed">
+                  Adicione a foto pelo painel administrativo em{" "}
+                  <span className="font-semibold">/admin/unidades/boa-esperanca/foto</span>
+                </p>
+              </div>
+            )}
           </div>
 
-          {/* RIGHT SIDE: EXAMS LIST */}
+          {/* RIGHT: EXAMES */}
           <div className="md:col-span-7 bg-white border border-slate-100 rounded-3xl p-8 shadow-sm">
             <h2 className="text-xl font-bold text-[#002855] mb-6 flex items-center gap-2">
               <span className="w-1.5 h-6 bg-[#1B8B3A] rounded-full" />

@@ -111,6 +111,7 @@ export default function UnitDashboardPage({
       <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Acesso Rápido</h2>
       <div className="grid sm:grid-cols-2 gap-3">
         {[
+          { href: `/admin/unidades/${companyId}/foto`, title: 'Foto da Unidade', desc: 'Adicione ou substitua a foto exibida na página pública da unidade.', icon: Image, color: '#e11d48' },
           { href: `/admin/unidades/${companyId}/slides`, title: 'Gerenciar Fotos / Slides', desc: 'Adicione ou remova imagens do carrossel da home.', icon: Image, color: '#1B8B3A' },
           { href: `/admin/unidades/${companyId}/exames`, title: 'Gerenciar Exames', desc: 'Cadastre, edite e organize os exames disponíveis.', icon: FlaskConical, color: '#002855' },
           { href: `/admin/unidades/${companyId}/agenda`, title: 'Ver Agendamentos', desc: 'Consulte os agendamentos da unidade.', icon: CalendarDays, color: '#d97706' },

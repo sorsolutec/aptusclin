@@ -39,7 +39,7 @@ export async function PUT(
   }
 
   const payload = await request.json();
-  const allowed = ['nome', 'cidade', 'estado', 'endereco', 'telefone', 'email', 'descricao', 'slides', 'ativo'];
+  const allowed = ['nome', 'cidade', 'estado', 'endereco', 'telefone', 'email', 'descricao', 'slides', 'foto_url', 'ativo'];
   const updates: Record<string, unknown> = {};
   for (const key of allowed) {
     if (payload[key] !== undefined) {
