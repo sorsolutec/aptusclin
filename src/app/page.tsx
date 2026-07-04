@@ -179,7 +179,7 @@ export default async function MainLandingPage() {
                 href="#unidades"
                 className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-8 py-4 rounded-xl text-base transition"
               >
-                Nossas Clínicas
+                Nossas Unidades
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -215,7 +215,9 @@ export default async function MainLandingPage() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {unidades.map(u => {
-              const url = getUnitUrl(u.id, host);
+              const url = u.id === 'boa-esperanca'
+                ? '/unidade/boa-esperanca'
+                : getUnitUrl(u.id, host);
               return (
                 <div
                   key={u.id}
@@ -230,7 +232,7 @@ export default async function MainLandingPage() {
                       {u.cidade} – {u.estado}
                     </p>
                     <p className="text-slate-500 text-xs line-clamp-3 leading-relaxed">
-                      {u.descricao || 'Clínica de medicina ocupacional e segurança do trabalho apta a atender todos os examesadmissionais, periódicos e demissionais.'}
+                      {u.descricao || 'Unidade de medicina ocupacional e segurança do trabalho apta a atender todos os exames admissionais, periódicos e demissionais.'}
                     </p>
                   </div>
 
