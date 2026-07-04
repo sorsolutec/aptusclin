@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Clínica de Boa Esperança do Norte | Aptusclin",
+  title: "Unidade de Boa Esperança do Norte | Aptusclin",
 };
 
 export default function BoaEsperancaPage() {
@@ -26,7 +26,7 @@ export default function BoaEsperancaPage() {
     <div className="min-h-screen bg-gradient-to-br from-[#f0f4ff] via-[#d9e6ff] to-[#b3c7ff] p-6 md:p-12">
       <div className="max-w-4xl mx-auto bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-8 space-y-8">
         <h1 className="text-4xl font-extrabold text-gray-800 text-center">
-          Clínica de Boa Esperança do Norte
+          Unidade de Boa Esperança do Norte
         </h1>
         <p className="text-center text-gray-600">
           Rua das Azaleias, 1627 – Centro

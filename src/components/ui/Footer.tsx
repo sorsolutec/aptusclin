@@ -39,7 +39,7 @@ export default function Footer() {
     <Link href="/contato" className="hover:underline">Contato</Link>
   </li>
   <li>
-    <Link href="/clinica/boa-esperanca" className="hover:underline">Unidade Boa Esperança do Norte</Link>
+    <Link href="/unidade/boa-esperanca" className="hover:underline">Unidade Boa Esperança do Norte</Link>
   </li>
 </ul>
         </div>

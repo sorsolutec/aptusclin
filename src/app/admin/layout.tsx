@@ -19,7 +19,7 @@ import { Logo } from '@/components/ui/logo'
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/unidades', label: 'Unidades Clínicas', icon: MapPin },
-  { href: '/admin/unidades/boa-esperanca', label: 'Unidade Boa Esperança do Norte', icon: MapPin },
+  { href: '/unidade/boa-esperanca', label: 'Unidade Boa Esperança do Norte', icon: MapPin },
   { href: '/admin/exames', label: 'Lançar Exames / ASO', icon: Upload },
   { href: '/admin/clientes', label: 'Clientes', icon: Building2 },
   { href: '/admin/colaboradores', label: 'Colaboradores', icon: Users },
