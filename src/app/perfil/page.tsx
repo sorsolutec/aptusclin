@@ -2,11 +2,11 @@
 
 export const dynamic = 'force-dynamic'
 
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import {
-  User, ArrowLeft, Save, Loader2, Camera, Shield, AlertCircle, CheckCircle2
+  User, ArrowLeft, Save, Loader2, Camera, Shield, AlertCircle, CheckCircle2, Eye, EyeOff
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -18,6 +18,8 @@ export default function MeuPerfilPage() {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  
   // Lazy: só cria o client no browser, nunca durante SSR do build
   const getClient = () => createClient()
 
@@ -39,33 +41,63 @@ export default function MeuPerfilPage() {
       }
 
       // Tenta buscar da tabela employees (se for colaborador da clínica)
-      const { data: emp } = await (supabase as any)
+      const { data: emp } = await supabase
         .from('employees')
         .select('*')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
 
       if (emp) {
+        let emailResolved = emp.email || user.email || ''
+        let phoneResolved = emp.phone || ''
+        if (phoneResolved.includes('@')) {
+          if (!emailResolved || emailResolved === '') emailResolved = phoneResolved
+          phoneResolved = ''
+        }
         setForm({
           name: emp.name || user.user_metadata?.name || '',
-          email: user.email || '',
-          phone: emp.phone || '',
+          email: emailResolved,
+          phone: phoneResolved,
           password: '',
-          avatar_url: emp.avatar_url || ''
+          avatar_url: user.user_metadata?.avatar_url || emp.avatar_url || ''
         })
       } else {
-        setForm({
-          name: user.user_metadata?.name || '',
-          email: user.email || '',
-          phone: '',
-          password: '',
-          avatar_url: user.user_metadata?.avatar_url || ''
-        })
+        // Tenta buscar da tabela companies (se for empresa/cliente)
+        const { data: comp } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        if (comp) {
+          let emailResolved = comp.contact_email || user.email || ''
+          let phoneResolved = comp.phone || ''
+          if (phoneResolved.includes('@')) {
+            if (!emailResolved || emailResolved === '') emailResolved = phoneResolved
+            phoneResolved = ''
+          }
+          setForm({
+            name: comp.name || user.user_metadata?.name || '',
+            email: emailResolved,
+            phone: phoneResolved,
+            password: '',
+            avatar_url: user.user_metadata?.avatar_url || comp.avatar_url || ''
+          })
+        } else {
+          // Admin sem registro em employees/companies — usa dados do Auth
+          setForm({
+            name: user.user_metadata?.name || '',
+            email: user.email || '',
+            phone: '',
+            password: '',
+            avatar_url: user.user_metadata?.avatar_url || ''
+          })
+        }
       }
       setCarregando(false)
     }
     loadUser()
-  }, [])
+  }, [router])
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -101,8 +133,9 @@ export default function MeuPerfilPage() {
 
       setForm(f => ({ ...f, avatar_url: publicUrl }))
       setSucesso('Foto enviada com sucesso! Lembre-se de salvar as alterações.')
-    } catch (err: any) {
-      setErro(err.message || 'Erro ao enviar foto.')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao enviar foto.'
+      setErro(message)
     } finally {
       setSalvando(false)
     }
@@ -131,31 +164,40 @@ export default function MeuPerfilPage() {
       }
 
       // Atualiza dados na tabela employees
-      const { error: empError } = await (supabase as any)
+      const { error: empError } = await supabase
         .from('employees')
         .update({
           name: form.name,
-          phone: form.phone,
-          avatar_url: form.avatar_url
+          phone: form.phone
+          // Omitido avatar_url aqui para evitar falhas se a coluna não constar no schema cache local
         })
         .eq('id', user.id)
 
-      if (empError) {
-        // Pode ser um usuário admin genérico que não está na employees, ignoramos
-        if (empError.code !== 'PGRST116') {
-          console.warn('Erro ao atualizar employees:', empError)
+      if (empError && empError.code !== 'PGRST116') {
+        // Se falhar porque não está em employees, tenta atualizar em companies
+        const { error: compError } = await supabase
+          .from('companies')
+          .update({
+            name: form.name,
+            phone: form.phone
+          })
+          .eq('id', user.id)
+
+        if (compError && compError.code !== 'PGRST116') {
+          console.warn('Erro ao atualizar cadastro:', compError)
         }
       }
 
-      // Atualiza metadata no auth
+      // Atualiza metadata no auth (inclui avatar_url que é o que os layouts usam)
       await supabase.auth.updateUser({
         data: { name: form.name, avatar_url: form.avatar_url }
       })
 
       setSucesso('Perfil atualizado com sucesso!')
       setForm(f => ({ ...f, password: '' }))
-    } catch (err: any) {
-      setErro(err.message || 'Erro ao salvar alterações.')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao salvar alterações.'
+      setErro(message)
     } finally {
       setSalvando(false)
     }
@@ -199,7 +241,7 @@ export default function MeuPerfilPage() {
                 <div className="relative group">
                   <div className="w-24 h-24 rounded-full border-4 border-white bg-slate-100 flex items-center justify-center overflow-hidden shadow-md">
                     {form.avatar_url ? (
-                      <img src={form.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                      <Image src={form.avatar_url} alt="Avatar" fill className="w-full h-full object-cover" />
                     ) : (
                       <User className="w-10 h-10 text-slate-400" />
                     )}
@@ -234,6 +276,7 @@ export default function MeuPerfilPage() {
                     type="email"
                     value={form.email}
                     disabled
+                    autoComplete="username"
                     className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed"
                   />
                 </div>
@@ -245,6 +288,7 @@ export default function MeuPerfilPage() {
                     value={form.phone}
                     onChange={e => setForm({ ...form, phone: e.target.value })}
                     placeholder="(00) 00000-0000"
+                    autoComplete="tel"
                     className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002855]/20 focus:border-[#002855] transition-all"
                   />
                 </div>
@@ -258,13 +302,22 @@ export default function MeuPerfilPage() {
                 
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1.5">Nova Senha</label>
-                  <input
-                    type="password"
-                    value={form.password}
-                    onChange={e => setForm({ ...form, password: e.target.value })}
-                    placeholder="Deixe em branco para manter a senha atual"
-                    className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002855]/20 focus:border-[#002855] transition-all"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={form.password}
+                      onChange={e => setForm({ ...form, password: e.target.value })}
+                      placeholder="Deixe em branco para manter a senha atual"
+                      className="w-full pl-3 pr-10 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002855]/20 focus:border-[#002855] transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 focus:outline-none"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   <p className="text-[11px] text-slate-400 mt-1">Mínimo de 6 caracteres.</p>
                 </div>
               </div>
@@ -285,3 +338,4 @@ export default function MeuPerfilPage() {
     </div>
   )
 }
+

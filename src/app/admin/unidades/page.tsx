@@ -7,7 +7,7 @@ import {
   MapPin,
   Phone,
   Mail,
-  Image,
+  ImageIcon,
   Settings,
   ExternalLink,
   Loader2,
@@ -170,7 +170,7 @@ export default function AdminUnidadesPage() {
                 {/* Stats */}
                 <div className="flex items-center gap-4 mb-5 p-3 bg-slate-50 rounded-xl">
                   <div className="flex items-center gap-1.5">
-                    <Image className="w-3.5 h-3.5 text-slate-400" />
+                    <ImageIcon className="w-3.5 h-3.5 text-slate-400" />
                     <span className="text-xs font-semibold text-slate-600">{u.slides.length} slide{u.slides.length !== 1 ? 's' : ''}</span>
                   </div>
                   <div className="flex items-center gap-1.5">

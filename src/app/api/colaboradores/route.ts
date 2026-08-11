@@ -2,6 +2,31 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { getAdminClient } from '@/utils/supabase/serverAdmin'
 
+interface ColaboradorRow {
+  id: string
+  nome: string
+  cpf?: string | null
+  cargo?: string | null
+  empresa_id?: string | null
+  empresas?: { id: string; nome: string } | null
+  status_aso?: string | null
+  ativo?: boolean | null
+  created_at?: string | null
+}
+
+interface ColaboradorPayload {
+  nome?: string
+  cpf?: string
+  data_nascimento?: string
+  data_admissao?: string
+  cargo?: string
+  access_level?: string
+  unidade_id?: string
+  telefone?: string
+  email?: string
+  empresa_id?: string
+}
+
 /** Gera usuário no formato nome.sobrenome (ex: joao.silva) */
 function gerarUsuario(nome: string): string {
   const partes = nome
@@ -29,36 +54,34 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const busca = searchParams.get('q') || ''
     const empresaId = searchParams.get('empresa_id') || ''
-    const status = searchParams.get('status') || ''
-    const unidade = searchParams.get('unidade') || ''
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '50', 10)
     const offset = (page - 1) * limit
 
     const supabase = await createClient()
-    let query = (supabase as any)
-      .from('employees')
-      .select('*, companies(id, name)', { count: 'exact' })
-      .order('name')
+    let query = supabase
+      .from('colaboradores')
+      .select('*, empresas(id, nome)', { count: 'exact' })
+      .order('nome')
       .range(offset, offset + limit - 1)
 
     if (busca) {
-      query = query.or(`name.ilike.%${busca}%,cpf.ilike.%${busca}%,role.ilike.%${busca}%`)
+      query = query.or(`nome.ilike.%${busca}%,cpf.ilike.%${busca}%,cargo.ilike.%${busca}%`)
     }
-    if (empresaId) query = query.eq('company_id', empresaId)
+    if (empresaId) query = query.eq('empresa_id', empresaId)
 
     const { data, count, error } = await query
     if (error) throw error
 
-    const mapped = (data || []).map((e: any) => ({
+    const mapped = (data || []).map((e) => ({
       id: e.id,
-      nome: e.name,
+      nome: e.nome,
       cpf: e.cpf,
-      cargo: e.role,
-      empresa_id: e.company_id,
-      empresas: e.companies ? { id: e.companies.id, nome: e.companies.name } : null,
-      status_aso: 'Pendente',
-      ativo: true,
+      cargo: e.cargo,
+      empresa_id: e.empresa_id,
+      empresas: e.empresas ? { id: e.empresas.id, nome: e.empresas.nome } : null,
+      status_aso: e.status_aso || 'Pendente',
+      ativo: e.ativo !== false,
       created_at: e.created_at
     }))
 
@@ -72,11 +95,11 @@ export async function GET(request: Request) {
 // POST /api/colaboradores — cria colaborador e gera credenciais
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    const body = (await request.json()) as ColaboradorPayload
     const {
       nome, cpf, data_nascimento, data_admissao,
-      cargo, access_level, unidade_id,
-      telefone, email,
+      cargo, unidade_id,
+      telefone, email, empresa_id
     } = body
 
     if (!nome?.trim()) return NextResponse.json({ error: 'Nome é obrigatório.' }, { status: 400 })
@@ -84,21 +107,20 @@ export async function POST(request: Request) {
 
     const cpfLimpo = cpf.replace(/\D/g, '')
 
-    // Para criar usuários, precisamos de um client com Service Role Key
+    // Para criar usuários no auth, precisamos de um client com Service Role Key
     const supabaseAdmin = getAdminClient()
 
-    let usuario = gerarUsuario(nome.trim())
-
+    const usuario = gerarUsuario(nome.trim())
     const senha = gerarSenha()
     const emailToUse = email?.trim() || `${usuario}@aptusclin.com.br`
 
-    // Cria o usuário na Autenticação do Supabase
+    // Cria o usuário na Autenticação do Supabase (para potencial uso futuro)
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: emailToUse,
       password: senha,
       email_confirm: true,
       user_metadata: {
-        role: access_level || 'viewer',
+        role: 'colaborador',
         name: nome.trim(),
         unidade_id: unidade_id || null
       }
@@ -113,24 +135,30 @@ export async function POST(request: Request) {
 
     const userId = authData.user.id
 
-    // Insere na tabela employees os dados complementares
-    const { data, error } = await (supabaseAdmin as any)
-      .from('employees')
+    // Insere na tabela colaboradores os dados complementares de resultados de exames
+    const { data, error } = await supabaseAdmin
+      .from('colaboradores')
       .insert({
-        id: userId, // Vincula o Auth ID ao ID do Employee
-        name: nome.trim(),
+        id: userId, // Vincula ao mesmo ID do Auth
+        nome: nome.trim(),
         cpf: cpfLimpo,
-        role: cargo?.trim() || null,
-        access_level: access_level || 'viewer',
+        data_nascimento: data_nascimento || null,
+        data_admissao: data_admissao || null,
+        cargo: cargo?.trim() || null,
         unidade_id: unidade_id || null,
         email: emailToUse,
-        phone: telefone?.trim() || null
+        telefone: telefone?.trim() || null,
+        usuario: usuario,
+        senha_hash: senha,
+        status_aso: 'Pendente',
+        empresa_id: empresa_id || null,
+        ativo: true
       })
       .select()
       .single()
 
     if (error) {
-      // Rollback: se falhar em employees, apaga do Auth
+      // Rollback: se falhar em colaboradores, apaga do Auth
       await supabaseAdmin.auth.admin.deleteUser(userId)
       if (error.code === '23505') {
         return NextResponse.json({ error: 'CPF já cadastrado.' }, { status: 409 })
@@ -140,10 +168,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       colaborador: data,
-      credenciais: { usuario: emailToUse, senha },
+      credenciais: { usuario, senha }
     }, { status: 201 })
-  } catch (err) {
+
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Erro ao criar colaborador.'
     console.error('[POST /api/colaboradores]', err)
-    return NextResponse.json({ error: 'Erro ao criar colaborador.' }, { status: 500 })
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  User, ArrowLeft, Save, Loader2, CheckCircle2, AlertCircle,
+  User, ArrowLeft, Save, Loader2, AlertCircle,
   Copy, Printer, KeyRound, Building2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -17,7 +17,6 @@ const UNIDADES = [
   { id: 'nova-mutum', label: 'Nova Mutum – MT' },
 ]
 
-type Empresa = { id: string; nome: string }
 type Credenciais = { usuario: string; senha: string }
 
 export default function NovoColaboradorPage() {
@@ -25,7 +24,6 @@ export default function NovoColaboradorPage() {
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
   const [credenciais, setCredenciais] = useState<Credenciais | null>(null)
-  const [empresas, setEmpresas] = useState<Empresa[]>([])
   const [copiado, setCopiado] = useState(false)
 
   const [form, setForm] = useState({
@@ -39,13 +37,6 @@ export default function NovoColaboradorPage() {
     telefone: '',
     email: '',
   })
-
-  useEffect(() => {
-    fetch('/api/clientes?limit=200')
-      .then(r => r.json())
-      .then(d => setEmpresas(d.clientes || []))
-      .catch(() => {})
-  }, [])
 
   function set(field: string, value: string) {
     setForm(f => ({ ...f, [field]: value }))

@@ -29,6 +29,7 @@ export default function ChangePassword() {
       const response = await fetch('/api/auth/change-password', {
         method: 'POST',
         body: formData,
+        credentials: 'include',
       });
 
       const data = await response.json();
@@ -42,8 +43,9 @@ export default function ChangePassword() {
         // Redireciona para o portal após alteração bem sucedida
         router.push('/portal/dashboard');
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || 'Erro de conexão com o servidor.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro de conexão com o servidor.';
+      setError(message);
     } finally {
       setLoading(false);
     }

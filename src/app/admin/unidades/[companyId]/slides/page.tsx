@@ -1,5 +1,6 @@
 'use client';
 
+import NextImage from 'next/image';
 import { use, useEffect, useState, useRef } from 'react';
 import { Image as ImageIcon, Plus, Trash2, GripVertical, Loader2, Save, UploadCloud, AlertCircle, CheckCircle2 } from 'lucide-react';
 
@@ -187,7 +188,7 @@ export default function SlidesAdminPage({
                 </div>
               ) : newUrl ? (
                 <div className="w-full h-full relative group rounded-lg overflow-hidden">
-                  <img src={newUrl} alt="Preview" className="w-full h-full object-cover" />
+                  <NextImage src={newUrl} alt="Preview" fill className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/45 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <p className="text-white text-xs font-bold">Alterar imagem</p>
                   </div>
@@ -244,8 +245,8 @@ export default function SlidesAdminPage({
             {slides.map((slide, i) => (
               <li key={i} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 transition">
                 <GripVertical className="w-4 h-4 text-slate-300 flex-shrink-0" />
-                <div className="w-16 h-10 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-200">
-                  <img src={slide.url} alt={slide.caption} className="w-full h-full object-cover" />
+                <div className="w-16 h-10 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-200 relative">
+                  <NextImage src={slide.url} alt={slide.caption} fill className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold text-slate-700 truncate">{slide.caption || 'Sem legenda'}</p>

@@ -3,15 +3,28 @@ import { getAdminClient } from '@/utils/supabase/serverAdmin';
 
 export const dynamic = 'force-dynamic';
 
-const UNIDADES_SEED = [
+type UnidadeSeed = {
+  id: string;
+  nome: string;
+  cidade: string;
+  estado: string;
+  endereco: string;
+  telefone: string;
+  email: string;
+  descricao: string;
+  slides: never[];
+  ativo: boolean;
+};
+
+const UNIDADES_SEED: UnidadeSeed[] = [
   {
     id: 'sorriso',
     nome: 'Aptusclin Sorriso',
     cidade: 'Sorriso',
     estado: 'MT',
-    endereco: 'Av. Rui Barbosa, 123 – Centro, Sorriso/MT',
-    telefone: '(66) 3544-0000',
-    email: 'sorriso@aptusclin.com.br',
+    endereco: 'Rua Mato Grosso, 2859 – Centro-Sul, Sorriso – MT, CEP 78.896-013',
+    telefone: '(65) 99675-4582',
+    email: 'marquescontabilidademe@outlook.com',
     descricao: 'Clínica de medicina ocupacional em Sorriso, referência regional em saúde do trabalhador.',
     slides: [],
     ativo: true,
@@ -21,8 +34,8 @@ const UNIDADES_SEED = [
     nome: 'Aptusclin Nova Ubiratã',
     cidade: 'Nova Ubiratã',
     estado: 'MT',
-    endereco: 'Rua das Flores, 456 – Centro, Nova Ubiratã/MT',
-    telefone: '(66) 3591-0000',
+    endereco: 'Avenida Getúlio Vargas, 195 – Centro, Nova Ubiratã – MT, CEP 78.888-000',
+    telefone: '(65) 99675-4582',
     email: 'nova-ubirata@aptusclin.com.br',
     descricao: 'Atendimento especializado em medicina ocupacional para a região de Nova Ubiratã.',
     slides: [],
@@ -33,7 +46,7 @@ const UNIDADES_SEED = [
     nome: 'Aptusclin Boa Esperança do Norte',
     cidade: 'Boa Esperança do Norte',
     estado: 'MT',
-    endereco: 'Rua Principal, 789 – Centro, Boa Esperança do Norte/MT',
+    endereco: 'Rua das Azaleias, 1627 – Centro, Boa Esperança do Norte – MT, CEP 78.887-000',
     telefone: '(66) 3591-1111',
     email: 'boa-esperanca@aptusclin.com.br',
     descricao: 'Saúde ocupacional e exames admissionais para as empresas da região.',
@@ -45,7 +58,7 @@ const UNIDADES_SEED = [
     nome: 'Aptusclin Nova Mutum',
     cidade: 'Nova Mutum',
     estado: 'MT',
-    endereco: 'Av. Rui Barbosa, 1234 – Centro, Nova Mutum/MT',
+    endereco: 'Avenida dos Canários, 751 W – Centro, Nova Mutum – MT, CEP 78.450-000',
     telefone: '(65) 3518-0000',
     email: 'nova-mutum@aptusclin.com.br',
     descricao: 'Clínica completa de medicina ocupacional servindo Nova Mutum e o corredor da soja.',
@@ -57,7 +70,7 @@ const UNIDADES_SEED = [
 export async function GET() {
   const supabase = getAdminClient();
 
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('unidades')
     .upsert(UNIDADES_SEED, { onConflict: 'id' })
     .select();
@@ -69,5 +82,5 @@ export async function GET() {
     }, { status: 500 });
   }
 
-  return NextResponse.json({ seeded: (data as any[]).length, unidades: (data as any[]).map((u: any) => u.id) });
+  return NextResponse.json({ seeded: data?.length ?? 0, unidades: (data ?? []).map((u) => u.id) });
 }

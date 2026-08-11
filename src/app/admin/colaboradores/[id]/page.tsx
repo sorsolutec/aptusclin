@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -60,20 +60,35 @@ export default function EditarColaboradorPage() {
     status_aso: 'Pendente',
   })
 
-  // Carrega empresas e colaborador
-  useEffect(() => {
-    fetch('/api/clientes?limit=200')
-      .then(r => r.json())
-      .then(d => setEmpresas(d.clientes || []))
-      .catch(() => {})
+  const loadEmpresas = useCallback(async () => {
+    try {
+      const response = await fetch('/api/clientes?limit=200')
+      const data = (await response.json()) as { clientes?: Empresa[] }
+      setEmpresas(data.clientes || [])
+    } catch {
+      setEmpresas([])
+    }
   }, [])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadEmpresas()
+  }, [loadEmpresas])
+
+  useEffect(() => {
     if (!id) return
-    setCarregando(true)
-    fetch(`/api/colaboradores/${id}`)
-      .then(r => r.json())
-      .then(data => {
+
+    let isMounted = true
+
+    const loadColaborador = async () => {
+      setCarregando(true)
+
+      try {
+        const response = await fetch(`/api/colaboradores/${id}`)
+        const data = (await response.json()) as { colaborador?: Record<string, string> }
+
+        if (!isMounted) return
+
         if (data.colaborador) {
           const c = data.colaborador
           setForm({
@@ -91,9 +106,18 @@ export default function EditarColaboradorPage() {
         } else {
           setErro('Colaborador não encontrado.')
         }
-      })
-      .catch(() => setErro('Erro ao carregar dados do colaborador.'))
-      .finally(() => setCarregando(false))
+      } catch {
+        if (isMounted) setErro('Erro ao carregar dados do colaborador.')
+      } finally {
+        if (isMounted) setCarregando(false)
+      }
+    }
+
+    void loadColaborador()
+
+    return () => {
+      isMounted = false
+    }
   }, [id])
 
   function set(field: string, value: string) {

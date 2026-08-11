@@ -122,8 +122,9 @@ export default function NovoExamePage() {
 
       setSalvando(false)
       setSucesso(true)
-    } catch (err: any) {
-      setDbError(err.message || 'Erro de conexão com o banco.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro de conexão com o banco.';
+      setDbError(message);
       setSalvando(false)
     }
   }

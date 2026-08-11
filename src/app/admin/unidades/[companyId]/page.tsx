@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { use } from 'react';
 import {
-  FlaskConical, CalendarDays, Image, Users,
-  CheckCircle, Clock, AlertCircle, ArrowUpRight, Stethoscope
+  FlaskConical, CalendarDays, Users,
+  ArrowUpRight, Stethoscope, Image
 } from 'lucide-react';
 
 interface StatCardProps {

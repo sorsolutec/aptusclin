@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus, Edit, Trash2, X, Loader2 } from 'lucide-react';
 
@@ -21,23 +21,25 @@ export default function UsersAdminPage() {
   const [formData, setFormData] = useState({ email: '', role: 'user' });
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/admin/users');
       if (!res.ok) throw new Error('Falha ao buscar usuários');
-      const data = await res.json();
+      const data = (await res.json()) as User[];
       setUsers(data);
-    } catch (err: any) {
-      console.error('Erro ao carregar usuários', err);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao carregar usuários';
+      console.error('Erro ao carregar usuários', message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchUsers();
+  }, [fetchUsers]);
 
   const openNewUserModal = () => {
     setEditingUser(null);
@@ -54,17 +56,18 @@ export default function UsersAdminPage() {
   };
 
   const deleteUser = async (id: string) => {
-    if (!confirm('Deseja realmente excluir este usuário?')) return;
+    if (!window.confirm('Deseja realmente excluir este usuário?')) return;
     setActionLoading(true);
     try {
       const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
       if (!res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as { error?: string };
         throw new Error(data.error || 'Erro ao excluir usuário');
       }
-      setUsers(users.filter((u) => u.id !== id));
-    } catch (err: any) {
-      alert(err.message);
+      setUsers((currentUsers) => currentUsers.filter((u) => u.id !== id));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao excluir usuário';
+      alert(message);
     } finally {
       setActionLoading(false);
     }
@@ -85,13 +88,14 @@ export default function UsersAdminPage() {
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
+      const data = (await res.json()) as { error?: string };
       if (!res.ok) throw new Error(data.error || 'Erro ao salvar usuário');
 
       setIsModalOpen(false);
-      fetchUsers();
-    } catch (err: any) {
-      setError(err.message);
+      void fetchUsers();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao salvar usuário';
+      setError(message);
     } finally {
       setActionLoading(false);
     }

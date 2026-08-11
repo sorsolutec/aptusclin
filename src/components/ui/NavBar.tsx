@@ -1,5 +1,6 @@
 "use client";
 // src/components/ui/NavBar.tsx
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
@@ -11,7 +12,7 @@ export default function NavBar() {
       <nav className="max-w-7xl mx-auto flex items-center justify-between p-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <img src="/assets/logo.svg" alt="Aptusclin" className="h-8 w-auto" />
+          <Image src="/assets/logo.svg" alt="Aptusclin" width={32} height={32} className="h-8 w-auto" />
           <span className="font-semibold text-xl text-[#004080]">Aptusclin</span>
         </Link>
         {/* Desktop menu */}
@@ -28,13 +29,8 @@ export default function NavBar() {
           <li>
             <Link href="#contato" className="hover:text-[#00A3E0]">Contato</Link>
           </li>
-          <li className="relative group">
-            <Link href="/admin/unidades" className="hover:text-[#00A3E0]">Clínicas</Link>
-            <ul className="absolute left-0 mt-2 hidden group-hover:block bg-white shadow-lg rounded-md">
-              <li>
-                <Link href="/unidade/boa-esperanca" className="block px-4 py-2 text-[#004080] hover:bg-[#f0f4ff]">Unidade Boa Esperança do Norte</Link>
-              </li>
-            </ul>
+          <li>
+            <Link href="/#unidades" className="hover:text-[#00A3E0]">Clínicas</Link>
           </li>
           <li>
             <Link href="/portal/agenda" className="bg-[#004080] text-white px-4 py-2 rounded-md hover:bg-[#003366]">

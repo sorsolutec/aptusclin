@@ -1,6 +1,17 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+export function getRole(user: { user_metadata?: Record<string, unknown>; app_metadata?: Record<string, unknown> } | null) {
+  const metadata = user?.user_metadata ?? user?.app_metadata ?? {}
+  const rawRole = metadata.role
+
+  if (typeof rawRole === 'string') {
+    return rawRole.toLowerCase()
+  }
+
+  return null
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -59,13 +70,12 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && request.nextUrl.pathname.startsWith('/admin')) {
-    // TEMPORARIAMENTE LIBERADO PARA TESTES
-    // const role = user.user_metadata?.role ?? user.app_metadata?.role
-    // if (role !== 'admin') {
-    //   const url = request.nextUrl.clone()
-    //   url.pathname = '/portal/dashboard'
-    //   return NextResponse.redirect(url)
-    // }
+    const role = getRole(user)
+    if (role !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/portal/dashboard'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse

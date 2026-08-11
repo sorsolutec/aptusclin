@@ -40,8 +40,9 @@ export default function ExamDownloadModal({ exam, onClose }: Props) {
       a.click();
       a.remove();
       onClose();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Falha ao baixar exame';
+      setError(message);
     } finally {
       setLoading(false);
     }

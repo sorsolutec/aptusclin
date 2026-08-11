@@ -2,6 +2,10 @@
 import SwaggerUI from 'swagger-ui-react';
 import 'swagger-ui-react/swagger-ui.css';
 
+type SwaggerRequest = {
+  headers?: Record<string, string>;
+};
+
 export default function ApiDocsPage() {
   return (
     <section className="p-8 bg-page min-h-screen">
@@ -10,11 +14,16 @@ export default function ApiDocsPage() {
         url="/swagger.yaml"
         docExpansion="none"
         persistAuthorization={true}
-        requestInterceptor={(req: any) => {
+        requestInterceptor={(req: SwaggerRequest) => {
           // Forward cookies (supersession) for authenticated API calls
           if (typeof document !== 'undefined') {
             const cookies = document.cookie;
-            if (cookies) req.headers.cookie = cookies;
+            if (cookies) {
+              req.headers = {
+                ...(req.headers ?? {}),
+                cookie: cookies,
+              };
+            }
           }
           return req;
         }}

@@ -58,9 +58,9 @@ values
     'Aptusclin Sorriso',
     'Sorriso',
     'MT',
-    'Av. Rui Barbosa, 123 – Centro, Sorriso/MT',
-    '(66) 3544-0000',
-    'sorriso@aptusclin.com.br',
+    'Rua Mato Grosso, 2859 – Centro-Sul, Sorriso – MT, CEP 78.896-013',
+    '(65) 99675-4582',
+    'marquescontabilidademe@outlook.com',
     'Clínica de medicina ocupacional em Sorriso, referência regional em saúde do trabalhador.'
   ),
   (
@@ -68,8 +68,8 @@ values
     'Aptusclin Nova Ubiratã',
     'Nova Ubiratã',
     'MT',
-    'Rua das Flores, 456 – Centro, Nova Ubiratã/MT',
-    '(66) 3591-0000',
+    'Avenida Getúlio Vargas, 195 – Centro, Nova Ubiratã – MT, CEP 78.888-000',
+    '(65) 99675-4582',
     'nova-ubirata@aptusclin.com.br',
     'Atendimento especializado em medicina ocupacional para a região de Nova Ubiratã.'
   ),
@@ -78,7 +78,7 @@ values
     'Aptusclin Boa Esperança do Norte',
     'Boa Esperança do Norte',
     'MT',
-    'Rua Principal, 789 – Centro, Boa Esperança do Norte/MT',
+    'Rua das Azaleias, 1627 – Centro, Boa Esperança do Norte – MT, CEP 78.887-000',
     '(66) 3591-1111',
     'boa-esperanca@aptusclin.com.br',
     'Saúde ocupacional e exames admissionais para as empresas de Boa Esperança do Norte e região.'
@@ -88,7 +88,7 @@ values
     'Aptusclin Nova Mutum',
     'Nova Mutum',
     'MT',
-    'Av. Rui Barbosa, 1234 – Centro, Nova Mutum/MT',
+    'Avenida dos Canários, 751 W – Centro, Nova Mutum – MT, CEP 78.450-000',
     '(65) 3518-0000',
     'nova-mutum@aptusclin.com.br',
     'Clínica completa de medicina ocupacional servindo Nova Mutum e o corredor da soja.'

@@ -1,15 +1,13 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import {
-  HeartPulse,
   Phone,
   Mail,
-  MapPin,
   FileText,
   Activity,
   Shield,
   Building2,
-  CalendarDays,
   ExternalLink,
   ArrowRight,
   Stethoscope,
@@ -18,6 +16,8 @@ import {
 import { Logo } from '@/components/ui/logo';
 import { createClient } from '@/utils/supabase/server';
 import { tenantConfig } from '@/lib/tenant';
+import { ContactForm } from '@/components/ContactForm';
+import { parseDomain } from '@/lib/domain';
 
 export const metadata = {
   title: 'Aptusclin | Medicina Ocupacional & Saúde do Trabalhador',
@@ -37,20 +37,16 @@ interface Unidade {
 }
 
 function getUnitUrl(unitId: string, host: string) {
-  const cleanHost = host.split(':')[0];
   const port = host.includes(':') ? `:${host.split(':')[1]}` : '';
+  const { baseDomain } = parseDomain(host);
 
-  if (cleanHost === 'localhost' || cleanHost === '127.0.0.1') {
+  if (baseDomain === 'localhost' || baseDomain === '127.0.0.1') {
     return `http://${unitId}.localhost${port}`;
   }
 
-  const parts = cleanHost.split('.');
-  let baseDomain = cleanHost;
-  // Se for subdomínio (ex: sorriso.aptusclin.com.br), remove a primeira parte
-  if (parts.length > 2) {
-    baseDomain = parts.slice(-2).join('.');
-  }
-  return `http://${unitId}.${baseDomain}${port}`;
+  // Use HTTPS for production/vercel domains
+  const protocol = (baseDomain.endsWith('.vercel.app') || baseDomain.includes('.')) ? 'https' : 'http';
+  return `${protocol}://${unitId}.${baseDomain}${port}`;
 }
 
 const SERVICES = [
@@ -84,12 +80,9 @@ export default async function MainLandingPage() {
   let unidades: Unidade[] = [];
 
   try {
-    const { data } = await (supabase as any)
-      .from('unidades')
-      .select('*')
-      .eq('ativo', true);
-    if (data && data.length > 0) {
-      unidades = data;
+    const { data, error } = await supabase.from('unidades').select('*').eq('ativo', true);
+    if (!error && data && data.length > 0) {
+      unidades = data as Unidade[];
     }
   } catch {
     // Silently fallback
@@ -123,10 +116,10 @@ export default async function MainLandingPage() {
           <span>Aptusclin Saúde Ocupacional Integrada</span>
           <div className="flex gap-4">
             <span className="flex items-center gap-1">
-              <Phone className="w-3.5 h-3.5 text-[#1B8B3A]" /> (66) 3544-0000
+              <Phone className="w-3.5 h-3.5 text-[#1B8B3A]" /> (65) 99675-4582
             </span>
             <span className="flex items-center gap-1">
-              <Mail className="w-3.5 h-3.5 text-blue-300" /> contato@aptusclin.com.br
+              <Mail className="w-3.5 h-3.5 text-blue-300" /> marquescontabilidademe@outlook.com
             </span>
           </div>
         </div>
@@ -188,9 +181,11 @@ export default async function MainLandingPage() {
           <div className="md:col-span-5">
             {/* Visual preview do carrossel no site principal */}
             <div className="bg-slate-950 rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl relative aspect-[4/3]">
-              <img
+              <Image
                 src={heroSlides[0].url}
                 alt="Aptusclin"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
                 className="w-full h-full object-cover opacity-85"
               />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-5 py-4 text-white">
@@ -215,9 +210,7 @@ export default async function MainLandingPage() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {unidades.map(u => {
-              const url = u.id === 'boa-esperanca'
-                ? '/unidade/boa-esperanca'
-                : getUnitUrl(u.id, host);
+              const url = getUnitUrl(u.id, host);
               return (
                 <div
                   key={u.id}
@@ -261,6 +254,9 @@ export default async function MainLandingPage() {
           <div className="text-center mb-12">
             <span className="text-xs text-slate-400 font-extrabold uppercase tracking-widest">Soluções</span>
             <h2 className="text-3xl font-extrabold text-[#002855] mt-2">Nossos Serviços</h2>
+            <p className="text-slate-500 mt-2 max-w-lg mx-auto text-sm">
+              Soluções integradas para empresas que querem reduzir riscos, garantir conformidade e cuidar da saúde do trabalhador.
+            </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -274,6 +270,35 @@ export default async function MainLandingPage() {
               </div>
             ))}
           </div>
+
+          <div className="mt-10 rounded-3xl border border-[#1B8B3A]/20 bg-gradient-to-r from-[#002855] to-[#0f3f6d] p-8 text-white shadow-lg">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">Pronto para agir?</p>
+                <h3 className="text-2xl font-bold mt-2">Solicite um retorno e montamos um plano de atendimento para sua empresa.</h3>
+              </div>
+              <Link href="#contato" className="inline-flex items-center justify-center rounded-xl bg-[#1B8B3A] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#166b2d]">
+                Falar com a Aptusclin
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contato" className="py-20 px-4 bg-slate-50">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Contato</p>
+            <h2 className="mt-2 text-3xl font-extrabold text-[#002855]">Agende uma conversa com nossa equipe</h2>
+            <p className="mt-4 text-sm leading-7 text-slate-600">
+              Preencha o formulário e vamos te responder com uma proposta alinhada ao seu plano de saúde ocupacional, exames e conformidade.
+            </p>
+            <div className="mt-6 space-y-3 text-sm text-slate-600">
+              <p><strong>Telefone:</strong> (65) 99675-4582</p>
+              <p><strong>E-mail:</strong> marquescontabilidademe@outlook.com</p>
+            </div>
+          </div>
+          <ContactForm />
         </div>
       </section>
 

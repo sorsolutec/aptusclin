@@ -21,7 +21,7 @@ const mapEventsByDate = (events: Event[]) => {
 };
 
 export default function Calendar({ companyId }: { companyId?: string }) {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [, setEvents] = useState<Event[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [eventsByDate, setEventsByDate] = useState<Record<string, Event[]>>({});
 

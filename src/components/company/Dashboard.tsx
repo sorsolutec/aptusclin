@@ -7,7 +7,7 @@ interface DashboardProps {
   imageUrl?: string;
 }
 
-export default function CompanyDashboard({ slug, title, imageUrl }: DashboardProps) {
+export default function CompanyDashboard({ title, imageUrl }: DashboardProps) {
   return (
     <section className="space-y-6">
       <h2 className="text-2xl font-semibold text-gray-900 capitalize">{title}</h2>

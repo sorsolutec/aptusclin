@@ -249,7 +249,7 @@ export default function AdminClientesPage() {
                       <Building2 className="w-10 h-10 text-slate-200 mx-auto mb-3" />
                       <p className="text-slate-500 text-sm font-medium">Nenhum cliente cadastrado</p>
                       <p className="text-slate-400 text-xs mt-1">
-                        Clique em <strong>"Novo Cliente"</strong> para adicionar a primeira empresa.
+                        Clique em <strong>&quot;Novo Cliente&quot;</strong> para adicionar a primeira empresa.
                       </p>
                     </td>
                   </tr>

@@ -1,10 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   MapPin, Phone, Mail, CalendarDays, FileText, Shield,
-  Activity, ChevronLeft, ChevronRight, ExternalLink, Settings
+  Activity, ChevronLeft, ChevronRight, Settings
 } from 'lucide-react';
 import { tenantConfig } from '@/lib/tenant';
 
@@ -44,9 +45,10 @@ function SlideShow({ slides }: { slides: Slide[] }) {
 
   return (
     <div className="relative w-full h-72 md:h-[420px] overflow-hidden bg-slate-900">
-      <img
+      <Image
         src={slides[idx].url}
         alt={slides[idx].caption ?? `Slide ${idx + 1}`}
+        fill
         className="w-full h-full object-cover transition-opacity duration-500"
       />
       {slides[idx].caption && (
@@ -79,7 +81,6 @@ function SlideShow({ slides }: { slides: Slide[] }) {
 
 export default function UnitHomePage({ companyId }: { companyId: string }) {
   const [unidade, setUnidade] = useState<Unidade | null>(null);
-  const [loading, setLoading] = useState(true);
 
   const fallback = tenantConfig[companyId];
 
@@ -87,8 +88,7 @@ export default function UnitHomePage({ companyId }: { companyId: string }) {
     fetch(`/api/unidades/${companyId}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => setUnidade(data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => {});
   }, [companyId]);
 
   const data = (unidade ?? fallback) as Unidade;

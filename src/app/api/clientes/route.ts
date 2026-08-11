@@ -2,6 +2,31 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { getAdminClient } from '@/utils/supabase/serverAdmin'
 
+interface ClienteRow {
+  id: string
+  name: string
+  cnpj?: string | null
+  cpf?: string | null
+  tipo?: string | null
+  contact_email?: string | null
+  employees?: Array<{ count: number }> | null
+  created_at?: string | null
+}
+
+interface ClientePayload {
+  nome?: string
+  cnpj?: string
+  cpf?: string
+  email?: string
+  telefone?: string
+  responsavel?: string
+  endereco?: string
+  cidade?: string
+  estado?: string
+  unidade_id?: string
+  tipo?: string
+}
+
 /** Gera senha aleatória de 8 caracteres (sem ambíguos) */
 function gerarSenha(tamanho = 8): string {
   const chars = 'abcdefghjkmnpqrstuvwxyz23456789'
@@ -18,13 +43,12 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const busca = searchParams.get('q') || ''
-    const unidade = searchParams.get('unidade') || ''
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '50', 10)
     const offset = (page - 1) * limit
 
     const supabase = await createClient()
-    let query = (supabase as any)
+    let query = supabase
       .from('companies')
       .select('*, employees(count)', { count: 'exact' })
       .order('name')
@@ -37,7 +61,7 @@ export async function GET(request: Request) {
     const { data, count, error } = await query
     if (error) throw error
 
-    const mapped = (data || []).map((c: any) => ({
+    const mapped = (data || []).map((c) => ({
       id: c.id,
       nome: c.name,
       cnpj: c.cnpj,
@@ -60,19 +84,18 @@ export async function GET(request: Request) {
 // POST /api/clientes — cria novo cliente (PJ ou PF)
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { nome, cnpj, cpf, email, telefone, responsavel, endereco, cidade, estado, unidade_id, tipo } = body
+    const body = (await request.json()) as ClientePayload
+    const { nome, cnpj, cpf, email, telefone, tipo } = body
 
     if (!nome?.trim()) return NextResponse.json({ error: 'Nome é obrigatório.' }, { status: 400 })
 
-    const supabase = await createClient()
     const supabaseAdmin = getAdminClient()
 
     // ── PJ: salva na companies sem criar Auth ──────────────────────────────
     if (tipo === 'PJ' || !tipo) {
       if (!cnpj) return NextResponse.json({ error: 'CNPJ é obrigatório para Pessoa Jurídica.' }, { status: 400 })
 
-      const { data, error } = await (supabaseAdmin as any)
+      const { data, error } = await supabaseAdmin
         .from('companies')
         .insert({
           name: nome.trim(),
@@ -123,7 +146,7 @@ export async function POST(request: Request) {
     const userId = authData.user.id
 
     // Salva na tabela companies vinculando ao Auth ID
-    const { data, error } = await (supabaseAdmin as any)
+    const { data, error } = await supabaseAdmin
       .from('companies')
       .insert({
         id: userId,
@@ -149,8 +172,11 @@ export async function POST(request: Request) {
       credenciais: { codigo, senha, email: email.trim() },
     }, { status: 201 })
 
-  } catch (err) {
-    console.error('[POST /api/clientes]', err)
-    return NextResponse.json({ error: 'Erro ao criar cliente.' }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Erro ao criar cliente.'
+    const code = typeof err === 'object' && err !== null && 'code' in err ? String((err as { code?: string }).code) : undefined
+    const details = typeof err === 'object' && err !== null && 'details' in err ? (err as { details?: string }).details : undefined
+    console.error('[POST /api/clientes] code:', code, '| message:', message, '| details:', details)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

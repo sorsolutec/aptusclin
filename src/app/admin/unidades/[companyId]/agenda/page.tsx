@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use, useEffect, useState } from 'react';
+import React, { use, useCallback, useEffect, useState } from 'react';
 import ReactCalendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import {
@@ -9,7 +9,6 @@ import {
   Trash2,
   MapPin,
   Clock,
-  FileText,
   Loader2,
   CheckCircle,
   AlertCircle,
@@ -48,19 +47,19 @@ export default function UnitAgendaAdminPage({
   const [timeEnd, setTimeEnd] = useState('09:00');
   const [location, setLocation] = useState('');
 
-  // Fetch events
-  const loadEvents = () => {
+  const loadEvents = useCallback(() => {
     setLoading(true);
     fetch(`/api/events?companyId=${companyId}`)
       .then((res) => (res.ok ? res.json() : []))
-      .then((data) => setEvents(data))
+      .then((data) => setEvents(data as Event[]))
       .catch(() => {})
       .finally(() => setLoading(false));
-  };
+  }, [companyId]);
 
   useEffect(() => {
-    loadEvents();
-  }, [companyId]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadEvents();
+  }, [loadEvents]);
 
   // Group events by date
   const getEventsForDate = (date: Date) => {
@@ -109,8 +108,9 @@ export default function UnitAgendaAdminPage({
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
       loadEvents();
-    } catch (err: any) {
-      setError(err.message || 'Erro de conexão.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro de conexão.';
+      setError(message);
     } finally {
       setSaving(false);
     }

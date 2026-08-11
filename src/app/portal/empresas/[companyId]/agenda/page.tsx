@@ -1,13 +1,12 @@
 "use client";
 
 import Calendar from '@/components/ui/calendar';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState, use } from 'react';
 
 export default function AgendaPage({ params }: { params: Promise<{ companyId: string }> }) {
   const { companyId } = use(params);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
 
   // Simulate a tiny delay for UX (optional)
   useEffect(() => {

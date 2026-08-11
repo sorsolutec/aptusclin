@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
 import { updateSession } from '@/utils/supabase/middleware';
 import { tenantMap } from '@/lib/tenant';
+import { parseDomain } from '@/lib/domain';
 
 const SKIP_PREFIXES = [
   '/api',
@@ -30,9 +31,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // Detectar subdomínio
-  const parts = host.split('.');
-  const hasSubdomain = parts.length >= 2 && host !== 'localhost' && host !== '127.0.0.1';
-  const subdomain = hasSubdomain ? parts[0] : null;
+  const { subdomain } = parseDomain(hostHeader);
 
   // ── Sem subdomínio (domínio principal ou localhost) ──────────────────────
   if (!subdomain) {

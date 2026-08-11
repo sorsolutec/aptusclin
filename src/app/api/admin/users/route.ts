@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 // GET /api/admin/users - list all users (admin only)
-export async function GET(request: Request) {
+export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const role = user?.user_metadata?.role ?? user?.app_metadata?.role;

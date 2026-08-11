@@ -3,90 +3,16 @@
 import { useState } from 'react'
 import {
   Search,
-  Building2,
-  Users,
-  FileText,
   Plus,
-  Mail,
-  Phone,
-  CheckCircle2,
-  XCircle,
   X,
-  ExternalLink,
 } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
 
-type Empresa = {
-  id: string
-  nome: string
-  cnpj: string
-  email: string
-  telefone: string
-  colaboradores: number
-  exames: number
-  status: 'Ativa' | 'Inativa'
-}
-
-const MOCK_EMPRESAS: Empresa[] = [
-  {
-    id: '1',
-    nome: 'Empresa Alpha Ltda',
-    cnpj: '12.345.678/0001-99',
-    email: 'rh@alpha.com.br',
-    telefone: '(11) 98765-4321',
-    colaboradores: 42,
-    exames: 120,
-    status: 'Ativa',
-  },
-  {
-    id: '2',
-    nome: 'Beta Indústrias S.A.',
-    cnpj: '98.765.432/0001-00',
-    email: 'contato@betaindustrias.com',
-    telefone: '(11) 4004-8900',
-    colaboradores: 115,
-    exames: 340,
-    status: 'Ativa',
-  },
-  {
-    id: '3',
-    nome: 'Gama Comércio Eireli',
-    cnpj: '45.678.901/0001-22',
-    email: 'departamento.pessoal@gama.com.br',
-    telefone: '(21) 3344-5566',
-    colaboradores: 18,
-    exames: 45,
-    status: 'Ativa',
-  },
-  {
-    id: '4',
-    nome: 'Delta Serviços Terceirizados',
-    cnpj: '33.222.111/0001-88',
-    email: 'suporte@deltaserv.com.br',
-    telefone: '(31) 99888-7766',
-    colaboradores: 0,
-    exames: 0,
-    status: 'Inativa',
-  },
-]
-
 export default function AdminEmpresasPage() {
   const [busca, setBusca] = useState('')
   const [statusFiltro, setStatusFiltro] = useState('')
-
-  const empresasFiltradas = MOCK_EMPRESAS.filter((empresa) => {
-    const atendeBusca =
-      empresa.nome.toLowerCase().includes(busca.toLowerCase()) ||
-      empresa.cnpj.includes(busca) ||
-      empresa.email.toLowerCase().includes(busca.toLowerCase())
-    
-    const atendeStatus = statusFiltro === '' || empresa.status === statusFiltro
-
-    return atendeBusca && atendeStatus
-  })
 
   return (
     <div className="space-y-6">

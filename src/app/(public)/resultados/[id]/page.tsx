@@ -78,18 +78,39 @@ export default function ResultadosColaboradorPage() {
 
   useEffect(() => {
     if (!id) return
-    setCarregando(true)
-    fetch(`/api/resultados/${id}`)
-      .then(r => {
-        if (!r.ok) throw new Error('not_found')
-        return r.json()
-      })
-      .then(data => {
-        setColaborador(data.colaborador)
-        setExames(data.exames || [])
-      })
-      .catch(() => setErro('Não foi possível carregar os resultados. Verifique suas credenciais.'))
-      .finally(() => setCarregando(false))
+
+    let isMounted = true
+
+    const loadResultados = async () => {
+      setCarregando(true)
+
+      try {
+        const response = await fetch(`/api/resultados/${id}`)
+        if (!response.ok) throw new Error('not_found')
+
+        const data = (await response.json()) as {
+          colaborador?: Colaborador | null
+          exames?: Exame[]
+        }
+
+        if (!isMounted) return
+
+        setColaborador(data.colaborador ?? null)
+        setExames(data.exames ?? [])
+        setErro('')
+      } catch {
+        if (!isMounted) return
+        setErro('Não foi possível carregar os resultados. Verifique suas credenciais.')
+      } finally {
+        if (isMounted) setCarregando(false)
+      }
+    }
+
+    void loadResultados()
+
+    return () => {
+      isMounted = false
+    }
   }, [id])
 
   return (

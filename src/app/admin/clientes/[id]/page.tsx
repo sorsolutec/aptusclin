@@ -55,10 +55,18 @@ export default function EditarClientePage() {
 
   useEffect(() => {
     if (!id) return
-    setCarregando(true)
-    fetch(`/api/clientes/${id}`)
-      .then(r => r.json())
-      .then(data => {
+
+    let isMounted = true
+
+    const loadCliente = async () => {
+      setCarregando(true)
+
+      try {
+        const response = await fetch(`/api/clientes/${id}`)
+        const data = (await response.json()) as { cliente?: Record<string, string> }
+
+        if (!isMounted) return
+
         if (data.cliente) {
           const c = data.cliente
           setForm({
@@ -75,9 +83,18 @@ export default function EditarClientePage() {
         } else {
           setErro('Cliente não encontrado.')
         }
-      })
-      .catch(() => setErro('Erro ao carregar dados do cliente.'))
-      .finally(() => setCarregando(false))
+      } catch {
+        if (isMounted) setErro('Erro ao carregar dados do cliente.')
+      } finally {
+        if (isMounted) setCarregando(false)
+      }
+    }
+
+    void loadCliente()
+
+    return () => {
+      isMounted = false
+    }
   }, [id])
 
   function set(field: string, value: string) {

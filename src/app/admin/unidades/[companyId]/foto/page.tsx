@@ -1,5 +1,6 @@
 'use client';
 
+import NextImage from 'next/image';
 import { use, useEffect, useRef, useState } from 'react';
 import {
   UploadCloud,
@@ -169,8 +170,8 @@ export default function FotoAdminPage({
               </button>
             </div>
           </div>
-          <div className="rounded-xl overflow-hidden aspect-[16/7] bg-slate-100">
-            <img
+          <div className="rounded-xl overflow-hidden aspect-[16/7] bg-slate-100 relative">
+            <NextImage
               src={fotoUrl}
               alt="Foto da unidade"
               className="w-full h-full object-cover"
@@ -221,8 +222,8 @@ export default function FotoAdminPage({
 
           {preview ? (
             <div className="space-y-3">
-              <div className="rounded-xl overflow-hidden h-48 bg-slate-100">
-                <img src={preview} alt="Pré-visualização" className="w-full h-full object-cover" />
+              <div className="rounded-xl overflow-hidden h-48 bg-slate-100 relative">
+                <NextImage src={preview} alt="Pré-visualização" fill className="w-full h-full object-cover" />
               </div>
               <p className="text-xs text-slate-400">Clique para escolher outro arquivo</p>
             </div>

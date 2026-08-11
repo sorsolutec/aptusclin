@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { logout } from '@/app/actions/auth'
 import { createClient } from '@/utils/supabase/server'
 import {
@@ -61,7 +62,7 @@ export default async function PortalLayout({
           <div className="flex items-center gap-3 mb-3 px-1">
             <div className="w-8 h-8 bg-[#002855] text-white rounded-full flex items-center justify-center text-xs font-bold overflow-hidden">
               {user?.user_metadata?.avatar_url ? (
-                <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                <Image src={user.user_metadata.avatar_url} alt="Avatar" fill className="w-full h-full object-cover" />
               ) : (
                 initials
               )}

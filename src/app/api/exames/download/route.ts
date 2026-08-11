@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const role = user?.user_metadata?.role ?? user?.app_metadata?.role;
 
   // Only allow authenticated users (could also restrict to admin if needed)
   if (!user) {
