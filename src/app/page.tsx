@@ -273,8 +273,7 @@ export default async function MainLandingPage() {
               Preencha o formulário e vamos te responder com uma proposta alinhada ao seu plano de saúde ocupacional, exames e conformidade.
             </p>
             <div className="mt-6 space-y-3 text-sm text-slate-600">
-              <p><strong>Telefone:</strong> (66) 99644-0425</p>
-              <p><strong>E-mail:</strong> contato@aptusclin.com.br</p>
+              {/* Removed contact info */}
             </div>
           </div>
           <ContactForm />
