@@ -102,22 +102,9 @@ export default async function MainLandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-700">
-      {/* TOP HEADER */}
-      <div className="bg-[#002855] text-white py-2 px-4 text-xs font-medium border-b border-white/5">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-          <span>Aptusclin Saúde Ocupacional Integrada</span>
-          <div className="flex gap-4">
-            <span className="flex items-center gap-1">
-              <Phone className="w-3.5 h-3.5 text-[#1B8B3A]" /> (66) 99644-0425
-            </span>
-            <span className="flex items-center gap-1">
-              <Mail className="w-3.5 h-3.5 text-blue-300" /> contato@aptusclin.com.br
-            </span>
-          </div>
-        </div>
-      </div>
 
       {/* NAVBAR */}
+
       <header className="bg-white sticky top-0 z-40 shadow-sm border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Logo className="scale-95" />
