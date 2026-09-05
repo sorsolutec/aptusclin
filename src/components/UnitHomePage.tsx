@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   MapPin, Phone, Mail, CalendarDays, FileText, Shield,
-  Activity, ChevronLeft, ChevronRight, Settings
+  Activity, ChevronLeft, ChevronRight, Settings,
+  MessageSquare, Clock
 } from 'lucide-react';
+import { Instagram, Facebook } from '@/components/icons/SocialIcons';
 import { tenantConfig } from '@/lib/tenant';
 
 interface Slide { url: string; caption?: string }
@@ -18,9 +20,14 @@ interface Unidade {
   estado: string;
   endereco: string;
   telefone: string;
+  telefoneFixo?: string;
   email: string;
   descricao: string;
   slides: Slide[];
+  instagram?: string;
+  facebook?: string;
+  whatsapp?: string;
+  horario?: string;
 }
 
 const SERVICES = [
@@ -91,8 +98,25 @@ export default function UnitHomePage({ companyId }: { companyId: string }) {
       .catch(() => {});
   }, [companyId]);
 
-  const data = (unidade ?? fallback) as Unidade;
-  if (!data) return null;
+  const data: Unidade = {
+    ...fallback,
+    ...unidade,
+    slides: (unidade?.slides && unidade.slides.length > 0) ? unidade.slides : (fallback?.slides ?? []),
+    instagram: unidade?.instagram || fallback?.instagram,
+    whatsapp: unidade?.whatsapp || fallback?.whatsapp,
+    facebook: unidade?.facebook || fallback?.facebook,
+    horario: (unidade as unknown as { horario?: string })?.horario || fallback?.horario,
+    telefoneFixo: fallback?.telefoneFixo,
+    telefone: unidade?.telefone || fallback?.telefone || '',
+    email: unidade?.email || fallback?.email || '',
+    endereco: unidade?.endereco || fallback?.endereco || '',
+    descricao: unidade?.descricao || fallback?.descricao || '',
+    nome: unidade?.nome || fallback?.nome || '',
+    cidade: unidade?.cidade || fallback?.cidade || '',
+    estado: unidade?.estado || fallback?.estado || '',
+    id: unidade?.id || fallback?.id || companyId,
+  };
+  if (!data.id) return null;
 
   return (
     <div className="min-h-screen bg-white font-sans">
@@ -116,7 +140,7 @@ export default function UnitHomePage({ companyId }: { companyId: string }) {
       </header>
 
       {/* SLIDESHOW */}
-      <SlideShow slides={(unidade?.slides) ?? []} />
+      <SlideShow slides={(data.slides) ?? []} />
 
       {/* HERO TEXT */}
       <section className="bg-[#002855] py-10 px-4 text-center">
@@ -169,27 +193,102 @@ export default function UnitHomePage({ companyId }: { companyId: string }) {
       <section className="py-14 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl font-extrabold text-center text-[#002855] mb-8">Onde Estamos</h2>
-          <div className="grid sm:grid-cols-3 gap-6 text-center">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
             {data.endereco && (
-              <div className="bg-slate-50 rounded-xl p-6">
-                <MapPin className="w-7 h-7 text-[#002855] mx-auto mb-3" />
-                <p className="text-sm font-semibold text-[#002855]">Endereço</p>
-                <p className="text-slate-600 text-sm mt-1">{data.endereco}</p>
+              <div className="bg-slate-50 rounded-xl p-6 flex flex-col justify-between">
+                <div>
+                  <MapPin className="w-7 h-7 text-[#002855] mx-auto mb-3" />
+                  <p className="text-sm font-semibold text-[#002855]">Endereço</p>
+                </div>
+                <p className="text-slate-600 text-sm mt-2">{data.endereco}</p>
               </div>
             )}
             {data.telefone && (
-              <a href={`tel:${data.telefone}`} className="bg-slate-50 rounded-xl p-6 hover:bg-slate-100 transition">
-                <Phone className="w-7 h-7 text-[#002855] mx-auto mb-3" />
-                <p className="text-sm font-semibold text-[#002855]">Telefone</p>
-                <p className="text-slate-600 text-sm mt-1">{data.telefone}</p>
+              <a href={`tel:${data.telefone}`} className="bg-slate-50 rounded-xl p-6 hover:bg-slate-100 transition flex flex-col justify-between">
+                <div>
+                  <Phone className="w-7 h-7 text-[#002855] mx-auto mb-3" />
+                  <p className="text-sm font-semibold text-[#002855]">Telefone</p>
+                </div>
+                <div className="text-slate-600 text-sm mt-2 space-y-1">
+                  <p>{data.telefone}</p>
+                  {data.telefoneFixo && <p className="text-xs text-slate-400">Fixo: {data.telefoneFixo}</p>}
+                </div>
               </a>
             )}
+            {data.horario && (
+              <div className="bg-slate-50 rounded-xl p-6 flex flex-col justify-between">
+                <div>
+                  <Clock className="w-7 h-7 text-[#002855] mx-auto mb-3" />
+                  <p className="text-sm font-semibold text-[#002855]">Horário de Atendimento</p>
+                </div>
+                <p className="text-slate-600 text-sm mt-2">{data.horario}</p>
+              </div>
+            )}
             {data.email && (
-              <a href={`mailto:${data.email}`} className="bg-slate-50 rounded-xl p-6 hover:bg-slate-100 transition">
-                <Mail className="w-7 h-7 text-[#002855] mx-auto mb-3" />
-                <p className="text-sm font-semibold text-[#002855]">E-mail</p>
-                <p className="text-slate-600 text-sm mt-1">{data.email}</p>
+              <a href={`mailto:${data.email}`} className="bg-slate-50 rounded-xl p-6 hover:bg-slate-100 transition flex flex-col justify-between">
+                <div>
+                  <Mail className="w-7 h-7 text-[#002855] mx-auto mb-3" />
+                  <p className="text-sm font-semibold text-[#002855]">E-mail</p>
+                </div>
+                <p className="text-slate-600 text-sm mt-2">{data.email}</p>
               </a>
+            )}
+            {(data.instagram || data.facebook || data.whatsapp) ? (
+              <div className="bg-slate-50 rounded-xl p-6 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-center gap-1 mb-3.5">
+                    <span className="w-2 h-2 rounded-full bg-[#1B8B3A]" />
+                    <span className="w-2 h-2 rounded-full bg-[#002855]" />
+                  </div>
+                  <p className="text-sm font-semibold text-[#002855]">Redes Sociais</p>
+                </div>
+                <div className="flex justify-center gap-3.5 mt-4">
+                  {data.instagram && (
+                    <a
+                      href={data.instagram.startsWith('http') ? data.instagram : `https://instagram.com/${data.instagram.replace('@', '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-9 h-9 rounded-full bg-pink-50 hover:bg-pink-100 text-pink-600 flex items-center justify-center transition"
+                      title="Instagram"
+                    >
+                      <Instagram className="w-4.5 h-4.5" />
+                    </a>
+                  )}
+                  {data.facebook && (
+                    <a
+                      href={data.facebook.startsWith('http') ? data.facebook : `https://facebook.com/${data.facebook}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-9 h-9 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition"
+                      title="Facebook"
+                    >
+                      <Facebook className="w-4.5 h-4.5" />
+                    </a>
+                  )}
+                  {data.whatsapp && (
+                    <a
+                      href={`https://wa.me/${data.whatsapp.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-9 h-9 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition"
+                      title="WhatsApp"
+                    >
+                      <MessageSquare className="w-4.5 h-4.5" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-50 rounded-xl p-6 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-center gap-1 mb-3.5">
+                    <span className="w-2 h-2 rounded-full bg-slate-300" />
+                    <span className="w-2 h-2 rounded-full bg-slate-300" />
+                  </div>
+                  <p className="text-sm font-semibold text-[#002855]">Redes Sociais</p>
+                </div>
+                <p className="text-slate-400 text-xs mt-2">Nenhuma rede cadastrada</p>
+              </div>
             )}
           </div>
         </div>

@@ -37,16 +37,24 @@ interface Unidade {
 }
 
 function getUnitUrl(unitId: string, host: string) {
+  // Para a unidade Sorriso, a rota /unidades/sorriso é sempre acessível diretamente
+  if (unitId === 'sorriso') {
+    return '/unidades/sorriso';
+  }
+
   const port = host.includes(':') ? `:${host.split(':')[1]}` : '';
   const { baseDomain } = parseDomain(host);
 
+  // Map database unit ID 'hova-ubirata' to public subdomain 'nova-ubirata'
+  const subdomain = unitId === 'hova-ubirata' ? 'nova-ubirata' : unitId;
+
   if (baseDomain === 'localhost' || baseDomain === '127.0.0.1') {
-    return `http://${unitId}.localhost${port}`;
+    return `http://${subdomain}.localhost${port}`;
   }
 
   // Use HTTPS for production/vercel domains
   const protocol = (baseDomain.endsWith('.vercel.app') || baseDomain.includes('.')) ? 'https' : 'http';
-  return `${protocol}://${unitId}.${baseDomain}${port}`;
+  return `${protocol}://${subdomain}.${baseDomain}${port}`;
 }
 
 const SERVICES = [
@@ -116,10 +124,10 @@ export default async function MainLandingPage() {
           <span>Aptusclin Saúde Ocupacional Integrada</span>
           <div className="flex gap-4">
             <span className="flex items-center gap-1">
-              <Phone className="w-3.5 h-3.5 text-[#1B8B3A]" /> (65) 99675-4582
+              <Phone className="w-3.5 h-3.5 text-[#1B8B3A]" /> (66) 99644-0425
             </span>
             <span className="flex items-center gap-1">
-              <Mail className="w-3.5 h-3.5 text-blue-300" /> marquescontabilidademe@outlook.com
+              <Mail className="w-3.5 h-3.5 text-blue-300" /> contato@aptusclin.com.br
             </span>
           </div>
         </div>
@@ -294,8 +302,8 @@ export default async function MainLandingPage() {
               Preencha o formulário e vamos te responder com uma proposta alinhada ao seu plano de saúde ocupacional, exames e conformidade.
             </p>
             <div className="mt-6 space-y-3 text-sm text-slate-600">
-              <p><strong>Telefone:</strong> (65) 99675-4582</p>
-              <p><strong>E-mail:</strong> marquescontabilidademe@outlook.com</p>
+              <p><strong>Telefone:</strong> (66) 99644-0425</p>
+              <p><strong>E-mail:</strong> contato@aptusclin.com.br</p>
             </div>
           </div>
           <ContactForm />

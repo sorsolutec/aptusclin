@@ -56,4 +56,17 @@ describe('updateSession', () => {
 
     expect(response.status).toBe(200)
   })
+
+  it('allows access to public company unit pages under /portal/empresas without authentication', async () => {
+    mockedCreateServerClient.mockReturnValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
+      },
+    } as never)
+
+    const request = new NextRequest('http://localhost:3005/portal/empresas/sorriso')
+    const response = await updateSession(request)
+
+    expect(response.status).toBe(200)
+  })
 })

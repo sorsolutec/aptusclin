@@ -55,23 +55,23 @@ insert into public.unidades (id, nome, cidade, estado, endereco, telefone, email
 values
   (
     'sorriso',
-    'Aptusclin Sorriso',
+    'Aptus Clin - Medicina do Trabalho - Unidade Sorriso',
     'Sorriso',
     'MT',
     'Rua Mato Grosso, 2859 – Centro-Sul, Sorriso – MT, CEP 78.896-013',
-    '(65) 99675-4582',
-    'marquescontabilidademe@outlook.com',
-    'Clínica de medicina ocupacional em Sorriso, referência regional em saúde do trabalhador.'
+    '(66) 99644-0425',
+    'sorriso@aptusclin.com.br',
+    'Clínica de medicina ocupacional em Sorriso. Atendimento de segunda a sexta, das 07:00 às 11:00 e das 13:00 às 17:00. Referência regional em saúde do trabalhador.'
   ),
   (
     'hova-ubirata',
-    'Aptusclin Nova Ubiratã',
+    'Aptus Clin - Medicina do Trabalho - Unidade Nova Ubiratã',
     'Nova Ubiratã',
     'MT',
-    'Avenida Getúlio Vargas, 195 – Centro, Nova Ubiratã – MT, CEP 78.888-000',
-    '(65) 99675-4582',
+    'Avenida Getúlio Vargas, 195 – Centro, Nova Ubiratã – MT, CEP 78888-000',
+    '(66) 99619-9138',
     'nova-ubirata@aptusclin.com.br',
-    'Atendimento especializado em medicina ocupacional para a região de Nova Ubiratã.'
+    'Clínica de medicina ocupacional em Nova Ubiratã. Atendimento de segunda a sexta, das 07:00 às 11:00 e das 13:00 às 17:00. Referência em saúde ocupacional, exames complementares e gestão de SST.'
   ),
   (
     'boa-esperanca',
@@ -85,13 +85,13 @@ values
   ),
   (
     'nova-mutum',
-    'Aptusclin Nova Mutum',
+    'Aptus Clin - Medicina do Trabalho - Unidade Nova Mutum',
     'Nova Mutum',
     'MT',
-    'Avenida dos Canários, 751 W – Centro, Nova Mutum – MT, CEP 78.450-000',
-    '(65) 3518-0000',
+    'Avenida das Águias, 330 W – Parque dos Ingás, Nova Mutum – MT, CEP 78452-070',
+    '(65) 98443-3296',
     'nova-mutum@aptusclin.com.br',
-    'Clínica completa de medicina ocupacional servindo Nova Mutum e o corredor da soja.'
+    'Clínica de medicina ocupacional em Nova Mutum. Atendimento de segunda a sexta das 07:00 às 17:30. Exames complementares, ultrassonografia e gestão de SST.'
   )
 on conflict (id) do update set
   nome      = excluded.nome,

@@ -63,7 +63,8 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user && (request.nextUrl.pathname.startsWith('/portal') || request.nextUrl.pathname.startsWith('/admin'))) {
+  const isPublicPortalRoute = request.nextUrl.pathname.startsWith('/portal/empresas')
+  if (!user && !isPublicPortalRoute && (request.nextUrl.pathname.startsWith('/portal') || request.nextUrl.pathname.startsWith('/admin'))) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)

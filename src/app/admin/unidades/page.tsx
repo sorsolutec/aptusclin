@@ -29,6 +29,41 @@ interface Unidade {
   ativo: boolean;
 }
 
+function getUnitUrl(unitId: string) {
+  if (typeof window === 'undefined') return `/portal/empresas/${unitId}`;
+  const host = window.location.host;
+  const cleanHost = host.split(':')[0].toLowerCase();
+  const port = host.includes(':') ? `:${host.split(':')[1]}` : '';
+
+  let baseDomain = cleanHost;
+  if (cleanHost === 'localhost' || cleanHost === '127.0.0.1') {
+    baseDomain = 'localhost';
+  } else if (cleanHost.endsWith('.localhost')) {
+    baseDomain = 'localhost';
+  } else if (cleanHost.endsWith('.aptusclin.com.br')) {
+    baseDomain = 'aptusclin.com.br';
+  } else if (cleanHost === 'aptusclin.com.br') {
+    baseDomain = 'aptusclin.com.br';
+  } else if (cleanHost.endsWith('.vercel.app')) {
+    const prefix = cleanHost.slice(0, -'.vercel.app'.length);
+    const parts = prefix.split('.');
+    if (parts.length > 1) {
+      baseDomain = `${parts[parts.length - 1]}.vercel.app`;
+    } else {
+      baseDomain = `${prefix}.vercel.app`;
+    }
+  }
+
+  const subdomain = unitId === 'hova-ubirata' ? 'nova-ubirata' : unitId;
+
+  if (baseDomain === 'localhost') {
+    return `http://${subdomain}.localhost${port}`;
+  }
+
+  const protocol = window.location.protocol;
+  return `${protocol}//${subdomain}.${baseDomain}${port}`;
+}
+
 const FALLBACK_UNITS = Object.values(tenantConfig).map(u => ({
   id: u.id,
   nome: u.nome,
@@ -190,7 +225,7 @@ export default function AdminUnidadesPage() {
                     Painel Admin
                   </Link>
                   <Link
-                    href={`/portal/empresas/${u.id}`}
+                    href={getUnitUrl(u.id)}
                     target="_blank"
                     className="flex items-center justify-center gap-1 text-sm font-semibold px-3 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition"
                     title="Ver site da unidade"
