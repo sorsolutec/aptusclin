@@ -37,24 +37,8 @@ interface Unidade {
 }
 
 function getUnitUrl(unitId: string, host: string) {
-  // Para a unidade Sorriso, a rota /unidades/sorriso é sempre acessível diretamente
-  if (unitId === 'sorriso') {
-    return '/unidades/sorriso';
-  }
-
-  const port = host.includes(':') ? `:${host.split(':')[1]}` : '';
-  const { baseDomain } = parseDomain(host);
-
-  // Map database unit ID 'hova-ubirata' to public subdomain 'nova-ubirata'
-  const subdomain = unitId === 'hova-ubirata' ? 'nova-ubirata' : unitId;
-
-  if (baseDomain === 'localhost' || baseDomain === '127.0.0.1') {
-    return `http://${subdomain}.localhost${port}`;
-  }
-
-  // Use HTTPS for production/vercel domains
-  const protocol = (baseDomain.endsWith('.vercel.app') || baseDomain.includes('.')) ? 'https' : 'http';
-  return `${protocol}://${subdomain}.${baseDomain}${port}`;
+  const normalizedId = unitId === 'hova-ubirata' ? 'nova-ubirata' : unitId;
+  return `/unidades/${normalizedId}`;
 }
 
 const SERVICES = [

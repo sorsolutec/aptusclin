@@ -1,14 +1,31 @@
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import UnitModernPage from '@/components/unit/UnitModernPage';
 import { tenantConfig } from '@/lib/tenant';
 import { createClient } from '@/utils/supabase/server';
 
-export default async function CompanyHome({
+export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ companyId: string }>;
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const config = tenantConfig[id];
+  const name = config?.nome || `Aptus Clin - Unidade ${id}`;
+
+  return {
+    title: `${name} | Medicina do Trabalho & SST`,
+    description: `Clínica de Medicina e Segurança do Trabalho da Aptus Clin em ${config?.cidade || 'Mato Grosso'}. Exames Ocupacionais, ASO, PCMSO, PGR e eSocial.`,
+  };
+}
+
+export default async function DynamicUnitPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
 }) {
-  const { companyId } = await params;
-  const fallback = tenantConfig[companyId] || tenantConfig['sorriso'];
+  const { id } = await params;
+  const fallback = tenantConfig[id];
 
   let remoteData: Record<string, unknown> | null = null;
   try {
@@ -16,7 +33,7 @@ export default async function CompanyHome({
     const { data, error } = await supabase
       .from('unidades')
       .select('*')
-      .eq('id', companyId)
+      .eq('id', id)
       .single();
 
     if (!error && data) {
@@ -24,6 +41,10 @@ export default async function CompanyHome({
     }
   } catch {
     // Fallback silencioso
+  }
+
+  if (!fallback && !remoteData) {
+    notFound();
   }
 
   const initialData = {
@@ -40,5 +61,5 @@ export default async function CompanyHome({
     slides: (remoteData?.slides as { url: string; caption?: string }[]) || fallback?.slides,
   };
 
-  return <UnitModernPage unitId={companyId} initialData={initialData} />;
+  return <UnitModernPage unitId={id} initialData={initialData} />;
 }
