@@ -55,6 +55,7 @@ export default async function UnidadeNovaMutumPage() {
     cnes: (remoteData?.cnes as string) || fallback.cnes,
     whatsapp: (remoteData?.whatsapp as string) || fallback.whatsapp,
     instagram: (remoteData?.instagram as string) || fallback.instagram,
+    fotoUrl: (remoteData?.foto_url as string) || fallback.fotoUrl,
     slides: (remoteData?.slides as { url: string; caption?: string }[]) || fallback.slides,
   };
 

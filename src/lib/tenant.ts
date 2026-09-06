@@ -24,6 +24,7 @@ export interface TenantConfig {
   whatsapp?: string;
   cnpj?: string;
   cnes?: string;
+  fotoUrl?: string;
 }
 
 /** Fallback usado enquanto o Supabase não estiver configurado */
@@ -44,6 +45,7 @@ export const tenantConfig: Record<string, TenantConfig> = {
     whatsapp: '5566996440425',
     cnpj: '57.132.028/0001-08',
     cnes: '4918606',
+    fotoUrl: '/images/fictitious-clinic.jpg',
     slides: [],
   },
   'hova-ubirata': {
@@ -61,6 +63,7 @@ export const tenantConfig: Record<string, TenantConfig> = {
     whatsapp: '5566996199138',
     cnpj: '31.238.750/0001-20',
     cnes: '0068438',
+    fotoUrl: '/images/fictitious-clinic.jpg',
     slides: [],
   },
   'boa-esperanca': {
@@ -78,6 +81,7 @@ export const tenantConfig: Record<string, TenantConfig> = {
     cnpj: '59.709.625/0001-70',
     instagram: '@aptusclin',
     descricao: 'Saúde ocupacional e exames admissionais para as empresas de Boa Esperança do Norte e região.',
+    fotoUrl: '/images/fictitious-clinic.jpg',
     slides: [],
   },
   'nova-mutum': {
@@ -95,6 +99,7 @@ export const tenantConfig: Record<string, TenantConfig> = {
     whatsapp: '5565984433296',
     cnpj: '62.526.811/0001-88',
     cnes: '6060935',
+    fotoUrl: '/images/fictitious-clinic.jpg',
     slides: [],
   },
 };

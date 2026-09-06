@@ -239,9 +239,13 @@ export default function UnitModernPage({ unitId, initialData }: UnitModernPagePr
             </div>
           </div>
 
-          {/* Card Flutuante de Informações da Unidade */}
           <div className="lg:col-span-5">
             <div className="bg-white text-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl border border-slate-100 relative">
+              {data.fotoUrl && (
+                <div className="w-[calc(100%+3rem)] sm:w-[calc(100%+3.5rem)] h-48 sm:h-56 bg-slate-100 rounded-t-3xl -mt-6 -ml-6 sm:-mt-7 sm:-ml-7 mb-6 overflow-hidden relative">
+                  <img src={data.fotoUrl} alt={`Fachada da Unidade Aptus Clin em ${data.cidade}`} className="w-full h-full object-cover" />
+                </div>
+              )}
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div>
                   <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">
