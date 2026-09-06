@@ -15,7 +15,7 @@ export function InteractiveHelp() {
         className="fixed bottom-6 right-6 p-4 bg-primary text-primary-foreground rounded-full shadow-xl hover:bg-primary/90 transition-all z-50 flex items-center justify-center animate-bounce-slow"
         aria-label="Ajuda do Sistema"
       >
-        <LifeBuoy className="w-6 h-6" />
+        <HelpCircle className="w-6 h-6" />
       </button>
 
       {/* Modal/Overlay */}
@@ -26,7 +26,7 @@ export function InteractiveHelp() {
             {/* Menu Lateral do Modal */}
             <div className="w-full md:w-64 bg-muted p-6 border-r border-border flex flex-col gap-2 flex-shrink-0">
               <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <LifeBuoy className="w-5 h-5 text-primary" /> Ajuda
+                <HelpCircle className="w-5 h-5 text-primary" /> Ajuda
               </h2>
               
               <button 
