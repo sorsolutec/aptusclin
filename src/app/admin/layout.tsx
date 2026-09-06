@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { InteractiveHelp } from '@/components/ui/InteractiveHelp'
 import { redirect } from 'next/navigation'
 import { Logo } from '@/components/ui/logo'
 
@@ -129,6 +130,7 @@ export default async function AdminLayout({
         {/* Page */}
         <main className="flex-1 p-6">
           {children}
+          <InteractiveHelp />
         </main>
       </div>
     </div>
