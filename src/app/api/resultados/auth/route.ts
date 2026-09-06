@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { getAdminClient } from '@/utils/supabase/serverAdmin'
+import bcrypt from 'bcryptjs'
+import { criarSessaoPaciente } from '@/lib/paciente-session'
 
 export async function POST(request: Request) {
   try {
@@ -31,13 +34,36 @@ export async function POST(request: Request) {
       )
     }
 
-    // Verifica a senha (texto simples — migrar para bcrypt em produção)
-    if (colaborador.senha_hash !== senha) {
+    const senhaHash = colaborador.senha_hash as string | null
+    let autenticado = false
+
+    if (senhaHash && senhaHash.startsWith('$2')) {
+      // Senha já está em bcrypt — comparação segura
+      autenticado = await bcrypt.compare(senha, senhaHash)
+    } else {
+      // Senha em texto puro (legado) — compara diretamente
+      autenticado = senhaHash === senha
+
+      if (autenticado) {
+        // Lazy upgrade: atualiza para bcrypt de forma transparente
+        const novoHash = await bcrypt.hash(senha, 10)
+        const adminClient = getAdminClient()
+        await adminClient
+          .from('colaboradores')
+          .update({ senha_hash: novoHash })
+          .eq('id', colaborador.id)
+      }
+    }
+
+    if (!autenticado) {
       return NextResponse.json(
         { message: 'Usuário ou senha incorretos.' },
         { status: 401 }
       )
     }
+
+    // Emite o cookie de sessão httpOnly do paciente
+    await criarSessaoPaciente(colaborador.id)
 
     return NextResponse.json(
       { pacienteId: colaborador.id, nome: colaborador.nome },

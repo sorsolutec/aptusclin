@@ -1,0 +1,55 @@
+name: Backup Automático do Banco de Dados (Supabase PostgreSQL)
+
+on:
+  schedule:
+    # Executa todos os dias às 03:00 UTC (00:00 horário de Brasília)
+    - cron: '0 3 * * *'
+  workflow_dispatch:  # Permite execução manual pelo painel do GitHub
+
+env:
+  BACKUP_FILENAME: "backup_aptusclin_${{ github.run_id }}.sql.gz"
+
+jobs:
+  backup:
+    name: Dump e Compressão do Banco
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Instalar cliente PostgreSQL
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client
+
+      - name: Executar pg_dump e compactar
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          FILENAME="backup_aptusclin_${DATE}.sql"
+          pg_dump "$SUPABASE_DB_URL" \
+            --no-owner \
+            --no-acl \
+            --format=plain \
+            --quote-all-identifiers \
+            > "$FILENAME"
+          gzip "$FILENAME"
+          echo "BACKUP_FILE=${FILENAME}.gz" >> $GITHUB_ENV
+          echo "✅ Backup gerado: ${FILENAME}.gz"
+
+      - name: Salvar backup como artefato do GitHub (retenção: 90 dias)
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-aptusclin-${{ github.run_id }}
+          path: "*.sql.gz"
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Relatório final
+        run: |
+          FILE=$(ls *.sql.gz)
+          SIZE=$(du -sh "$FILE" | cut -f1)
+          echo "📦 Backup: $FILE"
+          echo "📏 Tamanho: $SIZE"
+          echo "📅 Data: $(date)"
+          echo "✅ Backup concluído com sucesso."

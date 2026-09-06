@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { getAdminClient } from '@/utils/supabase/serverAdmin'
+import bcrypt from 'bcryptjs'
 
 interface ColaboradorRow {
   id: string
@@ -112,6 +113,7 @@ export async function POST(request: Request) {
 
     const usuario = gerarUsuario(nome.trim())
     const senha = gerarSenha()
+    const senhaHash = await bcrypt.hash(senha, 10)
     const emailToUse = email?.trim() || `${usuario}@aptusclin.com.br`
 
     // Cria o usuário na Autenticação do Supabase (para potencial uso futuro)
@@ -149,7 +151,7 @@ export async function POST(request: Request) {
         email: emailToUse,
         telefone: telefone?.trim() || null,
         usuario: usuario,
-        senha_hash: senha,
+        senha_hash: senhaHash,
         status_aso: 'Pendente',
         empresa_id: empresa_id || null,
         ativo: true

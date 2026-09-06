@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import bcrypt from 'bcryptjs'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -49,7 +50,7 @@ export async function PUT(request: Request, { params }: Params) {
     let novaSenha: string | null = null
     if (body.resetar_senha) {
       novaSenha = gerarSenha()
-      updateData.senha_hash = novaSenha
+      updateData.senha_hash = await bcrypt.hash(novaSenha, 10)
     }
 
     const { data, error } = await supabase
