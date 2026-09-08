@@ -3,15 +3,15 @@ import Link from 'next/link';
 import { headers } from 'next/headers';
 import {
   Phone,
-  Mail,
   FileText,
   Activity,
   Shield,
   Building2,
-  ExternalLink,
   ArrowRight,
-  Stethoscope,
   Settings,
+  MapPin,
+  Search,
+  ChevronRight,
 } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import { createClient } from '@/utils/supabase/server';
@@ -19,6 +19,7 @@ import { tenantConfig } from '@/lib/tenant';
 import { ContactForm } from '@/components/ContactForm';
 import { parseDomain } from '@/lib/domain';
 import { HomeCarousel } from '@/components/HomeCarousel';
+import { HeroUnitSelector } from '@/components/HeroUnitSelector';
 
 export const metadata = {
   title: 'Aptusclin | Medicina Ocupacional & Saúde do Trabalhador',
@@ -34,6 +35,7 @@ interface Unidade {
   descricao: string;
   telefone?: string;
   email?: string;
+  fotoUrl?: string;
   slides: { url: string; caption?: string }[];
 }
 
@@ -90,6 +92,7 @@ export default async function MainLandingPage() {
       descricao: u.descricao || '',
       telefone: u.telefone,
       email: u.email,
+      fotoUrl: u.fotoUrl,
       slides: u.slides || [],
     }));
   }
@@ -169,15 +172,8 @@ export default async function MainLandingPage() {
               Simplificamos o PCMSO, PGR, exames ocupacionais e conformidade legal com o eSocial de forma inteligente e integrada.
             </p>
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-              <Link
-                href="#unidades"
-                className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-8 py-4 rounded-xl text-base transition"
-              >
-                Nossas Unidades
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+            {/* Seletor rápido de unidade */}
+            <HeroUnitSelector />
           </div>
 
           <div className="md:col-span-5">
@@ -187,53 +183,81 @@ export default async function MainLandingPage() {
         </div>
       </section>
 
-      {/* UNIDADES SECTION (DASHBOARD CHOOSE UNIT) */}
-      <section id="unidades" className="py-20 px-4 bg-slate-50">
+      {/* UNIDADES SECTION — Visual Unit Picker */}
+      <section id="unidades" className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <span className="text-xs text-slate-400 font-extrabold uppercase tracking-widest">Cidades Atendidas</span>
-            <h2 className="text-3xl font-extrabold text-[#002855] mt-2">Escolha uma de Nossas Unidades</h2>
-            <p className="text-slate-500 mt-2 max-w-lg mx-auto text-sm">
-              Cada unidade possui canais próprios de agendamento, atendimento dedicado e telefones de contato locais.
+          {/* Header */}
+          <div className="text-center mb-10">
+            <span className="inline-flex items-center gap-1.5 text-xs text-[#1B8B3A] font-extrabold uppercase tracking-widest bg-[#1B8B3A]/8 px-3 py-1.5 rounded-full">
+              <MapPin className="w-3.5 h-3.5" /> Cidades Atendidas
+            </span>
+            <h2 className="text-3xl font-extrabold text-[#002855] mt-3">Escolha sua Unidade</h2>
+            <p className="text-slate-400 mt-2 max-w-md mx-auto text-sm">
+              Clique na unidade mais próxima para ver informações, agendamentos e contatos.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Cards de unidades com foto */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {unidades.map(u => {
               const url = getUnitUrl(u.id, host);
+              const foto = u.fotoUrl || '/images/fictitious-clinic.jpg';
               return (
-                <div
+                <a
                   key={u.id}
-                  className="bg-white border border-slate-100 rounded-3xl p-6 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                  href={url}
+                  className="group relative rounded-2xl overflow-hidden aspect-[3/4] shadow-md hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#002855] block"
                 >
-                  <div>
-                    <div className="w-10 h-10 bg-[#002855]/5 text-[#002855] rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#002855] group-hover:text-white transition-colors">
-                      <Stethoscope className="w-5 h-5" />
-                    </div>
-                    <h3 className="font-bold text-[#002855] text-lg mb-1 leading-snug">{u.nome}</h3>
-                    <p className="text-xs text-slate-400 font-medium mb-3">
-                      {u.cidade} – {u.estado}
-                    </p>
-                    <p className="text-slate-500 text-xs line-clamp-3 leading-relaxed">
-                      {u.descricao || 'Unidade de medicina ocupacional e segurança do trabalho apta a atender todos os exames admissionais, periódicos e demissionais.'}
-                    </p>
+                  {/* Foto de fundo */}
+                  <Image
+                    src={foto}
+                    alt={u.nome}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  />
+
+                  {/* Overlay gradiente */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#002855]/95 via-[#002855]/30 to-transparent transition-opacity duration-300" />
+
+                  {/* Badge cidade */}
+                  <div className="absolute top-3 left-3">
+                    <span className="bg-white/90 backdrop-blur-sm text-[#002855] text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                      {u.estado}
+                    </span>
                   </div>
 
-                  <div className="mt-6 border-t border-slate-100 pt-4">
+                  {/* Info na base */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <p className="text-white/70 text-[10px] font-semibold uppercase tracking-widest mb-0.5">Aptusclin</p>
+                    <h3 className="text-white font-extrabold text-base leading-snug">{u.cidade}</h3>
                     {u.telefone && (
-                      <p className="text-[11px] text-slate-400 mb-2">Tel: {u.telefone}</p>
+                      <p className="text-white/60 text-[11px] mt-1 flex items-center gap-1">
+                        <Phone className="w-3 h-3" />{u.telefone}
+                      </p>
                     )}
-                    <a
-                      href={url}
-                      className="w-full inline-flex items-center justify-center gap-1.5 bg-[#002855] hover:bg-[#001a3d] text-white text-xs font-bold py-2.5 rounded-xl transition"
-                    >
-                      Acessar Unidade
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
+
+                    {/* CTA ao hover */}
+                    <div className="mt-3 flex items-center gap-1.5 text-white text-xs font-bold opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300">
+                      <span>Ver unidade</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
                   </div>
-                </div>
+
+                  {/* Borda colorida no hover */}
+                  <div className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-[#1B8B3A] transition-all duration-300" />
+                </a>
               );
             })}
+          </div>
+
+          {/* Linha de busca rápida */}
+          <div className="mt-10 flex items-center justify-center">
+            <div className="flex items-center gap-2 text-slate-400 text-sm">
+              <Search className="w-4 h-4" />
+              <span>Não encontrou sua cidade?</span>
+              <a href="#contato" className="text-[#002855] font-semibold hover:underline">Entre em contato →</a>
+            </div>
           </div>
         </div>
       </section>

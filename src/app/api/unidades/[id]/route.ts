@@ -57,6 +57,7 @@ export async function PUT(
     'descricao',
     'slides',
     'foto_url',
+    'horario',
     'exames_disponiveis',
     'ativo',
     'instagram',
