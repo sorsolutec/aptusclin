@@ -262,7 +262,18 @@ export default function UnitModernPage({ unitId, initialData }: UnitModernPagePr
             <div className="bg-white text-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl border border-slate-100 relative">
               {heroImage && (
                 <div className="w-[calc(100%+3rem)] sm:w-[calc(100%+3.5rem)] h-48 sm:h-56 bg-slate-100 rounded-t-3xl -mt-6 -ml-6 sm:-mt-7 sm:-ml-7 mb-6 overflow-hidden relative group">
-                  <img src={heroImage} alt={`Fachada da Unidade Aptus Clin em ${data.cidade}`} className="w-full h-full object-cover transition-opacity duration-500" />
+                  {hasSlides && data.slides![currentSlide]?.link ? (
+                    <a
+                      href={data.slides![currentSlide].link}
+                      target={data.slides![currentSlide].link!.startsWith('http') ? '_blank' : '_self'}
+                      rel="noopener noreferrer"
+                      className="block w-full h-full cursor-pointer"
+                    >
+                      <img src={heroImage} alt={`Fachada da Unidade Aptus Clin em ${data.cidade}`} className="w-full h-full object-cover transition-opacity duration-500" />
+                    </a>
+                  ) : (
+                    <img src={heroImage} alt={`Fachada da Unidade Aptus Clin em ${data.cidade}`} className="w-full h-full object-cover transition-opacity duration-500" />
+                  )}
                   {hasSlides && data.slides!.length > 1 && (
                     <>
                       <button onClick={prevSlide} className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition opacity-0 group-hover:opacity-100">

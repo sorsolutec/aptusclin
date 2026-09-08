@@ -17,7 +17,7 @@ export interface TenantConfig {
   email?: string;
   descricao?: string;
   horario?: string;
-  slides?: { url: string; caption?: string }[];
+  slides?: { url: string; caption?: string; link?: string }[];
   instagram?: string;
   facebook?: string;
   whatsapp?: string;
@@ -38,12 +38,10 @@ export const tenantConfig: Record<string, TenantConfig> = {
     telefone: '(66) 99644-0425',
     telefoneFixo: '(66) 3544-0000',
     email: 'sorriso@aptusclin.com.br',
-    descricao: 'Clínica de medicina ocupacional em Sorriso, referência regional em saúde do trabalhador e segurança ocupacional.',
     horario: 'Segunda a Sexta: 07:00–11:00, 13:00–17:00',
-    instagram: '@aptusclin_sorriso',
-    whatsapp: '5566996440425',
-    cnpj: '57.132.028/0001-08',
-    cnes: '4918606',
+    cnpj: '11.838.749/0001-08',
+    instagram: '@aptusclin',
+    descricao: 'Clínica de medicina ocupacional em Sorriso. Atendimento de segunda a sexta, das 07:00 às 11:00 e das 13:00 às 17:00. Referência regional em saúde do trabalhador.',
     fotoUrl: '/images/fictitious-clinic.jpg',
     slides: [],
   },
@@ -52,16 +50,16 @@ export const tenantConfig: Record<string, TenantConfig> = {
     nome: 'Aptus Clin - Medicina do Trabalho - Unidade Nova Ubiratã',
     cidade: 'Nova Ubiratã',
     estado: 'MT',
-    cor: 'hsl(158, 60%, 32%)',
+    cor: 'hsl(142, 60%, 30%)',
     endereco: 'Avenida Getúlio Vargas, 195 – Centro, Nova Ubiratã – MT, CEP 78888-000',
     telefone: '(66) 99619-9138',
-    email: 'nova-ubirata@aptusclin.com.br',
-    descricao: 'Clínica de medicina ocupacional em Nova Ubiratã. Atendimento de segunda a sexta, das 07:00 às 11:00 e das 13:00 às 17:00. Referência em saúde ocupacional, exames complementares e gestão de SST.',
-    horario: 'Segunda a Sexta: 07:00–11:00, 13:00–17:00',
-    instagram: '@aptusclin',
+    telefoneFixo: '(66) 3579-1111',
     whatsapp: '5566996199138',
-    cnpj: '31.238.750/0001-20',
-    cnes: '0068438',
+    email: 'nova-ubirata@aptusclin.com.br',
+    horario: 'Segunda a Sexta: 07:00–11:00, 13:00–17:00',
+    cnpj: '53.649.030/0001-38',
+    instagram: '@aptusclin',
+    descricao: 'Clínica de medicina ocupacional em Nova Ubiratã. Atendimento de segunda a sexta, das 07:00 às 11:00 e das 13:00 às 17:00. Referência em saúde ocupacional, exames complementares e gestão de SST.',
     fotoUrl: '/images/fictitious-clinic.jpg',
     slides: [],
   },
@@ -71,10 +69,10 @@ export const tenantConfig: Record<string, TenantConfig> = {
     cidade: 'Boa Esperança do Norte',
     estado: 'MT',
     cor: 'hsl(24, 70%, 40%)',
-    endereco: 'Rua das Azaleias, 1627 – Centro, Boa Esperança do Norte – MT, CEP 78.887-000',
-    telefone: '(66) 3591-1111',
-    telefoneFixo: '(66) 3591-1111',
-    whatsapp: '556635911111',
+    endereco: 'Rua das Azaleias, 1627, Centro',
+    telefone: '(66) 99268-0888',
+    telefoneFixo: '(66) 99268-0888',
+    whatsapp: '5566992680888',
     email: 'boa-esperanca@aptusclin.com.br',
     horario: 'Segunda a Sexta: 07:00–11:00, 13:00–17:00',
     cnpj: '59.709.625/0001-70',

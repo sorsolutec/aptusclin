@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 interface Slide {
   url: string;
   caption?: string;
+  link?: string;
 }
 
 export function HomeCarousel({ slides }: { slides: Slide[] }) {
@@ -40,17 +41,35 @@ export function HomeCarousel({ slides }: { slides: Slide[] }) {
 
   return (
     <div className="bg-slate-950 rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl relative aspect-[4/3] group">
-      <Image
-        src={current.url}
-        alt={current.caption || "Aptusclin"}
-        fill
-        sizes="(max-width: 768px) 100vw, 33vw"
-        className="w-full h-full object-cover opacity-85 transition-opacity duration-500"
-      />
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-5 py-4 text-white">
-        <p className="text-xs text-blue-300 font-semibold uppercase tracking-widest">Aptusclin</p>
-        <p className="text-sm font-bold mt-0.5">{current.caption || "Medicina Ocupacional"}</p>
-      </div>
+      {current.link ? (
+        <a href={current.link} target={current.link.startsWith('http') ? '_blank' : '_self'} rel="noopener noreferrer" className="absolute inset-0 z-0 cursor-pointer block">
+          <Image
+            src={current.url}
+            alt={current.caption || "Aptusclin"}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="w-full h-full object-cover opacity-85 transition-opacity duration-500"
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-5 py-4 text-white">
+            <p className="text-xs text-blue-300 font-semibold uppercase tracking-widest">Aptusclin</p>
+            <p className="text-sm font-bold mt-0.5">{current.caption || "Medicina Ocupacional"}</p>
+          </div>
+        </a>
+      ) : (
+        <>
+          <Image
+            src={current.url}
+            alt={current.caption || "Aptusclin"}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="w-full h-full object-cover opacity-85 transition-opacity duration-500"
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-5 py-4 text-white">
+            <p className="text-xs text-blue-300 font-semibold uppercase tracking-widest">Aptusclin</p>
+            <p className="text-sm font-bold mt-0.5">{current.caption || "Medicina Ocupacional"}</p>
+          </div>
+        </>
+      )}
       
       {slides.length > 1 && (
         <>

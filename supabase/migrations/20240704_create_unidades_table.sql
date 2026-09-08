@@ -78,8 +78,8 @@ values
     'Aptusclin Boa Esperança do Norte',
     'Boa Esperança do Norte',
     'MT',
-    'Rua das Azaleias, 1627 – Centro, Boa Esperança do Norte – MT, CEP 78.887-000',
-    '(66) 3591-1111',
+    'Rua das Azaleias, 1627, Centro',
+    '(66) 99268-0888',
     'boa-esperanca@aptusclin.com.br',
     'Saúde ocupacional e exames admissionais para as empresas de Boa Esperança do Norte e região.'
   ),

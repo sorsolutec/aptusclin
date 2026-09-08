@@ -95,7 +95,7 @@ export default async function MainLandingPage() {
   }
 
   // 1. Tenta buscar o banner configurado pelo admin em site_settings
-  let heroSlides: { url: string; caption?: string }[] = [];
+  let heroSlides: { url: string; caption?: string; link?: string }[] = [];
   try {
     const { data: settingsData } = await supabase
       .from('site_settings')
