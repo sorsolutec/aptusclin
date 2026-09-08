@@ -11,6 +11,14 @@ function getAdminClient() {
   );
 }
 
+// Helper para tratar aliases de slug (nova-ubirata / hova-ubirata)
+function getTargetIds(id: string): string[] {
+  if (id === 'nova-ubirata' || id === 'hova-ubirata') {
+    return ['nova-ubirata', 'hova-ubirata'];
+  }
+  return [id];
+}
+
 // GET /api/unidades/[id] — detalhe de uma unidade (acesso público)
 export async function GET(
   _request: Request,
@@ -18,15 +26,16 @@ export async function GET(
 ) {
   const { id } = await params;
   const supabase = await createClient();
+  const targetIds = getTargetIds(id);
 
   const { data, error } = await supabase
     .from('unidades')
     .select('*')
-    .eq('id', id)
-    .single();
+    .in('id', targetIds)
+    .maybeSingle();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 404 });
+  if (error || !data) {
+    return NextResponse.json({ error: 'Unidade não encontrada' }, { status: 404 });
   }
 
   return NextResponse.json(data);
@@ -71,12 +80,13 @@ export async function PUT(
     }
   }
 
+  const targetIds = getTargetIds(id);
   const { data, error } = await getAdminClient()
     .from('unidades')
     .update(updates)
-    .eq('id', id)
+    .in('id', targetIds)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
@@ -84,3 +94,4 @@ export async function PUT(
 
   return NextResponse.json(data);
 }
+

@@ -4,12 +4,20 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-// Helper para criar o cliente admin
+// Helper para obter cliente admin
 function getAdminClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
+}
+
+// Helper para tratar aliases de slug (nova-ubirata / hova-ubirata)
+function getTargetIds(id: string): string[] {
+  if (id === 'nova-ubirata' || id === 'hova-ubirata') {
+    return ['nova-ubirata', 'hova-ubirata'];
+  }
+  return [id];
 }
 
 // GET /api/unidades/[id]/foto — retorna a URL da foto da unidade
@@ -20,11 +28,12 @@ export async function GET(
   try {
     const { id } = await params;
     const adminClient = getAdminClient();
+    const targetIds = getTargetIds(id);
 
     const { data, error } = await adminClient
       .from('unidades')
       .select('*')
-      .eq('id', id)
+      .in('id', targetIds)
       .maybeSingle();
 
     if (error || !data) {
@@ -62,7 +71,8 @@ export async function POST(
     }
 
     const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg';
-    const path = `unidades/${id}/foto.${ext}`;
+    const canonicalId = id === 'hova-ubirata' ? 'nova-ubirata' : id;
+    const path = `unidades/${canonicalId}/foto.${ext}`;
 
     // Converte para ArrayBuffer e faz upload no Supabase Storage usando o cliente admin
     const arrayBuffer = await file.arrayBuffer();
@@ -78,7 +88,6 @@ export async function POST(
 
     if (uploadError) {
       console.warn('[POST /api/unidades/[id]/foto] Erro no upload:', uploadError);
-      // Se o bucket não existir, tenta criá-lo e retenta o upload
       if (uploadError.message?.toLowerCase().includes('not found') || (uploadError as any).statusCode === '404') {
         await adminClient.storage.createBucket('aptusclin-media', { public: true });
         const retry = await adminClient.storage
@@ -101,12 +110,13 @@ export async function POST(
       .getPublicUrl(path);
 
     const foto_url = publicUrlData.publicUrl;
+    const targetIds = getTargetIds(id);
 
     // Salva a URL na tabela unidades usando o adminClient para contornar RLS
     const { error: dbError } = await adminClient
       .from('unidades')
       .update({ foto_url, updated_at: new Date().toISOString() })
-      .eq('id', id);
+      .in('id', targetIds);
 
     if (dbError) {
       console.error('[POST /api/unidades/[id]/foto] Erro ao salvar no banco:', dbError);
@@ -136,11 +146,13 @@ export async function DELETE(
     }
 
     const adminClient = getAdminClient();
+    const targetIds = getTargetIds(id);
+
     // Remove a URL do banco com adminClient
     const { error } = await adminClient
       .from('unidades')
       .update({ foto_url: null, updated_at: new Date().toISOString() })
-      .eq('id', id);
+      .in('id', targetIds);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
@@ -151,4 +163,5 @@ export async function DELETE(
     return NextResponse.json({ error: err?.message || 'Erro ao remover foto.' }, { status: 500 });
   }
 }
+
 
