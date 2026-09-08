@@ -52,6 +52,14 @@ function gerarSenha(tamanho = 8): string {
 // GET /api/colaboradores
 export async function GET(request: Request) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const role = user?.user_metadata?.role ?? user?.app_metadata?.role
+
+    if (!user || role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const { searchParams } = new URL(request.url)
     const busca = searchParams.get('q') || ''
     const empresaId = searchParams.get('empresa_id') || ''
@@ -59,7 +67,6 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '50', 10)
     const offset = (page - 1) * limit
 
-    const supabase = await createClient()
     let query = supabase
       .from('colaboradores')
       .select('*, empresas(id, nome)', { count: 'exact' })

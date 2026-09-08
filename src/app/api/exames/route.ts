@@ -7,12 +7,26 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const companyId = searchParams.get('companyId');
   const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const role = user?.user_metadata?.role ?? user?.app_metadata?.role;
 
   let query = supabase.from('exames').select('*');
-  if (role !== 'admin' && companyId) {
+
+  if (role === 'admin') {
+    // Admin pode filtrar por empresa ou ver todos
+    if (companyId) query = query.eq('company_id', companyId);
+  } else {
+    // Não-admin: obrigatório ter companyId
+    if (!companyId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     query = query.eq('company_id', companyId);
   }
+
   const { data, error } = await query;
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });

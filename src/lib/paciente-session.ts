@@ -6,11 +6,21 @@ const JWT_EXPIRY = '2h' // 2 horas por sessão
 
 function getSecret(): Uint8Array {
   const secret = process.env.PACIENTE_SESSION_SECRET
+
   if (!secret) {
-    // Fallback para desenvolvimento local: usa a anon key do supabase como base
-    const fallback = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'aptusclin-dev-fallback-secret-mínimo-32-chars'
+    if (process.env.NODE_ENV === 'production') {
+      // Em produção, nunca usar a anon key como segredo JWT — ela é pública.
+      throw new Error(
+        '[paciente-session] PACIENTE_SESSION_SECRET não está definida. ' +
+        'Configure esta variável de ambiente na Vercel antes de usar o portal de resultados.'
+      )
+    }
+    // Em desenvolvimento, usa fallback com aviso
+    console.warn('[paciente-session] PACIENTE_SESSION_SECRET não definida — usando fallback de dev.')
+    const fallback = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'aptusclin-dev-fallback-secret-minimo-32-chars'
     return new TextEncoder().encode(fallback)
   }
+
   return new TextEncoder().encode(secret)
 }
 

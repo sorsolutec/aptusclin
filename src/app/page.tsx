@@ -18,6 +18,7 @@ import { createClient } from '@/utils/supabase/server';
 import { tenantConfig } from '@/lib/tenant';
 import { ContactForm } from '@/components/ContactForm';
 import { parseDomain } from '@/lib/domain';
+import { HomeCarousel } from '@/components/HomeCarousel';
 
 export const metadata = {
   title: 'Aptusclin | Medicina Ocupacional & Saúde do Trabalhador',
@@ -93,12 +94,34 @@ export default async function MainLandingPage() {
     }));
   }
 
-  // Coleta slides das unidades para preencher o banner principal
-  const allSlides = unidades.flatMap(u => u.slides).filter(Boolean);
-  const heroSlides = allSlides.length > 0 ? allSlides.slice(0, 5) : [
-    { url: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80', caption: 'Estrutura moderna para exames ocupacionais' },
-    { url: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80', caption: 'Atendimento humanizado e focado na saúde do trabalhador' },
-  ];
+  // 1. Tenta buscar o banner configurado pelo admin em site_settings
+  let heroSlides: { url: string; caption?: string }[] = [];
+  try {
+    const { data: settingsData } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'home_banner')
+      .single();
+    if (settingsData?.value?.slides && Array.isArray(settingsData.value.slides) && settingsData.value.slides.length > 0) {
+      heroSlides = settingsData.value.slides;
+    }
+  } catch {
+    // site_settings pode não existir ainda
+  }
+
+  // 2. Fallback: coleta slides das unidades
+  if (heroSlides.length === 0) {
+    const allSlides = unidades.flatMap(u => u.slides).filter(Boolean);
+    heroSlides = allSlides.slice(0, 5);
+  }
+
+  // 3. Fallback final: imagens do Unsplash
+  if (heroSlides.length === 0) {
+    heroSlides = [
+      { url: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80', caption: 'Estrutura moderna para exames ocupacionais' },
+      { url: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80', caption: 'Atendimento humanizado e focado na saúde do trabalhador' },
+    ];
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-700">
@@ -159,19 +182,7 @@ export default async function MainLandingPage() {
 
           <div className="md:col-span-5">
             {/* Visual preview do carrossel no site principal */}
-            <div className="bg-slate-950 rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl relative aspect-[4/3]">
-              <Image
-                src={heroSlides[0].url}
-                alt="Aptusclin"
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="w-full h-full object-cover opacity-85"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-5 py-4 text-white">
-                <p className="text-xs text-blue-300 font-semibold uppercase tracking-widest">Aptusclin</p>
-                <p className="text-sm font-bold mt-0.5">{heroSlides[0].caption}</p>
-              </div>
-            </div>
+            <HomeCarousel slides={heroSlides} />
           </div>
         </div>
       </section>

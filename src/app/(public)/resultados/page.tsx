@@ -189,7 +189,7 @@ export default function ResultadosPage() {
       </main>
 
       {/* Footer */}
-      <footer className="py-5 text-center text-xs text-white/20 border-t border-white/10">
+      <footer className="py-5 text-center text-xs text-white/20 border-t border-white/10" suppressHydrationWarning>
         © {new Date().getFullYear()} Aptusclin – Medicina Ocupacional. Todos os direitos reservados.
       </footer>
     </div>

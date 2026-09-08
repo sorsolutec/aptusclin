@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   MapPin, Phone, Clock, Shield, Activity, FileText, CheckCircle2,
-  Navigation, MessageSquare, ChevronDown, ChevronUp,
+  Navigation, MessageSquare, ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
   Stethoscope, Sparkles, FileCheck, AlertTriangle
 } from 'lucide-react';
 import { Instagram, Facebook } from '@/components/icons/SocialIcons';
@@ -36,6 +36,7 @@ export default function UnitModernPage({ unitId, initialData }: UnitModernPagePr
     whatsapp: initialData?.whatsapp || fallback.whatsapp || fallback.telefone?.replace(/\D/g, ''),
     instagram: initialData?.instagram || fallback.instagram,
     facebook: initialData?.facebook || fallback.facebook,
+    slides: initialData?.slides || fallback.slides || [],
   };
 
   const whatsappClean = (data.whatsapp || '5566996440425').replace(/\D/g, '');
@@ -62,6 +63,24 @@ export default function UnitModernPage({ unitId, initialData }: UnitModernPagePr
     const msg = `Olá, vim pelo site da Aptus Clin ${data.cidade} solicitar proposta corporativa:%0A%0A*Empresa:* ${encodeURIComponent(quoteForm.empresa)}%0A*Responsável:* ${encodeURIComponent(quoteForm.responsavel)}%0A*Telefone/WhatsApp:* ${encodeURIComponent(quoteForm.telefone)}%0A*Número de Colaboradores:* ${encodeURIComponent(quoteForm.vidas)}%0A*Interesse:* ${encodeURIComponent(quoteForm.servico)}`;
     window.open(`https://wa.me/${whatsappClean}?text=${msg}`, '_blank');
   };
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const hasSlides = data.slides && data.slides.length > 0;
+  const heroImage = hasSlides ? data.slides![currentSlide].url : data.fotoUrl;
+
+  const nextSlide = () => {
+    if (hasSlides) setCurrentSlide((prev) => (prev + 1) % data.slides!.length);
+  };
+  const prevSlide = () => {
+    if (hasSlides) setCurrentSlide((prev) => (prev - 1 + data.slides!.length) % data.slides!.length);
+  };
+
+  // Efeito para trocar o slide automaticamente a cada 5 segundos
+  React.useEffect(() => {
+    if (!hasSlides) return;
+    const interval = setInterval(nextSlide, 5000);
+    return () => clearInterval(interval);
+  }, [hasSlides]);
 
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -241,9 +260,28 @@ export default function UnitModernPage({ unitId, initialData }: UnitModernPagePr
 
           <div className="lg:col-span-5">
             <div className="bg-white text-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl border border-slate-100 relative">
-              {data.fotoUrl && (
-                <div className="w-[calc(100%+3rem)] sm:w-[calc(100%+3.5rem)] h-48 sm:h-56 bg-slate-100 rounded-t-3xl -mt-6 -ml-6 sm:-mt-7 sm:-ml-7 mb-6 overflow-hidden relative">
-                  <img src={data.fotoUrl} alt={`Fachada da Unidade Aptus Clin em ${data.cidade}`} className="w-full h-full object-cover" />
+              {heroImage && (
+                <div className="w-[calc(100%+3rem)] sm:w-[calc(100%+3.5rem)] h-48 sm:h-56 bg-slate-100 rounded-t-3xl -mt-6 -ml-6 sm:-mt-7 sm:-ml-7 mb-6 overflow-hidden relative group">
+                  <img src={heroImage} alt={`Fachada da Unidade Aptus Clin em ${data.cidade}`} className="w-full h-full object-cover transition-opacity duration-500" />
+                  {hasSlides && data.slides!.length > 1 && (
+                    <>
+                      <button onClick={prevSlide} className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition opacity-0 group-hover:opacity-100">
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button onClick={nextSlide} className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition opacity-0 group-hover:opacity-100">
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                        {data.slides!.map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setCurrentSlide(i)}
+                            className={`w-1.5 h-1.5 rounded-full transition ${i === currentSlide ? 'bg-white' : 'bg-white/40'}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -973,7 +1011,7 @@ export default function UnitModernPage({ unitId, initialData }: UnitModernPagePr
         </div>
 
         <div className="max-w-6xl mx-auto pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-slate-500 text-[11px]">
-          <p>© {new Date().getFullYear()} {data.nome}. Todos os direitos reservados.</p>
+          <p suppressHydrationWarning>© {new Date().getFullYear()} {data.nome}. Todos os direitos reservados.</p>
           <p>Medicina e Segurança do Trabalho • {data.cidade} – {data.estado}</p>
         </div>
       </footer>

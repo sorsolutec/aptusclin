@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Shield,
   MapPin,
+  Home,
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,7 @@ import { Logo } from '@/components/ui/logo'
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/unidades', label: 'Unidades', icon: MapPin },
+  { href: '/admin/site-settings/home-banner', label: 'Banner da Home', icon: Home },
   { href: '/admin/exames', label: 'Lançar Exames / ASO', icon: Upload },
   { href: '/admin/clientes', label: 'Clientes', icon: Building2 },
   { href: '/admin/colaboradores', label: 'Colaboradores', icon: Users },

@@ -39,4 +39,22 @@ export async function logout() {
   const supabase = await createClient()
   await supabase.auth.signOut()
   redirect('/login')
+}
+
+export async function forgotPassword(formData: FormData) {
+  const supabase = await createClient()
+  const email = formData.get('email') as string
+
+  // Obter a URL base da aplicação
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.aptusclin.com.br'
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl}/auth/callback?next=/auth/change-password`,
+  })
+
+  if (error) {
+    redirect('/forgot-password?error=true')
+  }
+
+  redirect('/forgot-password?success=true')
 }

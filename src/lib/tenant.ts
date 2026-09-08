@@ -1,7 +1,6 @@
 export const tenantMap: Record<string, string> = {
   sorriso: 'sorriso',
-  'hova-ubirata': 'hova-ubirata',
-  'nova-ubirata': 'hova-ubirata',
+  'nova-ubirata': 'nova-ubirata',
   'boa-esperanca': 'boa-esperanca',
   'nova-mutum': 'nova-mutum',
 };
@@ -48,8 +47,8 @@ export const tenantConfig: Record<string, TenantConfig> = {
     fotoUrl: '/images/fictitious-clinic.jpg',
     slides: [],
   },
-  'hova-ubirata': {
-    id: 'hova-ubirata',
+  'nova-ubirata': {
+    id: 'nova-ubirata',
     nome: 'Aptus Clin - Medicina do Trabalho - Unidade Nova Ubiratã',
     cidade: 'Nova Ubiratã',
     estado: 'MT',

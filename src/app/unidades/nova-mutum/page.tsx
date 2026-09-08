@@ -25,6 +25,8 @@ export const metadata: Metadata = {
   },
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function UnidadeNovaMutumPage() {
   const fallback = tenantConfig['nova-mutum'];
 
@@ -56,7 +58,7 @@ export default async function UnidadeNovaMutumPage() {
     whatsapp: (remoteData?.whatsapp as string) || fallback.whatsapp,
     instagram: (remoteData?.instagram as string) || fallback.instagram,
     fotoUrl: (remoteData?.foto_url as string) || fallback.fotoUrl,
-    slides: (remoteData?.slides as { url: string; caption?: string }[]) || fallback.slides,
+    slides: remoteData ? (remoteData.slides as { url: string; caption?: string }[] ?? []) : (fallback.slides ?? []),
   };
 
   return <UnitModernPage unitId="nova-mutum" initialData={initialData} />;

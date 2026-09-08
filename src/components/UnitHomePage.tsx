@@ -296,7 +296,7 @@ export default function UnitHomePage({ companyId }: { companyId: string }) {
 
       {/* FOOTER */}
       <footer className="bg-[#071224] text-white py-8 px-4 text-center">
-        <p className="text-slate-400 text-sm">© {new Date().getFullYear()} {data.nome} – Todos os direitos reservados.</p>
+        <p className="text-slate-400 text-sm" suppressHydrationWarning>© {new Date().getFullYear()} {data.nome} – Todos os direitos reservados.</p>
         <div className="mt-3 flex justify-center gap-4">
           <Link href="/portal/exames" className="text-xs text-slate-400 hover:text-white transition flex items-center gap-1">
             <FileText className="w-3 h-3" /> Resultados

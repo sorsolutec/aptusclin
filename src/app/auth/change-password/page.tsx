@@ -64,7 +64,7 @@ export default function ChangePassword() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-white">Defina sua nova senha</h1>
           <p className="text-sm text-slate-400 mt-2 text-center">
-            Este é seu primeiro acesso. Por questões de segurança, altere sua senha antes de prosseguir.
+            Insira sua nova senha abaixo para atualizar seu acesso com segurança.
           </p>
         </div>
 

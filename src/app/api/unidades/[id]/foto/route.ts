@@ -12,6 +12,27 @@ function getAdminClient() {
   );
 }
 
+// GET /api/unidades/[id]/foto — retorna a URL da foto da unidade
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('unidades')
+    .select('foto_url')
+    .eq('id', id)
+    .single();
+
+  if (error || !data) {
+    return NextResponse.json({ foto_url: null }, { status: 404 });
+  }
+
+  return NextResponse.json({ foto_url: data.foto_url ?? null });
+}
+
 // POST /api/unidades/[id]/foto
 // Faz upload de uma imagem para o Supabase Storage e salva a URL pública em unidades.foto_url
 export async function POST(

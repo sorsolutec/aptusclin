@@ -13,8 +13,26 @@ export async function POST(request: Request) {
       );
     }
 
-    // Simulação de envio seguro para demonstração. Em produção, isso pode ser ligado a um webhook ou e-mail.
-    console.info('Novo lead de contato recebido:', payload);
+    // Salva o lead no Supabase
+    const { getAdminClient } = await import('@/utils/supabase/serverAdmin');
+    const adminClient = getAdminClient();
+    
+    const { error } = await adminClient.from('leads').insert({
+      nome: payload.nome,
+      empresa: payload.empresa,
+      email: payload.email,
+      telefone: payload.telefone,
+      tipo: payload.tipo,
+      mensagem: payload.mensagem,
+    });
+
+    if (error) {
+      console.error('[contact] Erro ao salvar lead:', error.message);
+      // Podemos escolher não falhar a requisição para o usuário, mas vamos retornar erro 500
+      return NextResponse.json({ ok: false, message: 'Não foi possível salvar sua solicitação.' }, { status: 500 });
+    }
+
+    console.info('Novo lead de contato recebido e salvo no banco:', payload.email);
 
     return NextResponse.json({
       ok: true,

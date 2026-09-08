@@ -1,7 +1,15 @@
 import { createClient } from '@/utils/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
+
+function getAdminClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 // GET /api/unidades/[id] — detalhe de uma unidade (acesso público)
 export async function GET(
@@ -62,7 +70,7 @@ export async function PUT(
     }
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await getAdminClient()
     .from('unidades')
     .update(updates)
     .eq('id', id)
