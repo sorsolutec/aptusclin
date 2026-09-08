@@ -4,22 +4,23 @@ import { tenantConfig } from '@/lib/tenant';
 import { createClient } from '@/utils/supabase/server';
 
 export const metadata: Metadata = {
-  title: 'Aptus Clin Boa Esperança do Norte | Medicina do Trabalho & SST',
+  title: 'Unidade de Boa Esperança do Norte | Aptusclin Medicina do Trabalho & SST',
   description:
-    'Clínica especializada em Medicina e Segurança do Trabalho em Boa Esperança do Norte – MT. Exame Admissional, Periódico, Demissional, Audiometria, Espirometria, ECG, EEG, PGR, PCMSO e eSocial. Atendimento na Rua das Azaleias, 1627.',
+    'Unidade de Boa Esperança do Norte, Rua das Azaleias, 1627, Centro. Atendimento em Medicina Ocupacional, Exame Admissional, Periódico, Demissional, PCMSO e eSocial. WhatsApp: (66) 99268-0888.',
   keywords: [
+    'Unidade de Boa Esperança do Norte',
     'Medicina do Trabalho Boa Esperança do Norte MT',
     'Exame Admissional Boa Esperança do Norte',
     'ASO Boa Esperança do Norte',
     'PCMSO Boa Esperança do Norte',
     'PGR Boa Esperança do Norte MT',
     'eSocial SST Boa Esperança do Norte',
-    'Aptus Clin Boa Esperança do Norte',
+    'Aptusclin Boa Esperança do Norte',
   ],
   openGraph: {
-    title: 'Aptus Clin Boa Esperança do Norte | Medicina do Trabalho & SST',
+    title: 'Unidade de Boa Esperança do Norte | Aptusclin Medicina do Trabalho & SST',
     description:
-      'Soluções completas em Medicina Ocupacional, ASO rápido e gestão de eSocial em Boa Esperança do Norte - MT. Atendimento na Rua das Azaleias, 1627.',
+      'Unidade de Boa Esperança do Norte, Rua das Azaleias, 1627, Centro. WhatsApp: (66) 99268-0888.',
     type: 'website',
   },
 };

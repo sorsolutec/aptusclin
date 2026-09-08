@@ -43,7 +43,7 @@ const UNIDADES_SEED: UnidadeSeed[] = [
   },
   {
     id: 'boa-esperanca',
-    nome: 'Aptusclin Boa Esperança do Norte',
+    nome: 'Unidade de Boa Esperança do Norte',
     cidade: 'Boa Esperança do Norte',
     estado: 'MT',
     endereco: 'Rua das Azaleias, 1627, Centro',

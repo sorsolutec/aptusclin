@@ -75,7 +75,7 @@ values
   ),
   (
     'boa-esperanca',
-    'Aptusclin Boa Esperança do Norte',
+    'Unidade de Boa Esperança do Norte',
     'Boa Esperança do Norte',
     'MT',
     'Rua das Azaleias, 1627, Centro',

@@ -65,7 +65,7 @@ export const tenantConfig: Record<string, TenantConfig> = {
   },
   'boa-esperanca': {
     id: 'boa-esperanca',
-    nome: 'Aptus Clin - Medicina do Trabalho - Unidade Boa Esperança do Norte',
+    nome: 'Unidade de Boa Esperança do Norte',
     cidade: 'Boa Esperança do Norte',
     estado: 'MT',
     cor: 'hsl(24, 70%, 40%)',
