@@ -1,17 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
 import { getAdminClient } from '@/utils/supabase/serverAdmin'
-
-interface ClienteRow {
-  id: string
-  name: string
-  cnpj?: string | null
-  cpf?: string | null
-  tipo?: string | null
-  contact_email?: string | null
-  employees?: Array<{ count: number }> | null
-  created_at?: string | null
-}
 
 interface ClientePayload {
   nome?: string
@@ -43,41 +31,94 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const busca = searchParams.get('q') || ''
+    const unidade = searchParams.get('unidade') || ''
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '50', 10)
     const offset = (page - 1) * limit
 
-    const supabase = await createClient()
-    let query = supabase
-      .from('companies')
-      .select('*, employees(count)', { count: 'exact' })
-      .order('name')
-      .range(offset, offset + limit - 1)
+    const supabaseAdmin = getAdminClient()
 
-    if (busca) {
-      query = query.or(`name.ilike.%${busca}%,cnpj.ilike.%${busca}%,contact_email.ilike.%${busca}%`)
+    // 1. Tenta buscar em 'empresas' com contagem de 'colaboradores'
+    let data: any[] | null = null
+    let count: number | null = null
+
+    try {
+      let query = supabaseAdmin
+        .from('empresas')
+        .select('*, colaboradores(count)', { count: 'exact' })
+        .order('nome')
+        .range(offset, offset + limit - 1)
+
+      if (busca) {
+        query = query.or(`nome.ilike.%${busca}%,cnpj.ilike.%${busca}%,email.ilike.%${busca}%`)
+      }
+      if (unidade) {
+        query = query.eq('unidade_id', unidade)
+      }
+
+      const res = await query
+      if (res.error) throw res.error
+      data = res.data
+      count = res.count
+    } catch (relationErr) {
+      // Fallback: consulta sem join se a relação colaboradores(count) falhar
+      console.warn('[GET /api/clientes] Fallback sem join de colaboradores:', relationErr)
+      let queryFallback = supabaseAdmin
+        .from('empresas')
+        .select('*', { count: 'exact' })
+        .order('nome')
+        .range(offset, offset + limit - 1)
+
+      if (busca) {
+        queryFallback = queryFallback.or(`nome.ilike.%${busca}%,cnpj.ilike.%${busca}%,email.ilike.%${busca}%`)
+      }
+      if (unidade) {
+        queryFallback = queryFallback.eq('unidade_id', unidade)
+      }
+
+      const resFallback = await queryFallback
+      if (resFallback.error) {
+        // Se a tabela 'empresas' falhar, tenta 'companies'
+        console.warn('[GET /api/clientes] Fallback para companies:', resFallback.error)
+        let queryCompanies = supabaseAdmin
+          .from('companies')
+          .select('*', { count: 'exact' })
+          .range(offset, offset + limit - 1)
+        const resCompanies = await queryCompanies
+        if (resCompanies.error) throw resFallback.error
+        data = (resCompanies.data || []).map((c: any) => ({
+          ...c,
+          nome: c.name || c.nome,
+          email: c.contact_email || c.email,
+        }))
+        count = resCompanies.count
+      } else {
+        data = resFallback.data
+        count = resFallback.count
+      }
     }
 
-    const { data, count, error } = await query
-    if (error) throw error
-
-    const mapped = (data || []).map((c) => ({
+    const mapped = (data || []).map((c: any) => ({
       id: c.id,
-      nome: c.name,
+      nome: c.nome || c.name || 'Sem nome',
       cnpj: c.cnpj,
       cpf: c.cpf,
-      tipo: c.tipo || 'PJ',
-      email: c.contact_email,
-      responsavel: c.contact_email,
-      ativo: true,
-      colaboradores: c.employees,
-      created_at: c.created_at
+      tipo: c.tipo || (c.cpf ? 'PF' : 'PJ'),
+      email: c.email || c.contact_email,
+      telefone: c.telefone || c.phone,
+      responsavel: c.responsavel || c.contact_email,
+      cidade: c.cidade,
+      estado: c.estado,
+      unidade_id: c.unidade_id,
+      ativo: c.ativo !== false,
+      colaboradores: c.colaboradores || c.employees || [],
+      created_at: c.created_at,
     }))
 
-    return NextResponse.json({ clientes: mapped, total: count || 0 })
-  } catch (err) {
-    console.error('[GET /api/clientes]', err)
-    return NextResponse.json({ error: 'Erro ao buscar clientes.' }, { status: 500 })
+    return NextResponse.json({ clientes: mapped, total: count || mapped.length })
+  } catch (err: any) {
+    console.error('[GET /api/clientes] Erro completo:', err)
+    return NextResponse.json({ error: err?.message || 'Erro ao buscar clientes.' }, { status: 500 })
   }
 }
 
@@ -85,24 +126,31 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as ClientePayload
-    const { nome, cnpj, cpf, email, telefone, tipo } = body
+    const { nome, cnpj, cpf, email, telefone, responsavel, endereco, cidade, estado, unidade_id, tipo } = body
 
     if (!nome?.trim()) return NextResponse.json({ error: 'Nome é obrigatório.' }, { status: 400 })
 
     const supabaseAdmin = getAdminClient()
 
-    // ── PJ: salva na companies sem criar Auth ──────────────────────────────
+    // ── PJ: salva na tabela empresas sem criar Auth ──────────────────────────────
     if (tipo === 'PJ' || !tipo) {
       if (!cnpj) return NextResponse.json({ error: 'CNPJ é obrigatório para Pessoa Jurídica.' }, { status: 400 })
 
+      const cnpjLimpo = cnpj.replace(/\D/g, '')
+
       const { data, error } = await supabaseAdmin
-        .from('companies')
+        .from('empresas')
         .insert({
-          name: nome.trim(),
-          cnpj: cnpj?.replace(/\D/g, '') || null,
-          contact_email: email?.trim() || null,
-          phone: telefone?.trim() || null,
-          tipo: 'PJ',
+          nome: nome.trim(),
+          cnpj: cnpjLimpo,
+          email: email?.trim() || null,
+          telefone: telefone?.trim() || null,
+          responsavel: responsavel?.trim() || null,
+          endereco: endereco?.trim() || null,
+          cidade: cidade?.trim() || null,
+          estado: estado?.trim() || null,
+          unidade_id: unidade_id || null,
+          ativo: true,
         })
         .select()
         .single()
@@ -115,7 +163,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ cliente: data }, { status: 201 })
     }
 
-    // ── PF: cria usuário no Auth + salva na companies ──────────────────────
+    // ── PF: cria usuário no Auth + salva na empresas ──────────────────────
     if (!email?.trim()) return NextResponse.json({ error: 'E-mail é obrigatório para Pessoa Física.' }, { status: 400 })
     if (!cpf) return NextResponse.json({ error: 'CPF é obrigatório para Pessoa Física.' }, { status: 400 })
 
@@ -145,17 +193,21 @@ export async function POST(request: Request) {
 
     const userId = authData.user.id
 
-    // Salva na tabela companies vinculando ao Auth ID
+    // Salva na tabela empresas vinculando ao Auth ID
     const { data, error } = await supabaseAdmin
-      .from('companies')
+      .from('empresas')
       .insert({
         id: userId,
-        name: nome.trim(),
+        nome: nome.trim(),
         cpf: cpfLimpo,
-        contact_email: email.trim(),
-        phone: telefone?.trim() || null,
-        tipo: 'PF',
-        access_code: codigo,
+        email: email.trim(),
+        telefone: telefone?.trim() || null,
+        responsavel: responsavel?.trim() || nome.trim(),
+        endereco: endereco?.trim() || null,
+        cidade: cidade?.trim() || null,
+        estado: estado?.trim() || null,
+        unidade_id: unidade_id || null,
+        ativo: true,
       })
       .select()
       .single()
@@ -174,9 +226,7 @@ export async function POST(request: Request) {
 
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Erro ao criar cliente.'
-    const code = typeof err === 'object' && err !== null && 'code' in err ? String((err as { code?: string }).code) : undefined
-    const details = typeof err === 'object' && err !== null && 'details' in err ? (err as { details?: string }).details : undefined
-    console.error('[POST /api/clientes] code:', code, '| message:', message, '| details:', details)
+    console.error('[POST /api/clientes] Erro:', err)
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

@@ -67,19 +67,45 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '50', 10)
     const offset = (page - 1) * limit
 
-    let query = supabase
-      .from('colaboradores')
-      .select('*, empresas(id, nome)', { count: 'exact' })
-      .order('nome')
-      .range(offset, offset + limit - 1)
+    const supabaseAdmin = getAdminClient()
 
-    if (busca) {
-      query = query.or(`nome.ilike.%${busca}%,cpf.ilike.%${busca}%,cargo.ilike.%${busca}%`)
+    let data: any[] | null = null
+    let count: number | null = null
+
+    try {
+      let query = supabaseAdmin
+        .from('colaboradores')
+        .select('*, empresas(id, nome)', { count: 'exact' })
+        .order('nome')
+        .range(offset, offset + limit - 1)
+
+      if (busca) {
+        query = query.or(`nome.ilike.%${busca}%,cpf.ilike.%${busca}%,cargo.ilike.%${busca}%`)
+      }
+      if (empresaId) query = query.eq('empresa_id', empresaId)
+
+      const res = await query
+      if (res.error) throw res.error
+      data = res.data
+      count = res.count
+    } catch (relationErr) {
+      console.warn('[GET /api/colaboradores] Fallback sem join de empresas:', relationErr)
+      let queryFallback = supabaseAdmin
+        .from('colaboradores')
+        .select('*', { count: 'exact' })
+        .order('nome')
+        .range(offset, offset + limit - 1)
+
+      if (busca) {
+        queryFallback = queryFallback.or(`nome.ilike.%${busca}%,cpf.ilike.%${busca}%,cargo.ilike.%${busca}%`)
+      }
+      if (empresaId) queryFallback = queryFallback.eq('empresa_id', empresaId)
+
+      const resFallback = await queryFallback
+      if (resFallback.error) throw resFallback.error
+      data = resFallback.data
+      count = resFallback.count
     }
-    if (empresaId) query = query.eq('empresa_id', empresaId)
-
-    const { data, count, error } = await query
-    if (error) throw error
 
     const mapped = (data || []).map((e) => ({
       id: e.id,
@@ -94,9 +120,9 @@ export async function GET(request: Request) {
     }))
 
     return NextResponse.json({ colaboradores: mapped, total: count || 0 })
-  } catch (err) {
-    console.error('[GET /api/colaboradores]', err)
-    return NextResponse.json({ error: 'Erro ao buscar colaboradores.' }, { status: 500 })
+  } catch (err: any) {
+    console.error('[GET /api/colaboradores] Erro completo:', err)
+    return NextResponse.json({ error: err?.message || 'Erro ao buscar colaboradores.' }, { status: 500 })
   }
 }
 
