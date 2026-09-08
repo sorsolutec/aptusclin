@@ -104,7 +104,10 @@ export default async function DocumentosPage() {
     console.error('[documentos] erro ao buscar exames:', error.message)
   }
 
-  const records: ExamRecord[] = (exames ?? []) as ExamRecord[]
+  const records: ExamRecord[] = (exames ?? []).map((e: any) => ({
+    ...e,
+    colaborador: Array.isArray(e.colaborador) ? e.colaborador[0] : e.colaborador
+  })) as ExamRecord[]
 
   // Stats
   const stats = {
