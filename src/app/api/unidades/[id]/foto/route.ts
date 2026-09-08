@@ -17,20 +17,24 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const adminClient = getAdminClient();
+  try {
+    const { id } = await params;
+    const adminClient = getAdminClient();
 
-  const { data, error } = await adminClient
-    .from('unidades')
-    .select('foto_url')
-    .eq('id', id)
-    .single();
+    const { data, error } = await adminClient
+      .from('unidades')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
 
-  if (error || !data) {
-    return NextResponse.json({ foto_url: null }, { status: 404 });
+    if (error || !data) {
+      return NextResponse.json({ foto_url: null });
+    }
+
+    return NextResponse.json({ foto_url: data.foto_url ?? null });
+  } catch (_err) {
+    return NextResponse.json({ foto_url: null });
   }
-
-  return NextResponse.json({ foto_url: data.foto_url ?? null });
 }
 
 // POST /api/unidades/[id]/foto
@@ -147,3 +151,4 @@ export async function DELETE(
     return NextResponse.json({ error: err?.message || 'Erro ao remover foto.' }, { status: 500 });
   }
 }
+
