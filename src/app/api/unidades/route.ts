@@ -9,9 +9,9 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('unidades')
-    .select('id, nome, cidade, estado, endereco, telefone, email, descricao, slides')
+    .select('*')
     .eq('ativo', true)
-    .order('nome');
+    .order('cidade');
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -19,3 +19,4 @@ export async function GET() {
 
   return NextResponse.json(data);
 }
+
