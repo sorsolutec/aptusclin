@@ -35,11 +35,12 @@ interface Unidade {
   descricao: string;
   telefone?: string;
   email?: string;
+  foto_url?: string;
   fotoUrl?: string;
   slides: { url: string; caption?: string }[];
 }
 
-function getUnitUrl(unitId: string, host: string) {
+function getUnitUrl(unitId: string, _host: string) {
   const normalizedId = unitId === 'hova-ubirata' ? 'nova-ubirata' : unitId;
   return `/unidades/${normalizedId}`;
 }
@@ -77,7 +78,18 @@ export default async function MainLandingPage() {
   try {
     const { data, error } = await supabase.from('unidades').select('*').eq('ativo', true);
     if (!error && data && data.length > 0) {
-      unidades = data as Unidade[];
+      unidades = data.map((u: any) => ({
+        id: u.id,
+        nome: u.nome,
+        cidade: u.cidade,
+        estado: u.estado,
+        descricao: u.descricao || '',
+        telefone: u.telefone,
+        email: u.email,
+        foto_url: u.foto_url,
+        fotoUrl: u.foto_url || u.fotoUrl,
+        slides: u.slides || [],
+      }));
     }
   } catch {
     // Silently fallback
@@ -92,6 +104,7 @@ export default async function MainLandingPage() {
       descricao: u.descricao || '',
       telefone: u.telefone,
       email: u.email,
+      foto_url: u.fotoUrl,
       fotoUrl: u.fotoUrl,
       slides: u.slides || [],
     }));
@@ -201,7 +214,7 @@ export default async function MainLandingPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {unidades.map(u => {
               const url = getUnitUrl(u.id, host);
-              const foto = u.fotoUrl || '/images/fictitious-clinic.jpg';
+              const foto = u.foto_url || u.fotoUrl || '/images/fictitious-clinic.jpg';
               return (
                 <a
                   key={u.id}
