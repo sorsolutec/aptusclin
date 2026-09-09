@@ -128,13 +128,15 @@ export default function UnitHomePage({ companyId }: { companyId: string }) {
             <h1 className="text-lg font-bold text-[#002855] leading-tight">{data.nome}</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href="/portal/agenda"
-              className="bg-[#002855] text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-[#001a3d] transition"
+            <a
+              href={`https://wa.me/${(data.whatsapp || data.telefone || '').replace(/\D/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#1B8B3A] text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-[#166b2d] transition flex items-center gap-1.5"
             >
-              <CalendarDays className="w-4 h-4 inline-block mr-1 -mt-0.5" />
-              Agendar
-            </Link>
+              <MessageSquare className="w-4 h-4" />
+              WhatsApp
+            </a>
           </div>
         </div>
       </header>
@@ -161,13 +163,15 @@ export default function UnitHomePage({ companyId }: { companyId: string }) {
             <FileText className="w-5 h-5" />
             Resultados de Exames
           </Link>
-          <Link
-            href="/portal/agenda"
+          <a
+            href={`https://wa.me/${(data.whatsapp || data.telefone || '').replace(/\D/g, '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-8 py-4 rounded-xl text-base transition"
           >
-            <CalendarDays className="w-5 h-5" />
-            Agendar Exame
-          </Link>
+            <MessageSquare className="w-5 h-5 text-emerald-400" />
+            Falar no WhatsApp
+          </a>
         </div>
       </section>
 

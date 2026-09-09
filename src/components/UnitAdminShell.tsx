@@ -22,7 +22,6 @@ interface Props {
 const NAV_ITEMS = (id: string) => [
   { href: `/admin/unidades/${id}`, label: 'Dashboard', icon: LayoutGrid, exact: true },
   { href: `/admin/unidades/${id}/exames`, label: 'Exames', icon: FlaskConical },
-  { href: `/admin/unidades/${id}/agenda`, label: 'Agenda', icon: CalendarDays },
   { href: `/admin/unidades/${id}/slides`, label: 'Slides / Fotos', icon: Image },
   { href: `/admin/unidades/${id}/usuarios`, label: 'Usuários', icon: Users },
 ];

@@ -19,7 +19,6 @@ const navItems = [
   { href: '/portal/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/portal/documentos', label: 'Documentos', icon: FileText },
   { href: '/portal/empresa', label: 'Minha Empresa', icon: Building2 },
-  { href: '/portal/agenda', label: 'Agenda', icon: Calendar },
 ]
 
 export default async function PortalLayout({
