@@ -57,7 +57,7 @@ export async function GET(request: Request) {
     const role = user?.user_metadata?.role ?? user?.app_metadata?.role
 
     if (!user || role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      return NextResponse.json({ error: 'Acesso negado.' }, { status: 403 })
     }
 
     const { searchParams } = new URL(request.url)
@@ -69,69 +69,70 @@ export async function GET(request: Request) {
 
     const supabaseAdmin = getAdminClient()
 
-    let data: any[] | null = null
-    let count: number | null = null
+    let query = supabaseAdmin
+      .from('colaboradores')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
 
-    try {
-      let query = supabaseAdmin
-        .from('colaboradores')
-        .select('*, empresas(id, nome)', { count: 'exact' })
-        .order('nome')
-        .range(offset, offset + limit - 1)
+    if (busca) {
+      query = query.or(`name.ilike.%${busca}%,cpf.ilike.%${busca}%,role.ilike.%${busca}%`)
+    }
+    if (empresaId) query = query.eq('company_id', empresaId)
 
-      if (busca) {
-        query = query.or(`nome.ilike.%${busca}%,cpf.ilike.%${busca}%,cargo.ilike.%${busca}%`)
-      }
-      if (empresaId) query = query.eq('empresa_id', empresaId)
+    const { data, count, error } = await query
 
-      const res = await query
-      if (res.error) throw res.error
-      data = res.data
-      count = res.count
-    } catch (relationErr) {
-      console.warn('[GET /api/colaboradores] Fallback sem join de empresas:', relationErr)
-      let queryFallback = supabaseAdmin
-        .from('colaboradores')
-        .select('*', { count: 'exact' })
-        .order('nome')
-        .range(offset, offset + limit - 1)
-
-      if (busca) {
-        queryFallback = queryFallback.or(`nome.ilike.%${busca}%,cpf.ilike.%${busca}%,cargo.ilike.%${busca}%`)
-      }
-      if (empresaId) queryFallback = queryFallback.eq('empresa_id', empresaId)
-
-      const resFallback = await queryFallback
-      if (resFallback.error) throw resFallback.error
-      data = resFallback.data
-      count = resFallback.count
+    if (error) {
+      console.warn('[GET /api/colaboradores] Aviso na consulta:', error)
+      return NextResponse.json({ colaboradores: [], total: 0 })
     }
 
-    const mapped = (data || []).map((e) => ({
+    // Busca nomes das empresas para compor relação
+    const companyIds = Array.from(new Set((data || []).map((e: any) => e.company_id).filter(Boolean)))
+    let empresasMap: Record<string, string> = {}
+    if (companyIds.length > 0) {
+      const { data: empData } = await supabaseAdmin
+        .from('empresas')
+        .select('id, name')
+        .in('id', companyIds)
+      if (empData) {
+        empresasMap = Object.fromEntries(empData.map((e: any) => [e.id, e.name]))
+      }
+    }
+
+    const mapped = (data || []).map((e: any) => ({
       id: e.id,
-      nome: e.nome,
-      cpf: e.cpf,
-      cargo: e.cargo,
-      empresa_id: e.empresa_id,
-      empresas: e.empresas ? { id: e.empresas.id, nome: e.empresas.nome } : null,
-      status_aso: e.status_aso || 'Pendente',
-      ativo: e.ativo !== false,
+      nome: e.name || 'Sem nome',
+      cpf: e.cpf || '',
+      cargo: e.role || '',
+      empresa_id: e.company_id,
+      empresas: e.company_id && empresasMap[e.company_id] ? { id: e.company_id, nome: empresasMap[e.company_id] } : null,
+      status_aso: 'Pendente',
+      ativo: true,
       created_at: e.created_at
     }))
 
-    return NextResponse.json({ colaboradores: mapped, total: count || 0 })
+    return NextResponse.json({ colaboradores: mapped, total: count || mapped.length })
   } catch (err: any) {
-    console.error('[GET /api/colaboradores] Erro completo:', err)
-    return NextResponse.json({ error: err?.message || 'Erro ao buscar colaboradores.' }, { status: 500 })
+    console.error('[GET /api/colaboradores] Erro:', err)
+    return NextResponse.json({ colaboradores: [], total: 0, error: err?.message }, { status: 200 })
   }
 }
 
 // POST /api/colaboradores — cria colaborador e gera credenciais
 export async function POST(request: Request) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const role = user?.user_metadata?.role ?? user?.app_metadata?.role
+
+    if (!user || role !== 'admin') {
+      return NextResponse.json({ error: 'Acesso negado.' }, { status: 403 })
+    }
+
     const body = (await request.json()) as ColaboradorPayload
     const {
-      nome, cpf, data_nascimento, data_admissao,
+      nome, cpf,
       cargo, unidade_id,
       telefone, email, empresa_id
     } = body
@@ -140,16 +141,13 @@ export async function POST(request: Request) {
     if (!cpf?.trim()) return NextResponse.json({ error: 'CPF é obrigatório.' }, { status: 400 })
 
     const cpfLimpo = cpf.replace(/\D/g, '')
-
-    // Para criar usuários no auth, precisamos de um client com Service Role Key
     const supabaseAdmin = getAdminClient()
 
     const usuario = gerarUsuario(nome.trim())
     const senha = gerarSenha()
-    const senhaHash = await bcrypt.hash(senha, 10)
     const emailToUse = email?.trim() || `${usuario}@aptusclin.com.br`
 
-    // Cria o usuário na Autenticação do Supabase (para potencial uso futuro)
+    // Cria o usuário na Autenticação do Supabase (se aplicável)
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: emailToUse,
       password: senha,
@@ -161,48 +159,47 @@ export async function POST(request: Request) {
       }
     })
 
-    if (authError) {
-      if (authError.message.includes('already registered')) {
-         return NextResponse.json({ error: 'Este e-mail já está em uso.' }, { status: 409 })
-      }
-      throw authError
+    if (authError && !authError.message.includes('already registered')) {
+      return NextResponse.json({ error: authError.message }, { status: 400 })
     }
 
-    const userId = authData.user.id
+    const userId = authData?.user?.id || crypto.randomUUID()
 
-    // Insere na tabela colaboradores os dados complementares de resultados de exames
+    // Insere na tabela colaboradores
     const { data, error } = await supabaseAdmin
       .from('colaboradores')
       .insert({
-        id: userId, // Vincula ao mesmo ID do Auth
-        nome: nome.trim(),
+        id: userId,
+        company_id: empresa_id || null,
+        name: nome.trim(),
         cpf: cpfLimpo,
-        data_nascimento: data_nascimento || null,
-        data_admissao: data_admissao || null,
-        cargo: cargo?.trim() || null,
+        role: cargo?.trim() || null,
         unidade_id: unidade_id || null,
         email: emailToUse,
-        telefone: telefone?.trim() || null,
-        usuario: usuario,
-        senha_hash: senhaHash,
-        status_aso: 'Pendente',
-        empresa_id: empresa_id || null,
-        ativo: true
+        phone: telefone?.trim() || null,
+        access_level: 'viewer',
       })
       .select()
       .single()
 
     if (error) {
-      // Rollback: se falhar em colaboradores, apaga do Auth
-      await supabaseAdmin.auth.admin.deleteUser(userId)
+      if (authData?.user?.id) {
+        await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+      }
       if (error.code === '23505') {
         return NextResponse.json({ error: 'CPF já cadastrado.' }, { status: 409 })
       }
-      throw error
+      return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
     return NextResponse.json({
-      colaborador: data,
+      colaborador: {
+        id: data.id,
+        nome: data.name,
+        cpf: data.cpf,
+        cargo: data.role,
+        empresa_id: data.company_id,
+      },
       credenciais: { usuario, senha }
     }, { status: 201 })
 
@@ -212,3 +209,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
+

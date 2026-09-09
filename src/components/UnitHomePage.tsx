@@ -305,9 +305,7 @@ export default function UnitHomePage({ companyId }: { companyId: string }) {
           <Link href="/portal/exames" className="text-xs text-slate-400 hover:text-white transition flex items-center gap-1">
             <FileText className="w-3 h-3" /> Resultados
           </Link>
-          <Link href="/portal/agenda" className="text-xs text-slate-400 hover:text-white transition flex items-center gap-1">
-            <CalendarDays className="w-3 h-3" /> Agenda
-          </Link>
+          
           <Link href="/admin/unidades" className="text-xs text-slate-400 hover:text-white transition flex items-center gap-1">
             <Settings className="w-3 h-3" /> Admin
           </Link>

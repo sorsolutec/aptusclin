@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 export default function NovaEmpresaPage() {
   const [salvando, setSalvando] = useState(false)
   const [sucesso, setSucesso] = useState(false)
+  const [erro, setErro] = useState('')
 
   const [form, setForm] = useState({
     nomeFantasia: '',
@@ -29,17 +30,47 @@ export default function NovaEmpresaPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+    setErro('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSalvando(true)
+    setErro('')
 
-    // TODO: Integrar com Supabase — insert na tabela empresas
-    await new Promise((r) => setTimeout(r, 1200))
+    try {
+      const nomeFinal = form.nomeFantasia.trim() || form.razaoSocial.trim()
+      if (!nomeFinal) {
+        setErro('Informe o nome da empresa.')
+        setSalvando(false)
+        return
+      }
 
-    setSalvando(false)
-    setSucesso(true)
+      const res = await fetch('/api/clientes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: nomeFinal,
+          cnpj: form.cnpj,
+          email: form.email,
+          telefone: form.telefone,
+          responsavel: form.responsavel,
+          endereco: form.endereco,
+          tipo: 'PJ',
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'Erro ao cadastrar empresa.')
+      }
+
+      setSucesso(true)
+    } catch (err: any) {
+      setErro(err?.message || 'Erro ao comunicar com o servidor.')
+    } finally {
+      setSalvando(false)
+    }
   }
 
   if (sucesso) {
@@ -50,7 +81,7 @@ export default function NovaEmpresaPage() {
         </div>
         <h2 className="text-2xl font-bold text-slate-800">Empresa cadastrada com sucesso!</h2>
         <p className="text-slate-500 mt-2 mb-8">
-          A empresa <strong>{form.nomeFantasia || form.razaoSocial}</strong> já pode acessar o Portal do Cliente.
+          A empresa <strong>{form.nomeFantasia || form.razaoSocial}</strong> foi salva no sistema com sucesso.
         </p>
         <div className="flex gap-3">
           <Button
@@ -80,7 +111,15 @@ export default function NovaEmpresaPage() {
         </div>
       </div>
 
+      {erro && (
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+          <ShieldAlert className="w-5 h-5 text-red-600 flex-shrink-0" />
+          <span>{erro}</span>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-5">
+
         <Card className="border-slate-200 shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">

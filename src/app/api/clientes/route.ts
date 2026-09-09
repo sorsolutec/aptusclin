@@ -31,94 +31,50 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const busca = searchParams.get('q') || ''
-    const unidade = searchParams.get('unidade') || ''
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '50', 10)
     const offset = (page - 1) * limit
 
     const supabaseAdmin = getAdminClient()
 
-    // 1. Tenta buscar em 'empresas' com contagem de 'colaboradores'
-    let data: any[] | null = null
-    let count: number | null = null
+    let query = supabaseAdmin
+      .from('empresas')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
 
-    try {
-      let query = supabaseAdmin
-        .from('empresas')
-        .select('*, colaboradores(count)', { count: 'exact' })
-        .order('nome')
-        .range(offset, offset + limit - 1)
+    if (busca) {
+      query = query.or(`name.ilike.%${busca}%,cnpj.ilike.%${busca}%,contact_email.ilike.%${busca}%`)
+    }
 
-      if (busca) {
-        query = query.or(`nome.ilike.%${busca}%,cnpj.ilike.%${busca}%,email.ilike.%${busca}%`)
-      }
-      if (unidade) {
-        query = query.eq('unidade_id', unidade)
-      }
+    const { data, error, count } = await query
 
-      const res = await query
-      if (res.error) throw res.error
-      data = res.data
-      count = res.count
-    } catch (relationErr) {
-      // Fallback: consulta sem join se a relação colaboradores(count) falhar
-      console.warn('[GET /api/clientes] Fallback sem join de colaboradores:', relationErr)
-      let queryFallback = supabaseAdmin
-        .from('empresas')
-        .select('*', { count: 'exact' })
-        .order('nome')
-        .range(offset, offset + limit - 1)
-
-      if (busca) {
-        queryFallback = queryFallback.or(`nome.ilike.%${busca}%,cnpj.ilike.%${busca}%,email.ilike.%${busca}%`)
-      }
-      if (unidade) {
-        queryFallback = queryFallback.eq('unidade_id', unidade)
-      }
-
-      const resFallback = await queryFallback
-      if (resFallback.error) {
-        // Se a tabela 'empresas' falhar, tenta 'companies'
-        console.warn('[GET /api/clientes] Fallback para companies:', resFallback.error)
-        let queryCompanies = supabaseAdmin
-          .from('companies')
-          .select('*', { count: 'exact' })
-          .range(offset, offset + limit - 1)
-        const resCompanies = await queryCompanies
-        if (resCompanies.error) throw resFallback.error
-        data = (resCompanies.data || []).map((c: any) => ({
-          ...c,
-          nome: c.name || c.nome,
-          email: c.contact_email || c.email,
-        }))
-        count = resCompanies.count
-      } else {
-        data = resFallback.data
-        count = resFallback.count
-      }
+    if (error) {
+      console.warn('[GET /api/clientes] Aviso na consulta:', error)
+      return NextResponse.json({ clientes: [], total: 0 })
     }
 
     const mapped = (data || []).map((c: any) => ({
       id: c.id,
-      nome: c.nome || c.name || 'Sem nome',
-      cnpj: c.cnpj,
-      cpf: c.cpf,
+      nome: c.name || c.nome || 'Sem nome',
+      cnpj: c.cnpj || '',
+      cpf: c.cpf || '',
       tipo: c.tipo || (c.cpf ? 'PF' : 'PJ'),
-      email: c.email || c.contact_email,
-      telefone: c.telefone || c.phone,
-      responsavel: c.responsavel || c.contact_email,
-      cidade: c.cidade,
-      estado: c.estado,
-      unidade_id: c.unidade_id,
+      email: c.contact_email || c.email || '',
+      telefone: c.phone || c.telefone || '',
+      responsavel: c.responsavel || c.name || '',
+      cidade: c.cidade || '',
+      estado: c.estado || '',
+      unidade_id: c.unidade_id || '',
       ativo: c.ativo !== false,
-      colaboradores: c.colaboradores || c.employees || [],
+      colaboradores: [],
       created_at: c.created_at,
     }))
 
     return NextResponse.json({ clientes: mapped, total: count || mapped.length })
   } catch (err: any) {
     console.error('[GET /api/clientes] Erro completo:', err)
-    return NextResponse.json({ error: err?.message || 'Erro ao buscar clientes.' }, { status: 500 })
+    return NextResponse.json({ clientes: [], total: 0, error: err?.message }, { status: 200 })
   }
 }
 
@@ -141,26 +97,31 @@ export async function POST(request: Request) {
       const { data, error } = await supabaseAdmin
         .from('empresas')
         .insert({
-          nome: nome.trim(),
+          name: nome.trim(),
           cnpj: cnpjLimpo,
-          email: email?.trim() || null,
-          telefone: telefone?.trim() || null,
-          responsavel: responsavel?.trim() || null,
-          endereco: endereco?.trim() || null,
-          cidade: cidade?.trim() || null,
-          estado: estado?.trim() || null,
-          unidade_id: unidade_id || null,
-          ativo: true,
+          contact_email: email?.trim() || null,
+          phone: telefone?.trim() || null,
+          tipo: 'PJ',
         })
         .select()
         .single()
 
       if (error) {
         if (error.code === '23505') return NextResponse.json({ error: 'CNPJ já cadastrado.' }, { status: 409 })
-        throw error
+        console.error('[POST /api/clientes PJ] Erro:', error)
+        return NextResponse.json({ error: error.message }, { status: 400 })
       }
 
-      return NextResponse.json({ cliente: data }, { status: 201 })
+      return NextResponse.json({
+        cliente: {
+          id: data.id,
+          nome: data.name,
+          cnpj: data.cnpj,
+          email: data.contact_email,
+          telefone: data.phone,
+          created_at: data.created_at,
+        }
+      }, { status: 201 })
     }
 
     // ── PF: cria usuário no Auth + salva na empresas ──────────────────────
@@ -188,7 +149,7 @@ export async function POST(request: Request) {
       if (authError.message.includes('already registered')) {
         return NextResponse.json({ error: 'Este e-mail já está cadastrado no sistema.' }, { status: 409 })
       }
-      throw authError
+      return NextResponse.json({ error: authError.message }, { status: 400 })
     }
 
     const userId = authData.user.id
@@ -198,16 +159,11 @@ export async function POST(request: Request) {
       .from('empresas')
       .insert({
         id: userId,
-        nome: nome.trim(),
+        name: nome.trim(),
         cpf: cpfLimpo,
-        email: email.trim(),
-        telefone: telefone?.trim() || null,
-        responsavel: responsavel?.trim() || nome.trim(),
-        endereco: endereco?.trim() || null,
-        cidade: cidade?.trim() || null,
-        estado: estado?.trim() || null,
-        unidade_id: unidade_id || null,
-        ativo: true,
+        contact_email: email.trim(),
+        phone: telefone?.trim() || null,
+        tipo: 'PF',
       })
       .select()
       .single()
@@ -216,11 +172,18 @@ export async function POST(request: Request) {
       // Rollback: apaga o usuário do Auth se falhar
       await supabaseAdmin.auth.admin.deleteUser(userId)
       if (error.code === '23505') return NextResponse.json({ error: 'CPF já cadastrado.' }, { status: 409 })
-      throw error
+      return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
     return NextResponse.json({
-      cliente: data,
+      cliente: {
+        id: data.id,
+        nome: data.name,
+        cpf: data.cpf,
+        email: data.contact_email,
+        telefone: data.phone,
+        created_at: data.created_at,
+      },
       credenciais: { codigo, senha, email: email.trim() },
     }, { status: 201 })
 
@@ -230,3 +193,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
+

@@ -30,12 +30,6 @@ const TIPOS_EXAME = [
 
 type EmpresaOpt = { id: string; nome: string }
 
-const MOCK_EMPRESAS: EmpresaOpt[] = [
-  { id: 'empresa1', nome: 'Empresa Alpha Ltda' },
-  { id: 'empresa2', nome: 'Beta Indústrias S.A.' },
-  { id: 'empresa3', nome: 'Gama Comércio Eireli' },
-]
-
 const STATUS_OPTIONS: Status[] = ['Apto', 'Inapto', 'Apto com Restrições', 'Pendente']
 
 const statusColors: Record<Status, string> = {
@@ -66,23 +60,24 @@ export default function NovoExamePage() {
     observacoes: '',
   })
 
+  const [semEmpresas, setSemEmpresas] = useState(false)
+
   useEffect(() => {
     fetch('/api/admin/empresas')
       .then((res) => {
-        if (!res.ok) throw new Error('Não foi possível carregar as empresas.');
-        return res.json();
+        if (!res.ok) throw new Error('Erro ao carregar empresas.')
+        return res.json()
       })
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setEmpresas(data);
-        } else {
-          setEmpresas(MOCK_EMPRESAS);
-        }
+        const lista: EmpresaOpt[] = Array.isArray(data) ? data : (data.empresas || [])
+        setEmpresas(lista)
+        if (lista.length === 0) setSemEmpresas(true)
       })
       .catch(() => {
-        setEmpresas(MOCK_EMPRESAS);
-      });
-  }, []);
+        setEmpresas([])
+        setSemEmpresas(true)
+      })
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
@@ -184,18 +179,33 @@ export default function NovoExamePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <select
-              name="empresa"
-              value={form.empresa}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#002855]/20 focus:border-[#002855] transition-all"
-            >
-              <option value="">Selecione a empresa...</option>
-              {empresas.map((emp) => (
-                <option key={emp.id} value={emp.id}>{emp.nome}</option>
-              ))}
-            </select>
+            {semEmpresas ? (
+              <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-amber-800 text-sm font-semibold">Nenhuma empresa cadastrada</p>
+                  <p className="text-amber-700 text-xs mt-1">
+                    Cadastre uma empresa antes de lançar um exame.{' '}
+                    <Link href="/admin/clientes/novo" className="underline font-semibold hover:text-amber-900">
+                      Cadastrar empresa agora →
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <select
+                name="empresa"
+                value={form.empresa}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#002855]/20 focus:border-[#002855] transition-all"
+              >
+                <option value="">Selecione a empresa...</option>
+                {empresas.map((emp) => (
+                  <option key={emp.id} value={emp.id}>{emp.nome}</option>
+                ))}
+              </select>
+            )}
           </CardContent>
         </Card>
 

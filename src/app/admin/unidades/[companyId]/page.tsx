@@ -42,7 +42,7 @@ export default function UnitDashboardPage({
   params: Promise<{ companyId: string }>;
 }) {
   const { companyId } = use(params);
-  const [stats, setStats] = useState({ exames: 0, agendamentos: 0 });
+  const [stats, setStats] = useState({ exames: 0 });
   const [unidade, setUnidade] = useState<{ nome: string; slides: unknown[] } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -97,14 +97,6 @@ export default function UnitDashboardPage({
           href={`/admin/unidades/${companyId}/slides`}
           color="#1B8B3A"
         />
-        <StatCard
-          icon={CalendarDays}
-          label="Agendamentos"
-          value={stats.agendamentos}
-          sub="Esta semana"
-          href={`/admin/unidades/${companyId}/agenda`}
-          color="#d97706"
-        />
       </div>
 
       {/* ACESSO RÁPIDO */}
@@ -115,7 +107,7 @@ export default function UnitDashboardPage({
           { href: `/admin/unidades/${companyId}/slides`, title: 'Gerenciar Fotos / Slides', desc: 'Adicione ou remova imagens do carrossel da home.', icon: Image, color: '#1B8B3A' },
           { href: `/admin/unidades/${companyId}/servicos`, title: 'Serviços e Exames Oferecidos', desc: 'Defina quais exames estão disponíveis para atendimento nesta unidade.', icon: Stethoscope, color: '#0ea5e9' },
           { href: `/admin/unidades/${companyId}/exames`, title: 'Gerenciar Exames', desc: 'Cadastre, edite e organize os exames disponíveis.', icon: FlaskConical, color: '#002855' },
-          { href: `/admin/unidades/${companyId}/agenda`, title: 'Ver Agendamentos', desc: 'Consulte os agendamentos da unidade.', icon: CalendarDays, color: '#d97706' },
+ 
           { href: `/admin/unidades/${companyId}/usuarios`, title: 'Usuários da Unidade', desc: 'Gerencie os usuários e acessos desta unidade.', icon: Users, color: '#7c3aed' },
         ].map(({ href, title, desc, icon: Icon, color }) => (
           <Link

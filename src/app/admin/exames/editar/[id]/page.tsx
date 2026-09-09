@@ -31,94 +31,7 @@ const TIPOS_EXAME = [
 
 type EmpresaOpt = { id: string; nome: string }
 
-const MOCK_EMPRESAS: EmpresaOpt[] = [
-  { id: 'empresa1', nome: 'Empresa Alpha Ltda' },
-  { id: 'empresa2', nome: 'Beta Indústrias S.A.' },
-  { id: 'empresa3', nome: 'Gama Comércio Eireli' },
-]
-
 const STATUS_OPTIONS: Status[] = ['Apto', 'Inapto', 'Apto com Restrições', 'Pendente']
-
-const MOCK_EXAMS_DATA: Record<string, any> = {
-  '001': {
-    colaborador: 'Carlos Eduardo Silva',
-    cpf: '123.456.789-00',
-    empresa: 'Empresa Alpha Ltda',
-    funcao: 'Analista de TI',
-    tipoExame: 'Periódico',
-    dataExame: '2025-03-15',
-    dataVencimento: '2026-03-15',
-    status: 'Apto',
-    medico: 'Dra. Juliana Mendes',
-    crm: 'CRM/MT 12345',
-    observacoes: 'Apto para a função sem restrições.',
-  },
-  '002': {
-    colaborador: 'Maria Fernanda Santos',
-    cpf: '987.654.321-00',
-    empresa: 'Beta Indústrias S.A.',
-    funcao: 'Coordenadora RH',
-    tipoExame: 'Admissional',
-    dataExame: '2025-05-10',
-    dataVencimento: '2026-05-10',
-    status: 'Apto',
-    medico: 'Dr. Roberto Souza',
-    crm: 'CRM/MT 54321',
-    observacoes: 'Exame admissional sem alterações.',
-  },
-  '003': {
-    colaborador: 'João Pedro Oliveira',
-    cpf: '456.789.123-00',
-    empresa: 'Beta Indústrias S.A.',
-    funcao: 'Operador de Máquinas',
-    tipoExame: 'Periódico',
-    dataExame: '2025-01-20',
-    dataVencimento: '2025-07-20',
-    status: 'Apto com Restrições',
-    medico: 'Dra. Juliana Mendes',
-    crm: 'CRM/MT 12345',
-    observacoes: 'Necessário uso contínuo de protetor auricular auricular duplo.',
-  },
-  '004': {
-    colaborador: 'Ana Beatriz Costa',
-    cpf: '321.654.987-00',
-    empresa: 'Empresa Alpha Ltda',
-    funcao: 'Analista Financeira',
-    tipoExame: 'Retorno ao Trabalho',
-    dataExame: '2025-06-01',
-    dataVencimento: '2026-06-01',
-    status: 'Apto',
-    medico: 'Dr. Marcos Paulo',
-    crm: 'CRM/MT 98765',
-    observacoes: 'Retorno após licença. Apta.',
-  },
-  '005': {
-    colaborador: 'Ricardo Martins',
-    cpf: '654.321.789-00',
-    empresa: 'Gama Comércio Eireli',
-    funcao: 'Motorista',
-    tipoExame: 'Periódico',
-    dataExame: '2025-02-28',
-    dataVencimento: '2025-02-28',
-    status: 'Inapto',
-    medico: 'Dr. Roberto Souza',
-    crm: 'CRM/MT 54321',
-    observacoes: 'Encaminhado para avaliação cardiovascular complementar.',
-  },
-  '006': {
-    colaborador: 'Camila Rodrigues',
-    cpf: '789.123.456-00',
-    empresa: 'Gama Comércio Eireli',
-    funcao: 'Auxiliar de Serviços Gerais',
-    tipoExame: 'Mudança de Função',
-    dataExame: '2025-06-12',
-    dataVencimento: '2026-06-12',
-    status: 'Pendente',
-    medico: 'Dra. Juliana Mendes',
-    crm: 'CRM/MT 12345',
-    observacoes: 'Aguardando laudo de audiometria.',
-  },
-}
 
 export default function EditarExamePage({
   params,
@@ -149,62 +62,59 @@ export default function EditarExamePage({
   })
 
   useEffect(() => {
-    // 1. Carrega empresas
+    // 1. Carrega empresas reais
     fetch('/api/admin/empresas')
-      .then((res) => res.ok ? res.json() : [])
+      .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setEmpresas(data)
-        } else {
-          setEmpresas(MOCK_EMPRESAS)
         }
       })
-      .catch(() => setEmpresas(MOCK_EMPRESAS))
+      .catch(() => setEmpresas([]))
 
-    // 2. Carrega dados do exame
-    if (MOCK_EXAMS_DATA[id]) {
-      const mock = MOCK_EXAMS_DATA[id]
-      setForm({
-        empresa: mock.empresa || '',
-        colaborador: mock.colaborador || '',
-        cpf: mock.cpf || '',
-        funcao: mock.funcao || '',
-        tipoExame: mock.tipoExame || 'Admissional',
-        dataExame: mock.dataExame || '',
-        dataVencimento: mock.dataVencimento || '',
-        medico: mock.medico || '',
-        crm: mock.crm || '',
-        observacoes: mock.observacoes || '',
-      })
-      setStatus(mock.status || 'Apto')
-      setCarregando(false)
-    } else {
-      // Tenta buscar no backend se for um ID real
-      fetch(`/api/admin/exames/${id}`)
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (data) {
-            setForm({
-              empresa: data.company_id || data.empresa || '',
-              colaborador: data.title?.split(' - ')[1] || data.colaborador || '',
-              cpf: data.cpf || '',
-              funcao: data.funcao || '',
-              tipoExame: data.title?.split(' - ')[0] || data.tipoExame || 'Admissional',
-              dataExame: data.start_at ? data.start_at.split('T')[0] : '',
-              dataVencimento: data.end_at ? data.end_at.split('T')[0] : '',
-              medico: data.medico || '',
-              crm: data.crm || '',
-              observacoes: data.description || '',
-            })
-            if (data.location && STATUS_OPTIONS.includes(data.location as Status)) {
-              setStatus(data.location as Status)
-            }
+    // 2. Carrega exame real
+    fetch(`/api/admin/exames/${id}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          const parts = (data.title || '').split(' - ')
+          const tipo = parts[0] || 'Admissional'
+          const colab = parts[1] || ''
+
+          // Extrai campos da description se formatada
+          const desc = data.description || ''
+          const cpfMatch = desc.match(/CPF:\s*([^|]+)/)
+          const funcMatch = desc.match(/Função:\s*([^|]+)/)
+          const medMatch = desc.match(/Médico:\s*([^|(]+)/)
+          const crmMatch = desc.match(/\(([^)]+)\)/)
+          const obsMatch = desc.match(/Obs:\s*(.+)$/)
+
+          setForm({
+            empresa: data.company_id || '',
+            colaborador: colab || '',
+            cpf: cpfMatch ? cpfMatch[1].trim() : '',
+            funcao: funcMatch ? funcMatch[1].trim() : '',
+            tipoExame: tipo,
+            dataExame: data.start_at ? data.start_at.split('T')[0] : '',
+            dataVencimento: data.end_at ? data.end_at.split('T')[0] : '',
+            medico: medMatch ? medMatch[1].trim() : '',
+            crm: crmMatch ? crmMatch[1].trim() : '',
+            observacoes: obsMatch ? obsMatch[1].trim() : desc,
+          })
+          if (data.location && STATUS_OPTIONS.includes(data.location as Status)) {
+            setStatus(data.location as Status)
           }
-          setCarregando(false)
-        })
-        .catch(() => setCarregando(false))
-    }
+        } else {
+          setDbError('Exame não encontrado ou inexistente.')
+        }
+        setCarregando(false)
+      })
+      .catch(() => {
+        setDbError('Erro ao buscar dados do exame.')
+        setCarregando(false)
+      })
   }, [id])
+
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>

@@ -32,11 +32,6 @@ export default function NavBar() {
           <li>
             <Link href="/#unidades" className="hover:text-[#00A3E0]">Clínicas</Link>
           </li>
-          <li>
-            <Link href="/portal/agenda" className="bg-[#004080] text-white px-4 py-2 rounded-md hover:bg-[#003366]">
-              Área do Cliente
-            </Link>
-          </li>
         </ul>
         {/* Mobile menu button */}
         <button
@@ -69,11 +64,6 @@ export default function NavBar() {
             <li>
               <Link href="#contato" onClick={() => setOpen(false)} className="block hover:text-[#00A3E0]">
                 Contato
-              </Link>
-            </li>
-            <li>
-              <Link href="/portal/agenda" onClick={() => setOpen(false)} className="block bg-[#004080] text-white px-4 py-2 rounded-md text-center hover:bg-[#003366]">
-                Área do Cliente
               </Link>
             </li>
           </ul>

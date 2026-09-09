@@ -1,7 +1,7 @@
-import { createClient } from '@/utils/supabase/server'
+import { getAdminClient } from '@/utils/supabase/serverAdmin'
 import { Card, CardContent } from '@/components/ui/card'
 import { DashboardSkeleton } from '@/components/ui/page-loading'
-import { Upload, Building2, Users, FileText, TrendingUp, CalendarDays, ShieldCheck } from 'lucide-react'
+import { Upload, Building2, Users, FileText, TrendingUp, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'
 
@@ -39,8 +39,24 @@ const atalhos = [
 ]
 
 export default async function AdminDashboard() {
-  const supabase = await createClient()
-  await supabase.auth.getUser()
+  const supabaseAdmin = getAdminClient()
+
+  let totalExames = 0
+  let totalEmpresas = 0
+  let totalColaboradores = 0
+
+  try {
+    const [resEx, resEmp, resCol] = await Promise.all([
+      supabaseAdmin.from('exames').select('*', { count: 'exact', head: true }),
+      supabaseAdmin.from('empresas').select('*', { count: 'exact', head: true }),
+      supabaseAdmin.from('colaboradores').select('*', { count: 'exact', head: true }),
+    ])
+    totalExames = resEx.count || 0
+    totalEmpresas = resEmp.count || 0
+    totalColaboradores = resCol.count || 0
+  } catch (e) {
+    console.error('[AdminDashboard] Erro ao carregar contagens:', e)
+  }
 
   return (
     <Suspense fallback={<DashboardSkeleton />}>
@@ -51,13 +67,12 @@ export default async function AdminDashboard() {
           <p className="text-sm text-slate-500 mt-1">Gerencie exames, ASOs, empresas e colaboradores</p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Stats Reais */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { label: 'Exames lançados', value: '185', icon: FileText, color: 'text-blue-700', bg: 'bg-blue-50' },
-            { label: 'Empresas ativas', value: '3', icon: Building2, color: 'text-teal-700', bg: 'bg-teal-50' },
-            { label: 'Colaboradores', value: '182', icon: Users, color: 'text-indigo-700', bg: 'bg-indigo-50' },
-            { label: 'Lançados hoje', value: '2', icon: TrendingUp, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+            { label: 'Exames e ASOs cadastrados', value: totalExames, icon: FileText, color: 'text-blue-700', bg: 'bg-blue-50' },
+            { label: 'Empresas parceiras', value: totalEmpresas, icon: Building2, color: 'text-teal-700', bg: 'bg-teal-50' },
+            { label: 'Colaboradores cadastrados', value: totalColaboradores, icon: Users, color: 'text-indigo-700', bg: 'bg-indigo-50' },
           ].map((s) => {
             const Icon = s.icon
             return (
@@ -79,25 +94,34 @@ export default async function AdminDashboard() {
         <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-2 text-[#002855]">
-              <CalendarDays className="h-4 w-4" />
-              <h2 className="text-sm font-bold uppercase tracking-wider">Resumo da semana</h2>
+              <ShieldCheck className="h-4 w-4" />
+              <h2 className="text-sm font-bold uppercase tracking-wider">Status Operacional</h2>
             </div>
-            <p className="mt-3 text-sm text-slate-600">Você tem 4 pendências de validação e 2 agendamentos de retorno para revisar hoje.</p>
+            <p className="mt-3 text-sm text-slate-600">
+              {totalExames === 0
+                ? 'Nenhum exame cadastrado no momento. Utilize o botão abaixo para lançar o primeiro exame ou cadastrar empresas.'
+                : `Existem ${totalExames} exame(s) e ${totalEmpresas} empresa(s) registradas no sistema.`}
+            </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">3 documentos prontos</span>
-              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">2 empresas com vencimento próximo</span>
+              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                {totalEmpresas} empresa{totalEmpresas !== 1 ? 's' : ''} parceira{totalEmpresas !== 1 ? 's' : ''}
+              </span>
+              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                {totalExames} documento{totalExames !== 1 ? 's' : ''} ativo{totalExames !== 1 ? 's' : ''}
+              </span>
             </div>
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-[#002855] p-5 text-white shadow-sm">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4" />
-              <h2 className="text-sm font-bold uppercase tracking-wider">Compliance</h2>
+              <h2 className="text-sm font-bold uppercase tracking-wider">Gestão e Conformidade</h2>
             </div>
-            <p className="mt-3 text-sm text-blue-100">Acompanhe os exames e documentos que precisam de atenção para manter a operação em dia.</p>
-            <Link href="/admin/documentos" className="mt-4 inline-flex text-sm font-semibold text-white underline underline-offset-4">Abrir documentos</Link>
+            <p className="mt-3 text-sm text-blue-100">Acompanhe os exames e documentos para manter a medicina ocupacional em conformidade.</p>
+            <Link href="/admin/documentos" className="mt-4 inline-flex text-sm font-semibold text-white underline underline-offset-4">Ver todos os exames lançados</Link>
           </div>
         </div>
+
 
         {/* Ações rápidas */}
         <div>
