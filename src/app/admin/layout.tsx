@@ -12,6 +12,7 @@ import {
   Shield,
   MapPin,
   Home,
+  MessageSquare,
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,7 @@ import { Logo } from '@/components/ui/logo'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/leads', label: 'Leads / Contatos', icon: MessageSquare },
   { href: '/admin/unidades', label: 'Unidades', icon: MapPin },
   { href: '/admin/site-settings/home-banner', label: 'Banner da Home', icon: Home },
   { href: '/admin/exames', label: 'Lançar Exames / ASO', icon: Upload },
