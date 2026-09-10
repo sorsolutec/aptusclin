@@ -4,7 +4,8 @@ import { useState, type FormEvent } from 'react';
 import { CheckCircle2, AlertCircle, Loader2, MessageCircle } from 'lucide-react';
 import { validateContactLead } from '@/lib/contact';
 
-const SORRISO_WHATSAPP = '5566996440425';
+
+
 
 const initialState = {
   nome: '',
@@ -21,6 +22,8 @@ export function ContactForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+
+
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -63,19 +66,6 @@ export function ContactForm() {
       setMessage('Ocorreu um erro inesperado ao enviar. Tente novamente em instantes.');
     }
   }
-
-  const sorrisoWhatsAppUrl = lastSubmitted
-    ? `https://wa.me/${SORRISO_WHATSAPP}?text=${encodeURIComponent(
-        `Olá! Acabei de enviar uma mensagem pelo formulário do site.\n\n` +
-        `*Nome:* ${lastSubmitted.nome}\n` +
-        `*Empresa:* ${lastSubmitted.empresa}\n` +
-        `*Assunto:* ${lastSubmitted.tipo}\n` +
-        `*Mensagem:* ${lastSubmitted.mensagem}\n\n` +
-        `Gostaria de agilizar meu atendimento com a Unidade Sorriso.`
-      )}`
-    : `https://wa.me/${SORRISO_WHATSAPP}?text=${encodeURIComponent(
-        'Olá! Gostaria de tirar dúvidas e solicitar atendimento com a Aptusclin Unidade Sorriso.'
-      )}`;
 
   return (
     <div className="space-y-4">
@@ -196,15 +186,7 @@ export function ContactForm() {
             )}
           </button>
 
-          <a
-            href={`https://wa.me/${SORRISO_WHATSAPP}?text=${encodeURIComponent('Olá! Gostaria de atendimento com a Aptusclin Unidade Sorriso.')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#1B8B3A] hover:underline"
-          >
-            <MessageCircle className="w-4 h-4" />
-            Prefere falar direto? WhatsApp Unidade Sorriso (66) 99644-0425
-          </a>
+
         </div>
 
         {/* Mensagem de Erro */}
@@ -215,7 +197,7 @@ export function ContactForm() {
           </div>
         )}
 
-        {/* Notificação e Ação de WhatsApp para Unidade de Sorriso no Sucesso */}
+        {/* Notificação e Ação de WhatsApp no Sucesso */}
         {status === 'success' && (
           <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 space-y-3">
             <div className="flex items-start gap-2 text-emerald-800 text-sm font-semibold">
@@ -228,26 +210,9 @@ export function ContactForm() {
               </div>
             </div>
 
-            <div className="pt-2 border-t border-emerald-200/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="text-xs text-emerald-900 font-medium">
-                Deseja atendimento imediato? Fale agora com a nossa recepção:
-              </div>
-
-              <a
-                href={sorrisoWhatsAppUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1B8B3A] px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-[#166b2d] transition"
-              >
-                <MessageCircle className="h-4 w-4" />
-                Falar no WhatsApp da Unidade Sorriso
-              </a>
-            </div>
           </div>
         )}
       </form>
     </div>
   );
 }
-
-

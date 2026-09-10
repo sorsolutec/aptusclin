@@ -37,7 +37,7 @@ jobs:
           echo "BACKUP_FILE=${FILENAME}.gz" >> $GITHUB_ENV
           echo "✅ Backup gerado: ${FILENAME}.gz"
 
-      - name: Salvar backup como artefato do GitHub (retenção: 90 dias)
+      - name: "Salvar backup como artefato do GitHub (retenção: 90 dias)"
         uses: actions/upload-artifact@v4
         with:
           name: backup-aptusclin-${{ github.run_id }}

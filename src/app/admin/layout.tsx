@@ -19,10 +19,12 @@ import { Button } from '@/components/ui/button'
 import { InteractiveHelp } from '@/components/ui/InteractiveHelp'
 import { redirect } from 'next/navigation'
 import { Logo } from '@/components/ui/logo'
+import { LeadsNavBadge } from '@/components/admin/LeadsNavBadge'
+import { LeadsHeaderAlert } from '@/components/admin/LeadsHeaderAlert'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/leads', label: 'Leads / Contatos', icon: MessageSquare },
+  { href: '/admin/leads', label: 'Leads / Contatos', icon: MessageSquare, hasBadge: true },
   { href: '/admin/unidades', label: 'Unidades', icon: MapPin },
   { href: '/admin/site-settings/home-banner', label: 'Banner da Home', icon: Home },
   { href: '/admin/exames', label: 'Lançar Exames / ASO', icon: Upload },
@@ -45,6 +47,20 @@ export default async function AdminLayout({
     redirect('/login')
   }
 
+  // Busca a contagem de leads não lidos (status = 'novo')
+  let unreadLeadsCount = 0;
+  try {
+    const { getAdminClient } = await import('@/utils/supabase/serverAdmin');
+    const adminClient = getAdminClient();
+    const { count } = await adminClient
+      .from('leads')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'novo');
+    unreadLeadsCount = count || 0;
+  } catch {
+    unreadLeadsCount = 0;
+  }
+
   const email = user.email ?? ''
   const initials = email.slice(0, 2).toUpperCase()
 
@@ -64,15 +80,18 @@ export default async function AdminLayout({
 
         {/* Nav */}
         <nav className="flex-1 p-4 space-y-1">
-          {navItems.map(({ href, label, icon: Icon }) => (
+          {navItems.map(({ href, label, icon: Icon, hasBadge }) => (
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors group"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors group ${hasBadge && unreadLeadsCount > 0 ? 'ring-2 ring-amber-500' : ''}`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-4 h-4 shrink-0" />
               <span className="text-sm font-medium">{label}</span>
-              <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+              {hasBadge && <LeadsNavBadge initialCount={unreadLeadsCount} />}
+              {!hasBadge && (
+                <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+              )}
             </Link>
           ))}
         </nav>
@@ -122,9 +141,12 @@ export default async function AdminLayout({
       <div className="flex-1 ml-64 flex flex-col min-h-screen">
         {/* Top bar */}
         <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-[#0b3c7d]" />
-            <span className="text-sm font-bold text-[#0b3c7d]">Área Administrativa</span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-[#0b3c7d]" />
+              <span className="text-sm font-bold text-[#0b3c7d]">Área Administrativa</span>
+            </div>
+            <LeadsHeaderAlert initialCount={unreadLeadsCount} />
           </div>
           <Link href="/portal/dashboard" className="text-xs text-slate-400 hover:text-[#1B8B3A] transition-colors">
             Ver como cliente →

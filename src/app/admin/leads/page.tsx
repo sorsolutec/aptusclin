@@ -44,7 +44,6 @@ function cleanPhone(raw: string): string {
   }
   return digits;
 }
-
 function formatDate(iso: string): string {
   try {
     const d = new Date(iso);
@@ -289,7 +288,8 @@ export default function AdminLeadsPage() {
               `Olá ${lead.nome}! Sou da equipe da Aptusclin Medicina Ocupacional. Recebemos sua mensagem sobre "${lead.tipo}". Como podemos te ajudar?`
             )}`;
 
-            const sorrisoForwardLink = `https://wa.me/${SORRISO_WHATSAPP}?text=${encodeURIComponent(
+            // Link para WhatsApp usando a primeira unidade configurada (ou fallback)
+            const forwardLink = `https://wa.me/${SORRISO_WHATSAPP.replace(/\D/g, '')}?text=${encodeURIComponent(
               `*Novo Lead Recebido pelo Site*\n\n` +
               `*Nome:* ${lead.nome}\n` +
               `*Empresa:* ${lead.empresa}\n` +
@@ -416,11 +416,11 @@ export default function AdminLeadsPage() {
 
                     {/* Encaminhar para Unidade Sorriso */}
                     <a
-                      href={sorrisoForwardLink}
+                      href={forwardLink}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#002855] text-white text-xs font-semibold hover:bg-[#001c3d] transition"
-                      title="Encaminhar detalhes deste lead diretamente para o WhatsApp da Unidade de Sorriso (66) 99644-0425"
+                      title="Encaminhar detalhes deste lead diretamente para o WhatsApp da Unidade selecionada"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
                       Encaminhar para Unidade Sorriso
