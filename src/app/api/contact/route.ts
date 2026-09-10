@@ -27,9 +27,21 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      console.error('[contact] Erro ao salvar lead:', error.message);
-      // Podemos escolher não falhar a requisição para o usuário, mas vamos retornar erro 500
-      return NextResponse.json({ ok: false, message: 'Não foi possível salvar sua solicitação.' }, { status: 500 });
+      console.error('[contact] Erro ao salvar lead no Supabase:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        payload,
+      });
+      return NextResponse.json(
+        {
+          ok: false,
+          message: 'Não foi possível salvar sua solicitação no momento. Por favor, tente novamente mais tarde.',
+          ...(process.env.NODE_ENV !== 'production' ? { error: error.message } : {}),
+        },
+        { status: 500 }
+      );
     }
 
     console.info('Novo lead de contato recebido e salvo no banco:', payload.email);
@@ -38,7 +50,15 @@ export async function POST(request: Request) {
       ok: true,
       message: 'Obrigado! Recebemos sua solicitação e entraremos em contato em breve.',
     });
-  } catch {
-    return NextResponse.json({ ok: false, message: 'Não foi possível processar sua solicitação.' }, { status: 500 });
+  } catch (err: unknown) {
+    console.error('[contact] Exceção inesperada na rota de contato:', err);
+    return NextResponse.json(
+      {
+        ok: false,
+        message: 'Não foi possível processar sua solicitação.',
+        ...(process.env.NODE_ENV !== 'production' ? { error: String(err) } : {}),
+      },
+      { status: 500 }
+    );
   }
 }

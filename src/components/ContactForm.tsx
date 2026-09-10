@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { CheckCircle2, Loader2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { validateContactLead } from '@/lib/contact';
 
 const initialState = {
   nome: '',
@@ -20,9 +21,19 @@ export function ContactForm() {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setStatus('loading');
     setMessage('');
     setErrors({});
+
+    // Validação local antes de disparar a requisição
+    const validation = validateContactLead(form);
+    if (!validation.valid) {
+      setErrors(validation.errors as Record<string, string>);
+      setStatus('error');
+      setMessage('Por favor, corrija os campos destacados antes de enviar.');
+      return;
+    }
+
+    setStatus('loading');
 
     try {
       const response = await fetch('/api/contact', {
@@ -45,49 +56,73 @@ export function ContactForm() {
       setMessage(payload.message || 'Solicitação enviada com sucesso.');
     } catch {
       setStatus('error');
-      setMessage('Ocorreu um erro inesperado. Tente novamente em instantes.');
+      setMessage('Ocorreu um erro inesperado ao enviar. Tente novamente em instantes.');
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form onSubmit={handleSubmit} noValidate className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-semibold text-slate-700">Nome</label>
+          <label className="mb-1 block text-sm font-semibold text-slate-700">
+            Nome completo <span className="text-red-500">*</span>
+          </label>
           <input
+            required
             value={form.nome}
-            onChange={(e) => setForm({ ...form, nome: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, nome: e.target.value });
+              if (errors.nome) setErrors((prev) => ({ ...prev, nome: '' }));
+            }}
             className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#002855]"
             placeholder="Seu nome"
           />
           {errors.nome && <p className="mt-1 text-xs text-red-600">{errors.nome}</p>}
         </div>
         <div>
-          <label className="mb-1 block text-sm font-semibold text-slate-700">Empresa</label>
+          <label className="mb-1 block text-sm font-semibold text-slate-700">
+            Empresa <span className="text-red-500">*</span>
+          </label>
           <input
+            required
             value={form.empresa}
-            onChange={(e) => setForm({ ...form, empresa: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, empresa: e.target.value });
+              if (errors.empresa) setErrors((prev) => ({ ...prev, empresa: '' }));
+            }}
             className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#002855]"
-            placeholder="Nome da empresa"
+            placeholder="Nome da sua empresa"
           />
           {errors.empresa && <p className="mt-1 text-xs text-red-600">{errors.empresa}</p>}
         </div>
         <div>
-          <label className="mb-1 block text-sm font-semibold text-slate-700">E-mail</label>
+          <label className="mb-1 block text-sm font-semibold text-slate-700">
+            E-mail <span className="text-red-500">*</span>
+          </label>
           <input
+            required
             type="email"
             value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, email: e.target.value });
+              if (errors.email) setErrors((prev) => ({ ...prev, email: '' }));
+            }}
             className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#002855]"
             placeholder="seu@email.com"
           />
           {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
         </div>
         <div>
-          <label className="mb-1 block text-sm font-semibold text-slate-700">Telefone</label>
+          <label className="mb-1 block text-sm font-semibold text-slate-700">
+            Telefone / WhatsApp <span className="text-red-500">*</span>
+          </label>
           <input
+            required
             value={form.telefone}
-            onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, telefone: e.target.value });
+              if (errors.telefone) setErrors((prev) => ({ ...prev, telefone: '' }));
+            }}
             className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#002855]"
             placeholder="(66) 99999-9999"
           />
@@ -109,10 +144,20 @@ export function ContactForm() {
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-slate-700">Mensagem</label>
+        <div className="mb-1 flex items-center justify-between">
+          <label className="text-sm font-semibold text-slate-700">
+            Mensagem <span className="text-red-500">*</span>
+          </label>
+          <span className="text-xs text-slate-400">mínimo 10 caracteres</span>
+        </div>
         <textarea
+          required
+          minLength={10}
           value={form.mensagem}
-          onChange={(e) => setForm({ ...form, mensagem: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, mensagem: e.target.value });
+            if (errors.mensagem) setErrors((prev) => ({ ...prev, mensagem: '' }));
+          }}
           rows={4}
           className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#002855]"
           placeholder="Conte um pouco sobre sua necessidade"
@@ -134,10 +179,15 @@ export function ContactForm() {
 
       {message && (
         <div className={`flex items-start gap-2 rounded-xl border px-3 py-3 text-sm ${status === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
-          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+          {status === 'success' ? (
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+          ) : (
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          )}
           <span>{message}</span>
         </div>
       )}
     </form>
   );
 }
+
