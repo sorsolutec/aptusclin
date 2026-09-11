@@ -100,6 +100,12 @@ const EXAMES_COMPLEMENTARES_LIST = [
   'Avaliação Psicossocial',
 ];
 
+// Instruções obrigatórias que serão sempre incluídas no guia
+const INSTRUCOES_PADRAO = [
+  'Jejum: para exames de sangue, é obrigatório estar em jejum conforme orientação médica.',
+  'Documento: é indispensável apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.',
+];
+
 function FormulariosContent() {
   const searchParams = useSearchParams();
   const initialUnit = searchParams.get('unidade') || '';
@@ -125,6 +131,8 @@ function FormulariosContent() {
 
   const [tipoExame, setTipoExame] = useState<string>('Admissional');
   const [examesComplementares, setExamesComplementares] = useState<string[]>([]);
+  // Instruções adicionais que o usuário pode marcar (já incluímos as padrão como fixas)
+  const [instrucoesSelecionadas, setInstrucoesSelecionadas] = useState<string[]>([...INSTRUCOES_PADRAO]);
   const [riscosFuncao, setRiscosFuncao] = useState<string>('');
   const [dataPretendida, setDataPretendida] = useState<string>('');
   const [observacoes, setObservacoes] = useState<string>('');
@@ -169,6 +177,16 @@ function FormulariosContent() {
     }
   };
 
+  // As instruções padrão já vêm selecionadas e não podem ser desmarcadas.
+  const toggleInstrucao = (instrucao: string) => {
+    if (INSTRUCOES_PADRAO.includes(instrucao)) return; // fixa
+    if (instrucoesSelecionadas.includes(instrucao)) {
+      setInstrucoesSelecionadas(instrucoesSelecionadas.filter((i) => i !== instrucao));
+    } else {
+      setInstrucoesSelecionadas([...instrucoesSelecionadas, instrucao]);
+    }
+  };
+
   const selectedUnidade = unidades.find((u) => u.id === unidadeId) || unidades[0];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -210,6 +228,7 @@ function FormulariosContent() {
         riscos_funcao: riscosFuncao,
         data_pretendida: dataPretendida || null,
         observacoes: observacoes,
+        instrucoes: instrucoesSelecionadas,
       };
 
       const res = await fetch('/api/solicitacoes', {
@@ -240,6 +259,7 @@ function FormulariosContent() {
         riscos_funcao: riscosFuncao,
         data_pretendida: dataPretendida,
         observacoes: observacoes,
+        instrucoes: instrucoesSelecionadas,
         unidade: data.solicitacao?.unidade || selectedUnidade,
       };
 
@@ -275,7 +295,9 @@ function FormulariosContent() {
       `📌 *Endereço:* ${resultado.unidade?.endereco || 'Consulte a recepção'}\n` +
       `📞 *Contato:* ${resultado.unidade?.telefone || ''}\n` +
       `⏰ *Horário:* ${resultado.unidade?.horario_funcionamento || 'Seg a Sex das 07h às 17h'}\n\n` +
-      `⚠️ *Atenção:* Compareça portando um documento oficial original com foto (RG/CNH).\n` +
+      `⚠️ *INSTRUÇÕES OBRIGATÓRIAS:*\n` +
+      `• *Jejum:* para exames de sangue, é obrigatório estar em jejum conforme orientação médica.\n` +
+      `• *Documento:* é indispensável apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.\n\n` +
       `Mais informações em: https://aptusclin.com.br`
     );
     return `https://api.whatsapp.com/send?text=${text}`;
@@ -715,14 +737,19 @@ function FormulariosContent() {
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                     Observações Adicionais para a Clínica
                   </label>
-                  <textarea
-                    rows={2}
-                    value={observacoes}
-                    onChange={(e) => setObservacoes(e.target.value)}
-                    placeholder="Ex: Colaborador com necessidade de atendimento pela manhã"
-                    className="w-full text-xs border border-slate-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#002855]"
-                  />
+                  <textarea rows={2} value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Ex: Colaborador com necessidade de atendimento pela manhã" className="w-full text-xs border border-slate-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#002855]" />
                 </div>
+              </div>
+
+              {/* INSTRUÇÕES OBRIGATÓRIAS */}
+              <div className="bg-blue-50/80 border border-blue-200 rounded-xl p-4 text-xs text-slate-800 space-y-1.5">
+                <span className="font-extrabold text-[#002855] uppercase text-xs flex items-center gap-1.5 tracking-wider">
+                  ⚠️ INSTRUÇÕES OBRIGATÓRIAS
+                </span>
+                <ul className="space-y-1 text-xs text-slate-700">
+                  <li><strong>• Jejum:</strong> para exames de sangue, é obrigatório estar em jejum conforme orientação médica.</li>
+                  <li><strong>• Documento:</strong> é indispensável apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.</li>
+                </ul>
               </div>
 
               <div className="flex justify-between pt-4 border-t border-slate-100">
@@ -830,6 +857,19 @@ function FormulariosContent() {
                     <p className="text-slate-500">Exame: ASO {resultado.tipo_exame}</p>
                     <p className="text-slate-500">Local: {resultado.unidade?.cidade} ({resultado.unidade?.endereco})</p>
                   </div>
+                </div>
+
+                {/* INSTRUÇÕES OBRIGATÓRIAS */}
+                <div className="bg-blue-50/80 border border-blue-200 rounded-xl p-3.5 text-xs text-slate-800 space-y-1">
+                  <span className="font-extrabold text-[#002855] uppercase text-[11px] block tracking-wider">
+                    ⚠️ INSTRUÇÕES OBRIGATÓRIAS AO TRABALHADOR
+                  </span>
+                  <p className="text-slate-700">
+                    <strong>• Jejum:</strong> para exames de sangue, é obrigatório estar em jejum conforme orientação médica.
+                  </p>
+                  <p className="text-slate-700">
+                    <strong>• Documento:</strong> é indispensável apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.
+                  </p>
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 flex justify-center">

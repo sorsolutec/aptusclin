@@ -20,6 +20,7 @@ export interface GuiaData {
   riscos_funcao?: string | null;
   data_pretendida?: string | null;
   observacoes?: string | null;
+  instrucoes?: string[];
   unidade?: {
     nome: string;
     cidade: string;
@@ -30,6 +31,7 @@ export interface GuiaData {
     horario_funcionamento?: string;
   } | null;
 }
+
 
 export function GuiaEncaminhamentoPrint({ data }: { data: GuiaData }) {
   const formattedDate = new Date(data.created_at).toLocaleDateString('pt-BR', {
@@ -178,16 +180,22 @@ export function GuiaEncaminhamentoPrint({ data }: { data: GuiaData }) {
       </div>
 
       {/* QUADRO 4: INSTRUÇÕES OBRIGATÓRIAS AO TRABALHADOR */}
-      <div className="bg-blue-50/60 border border-blue-200/80 rounded-lg p-3.5 mb-8 text-xs text-slate-700">
-        <h3 className="font-bold text-[#002855] uppercase text-[11px] mb-1.5 flex items-center gap-1">
-          ⚠️ Instruções Importantes para o Dia do Atendimento:
+      <div className="bg-blue-50/70 border border-blue-200 rounded-lg p-4 mb-8 text-xs text-slate-800">
+        <h3 className="font-extrabold text-[#002855] uppercase text-xs mb-2 tracking-wider flex items-center gap-1.5">
+          ⚠️ INSTRUÇÕES OBRIGATÓRIAS:
         </h3>
-        <ul className="list-disc pl-5 space-y-1 text-[11px] text-slate-600">
-          <li>Apresentar obrigatoriamente um <strong>documento oficial original com foto</strong> (RG, CNH ou Carteira de Trabalho Digital).</li>
-          <li>Apresentar esta guia impressa ou no celular para a recepção da unidade no momento da triagem.</li>
-          <li>Caso haja exames laboratoriais de sangue/fezes/urina, verificar a necessidade de jejum prévio de 8 a 12 horas.</li>
-          <li>Para exames de Audiometria, evitar exposição a ruídos intensos nas 14 horas que antecedem o teste.</li>
-          <li>Recomenda-se chegar com 15 minutos de antecedência ao horário previsto.</li>
+        <ul className="space-y-1.5 text-xs text-slate-700">
+          <li className="flex items-start gap-1.5">
+            <span className="font-bold text-slate-900">• Jejum:</span>
+            <span>para exames de sangue, é obrigatório estar em jejum conforme orientação médica.</span>
+          </li>
+          <li className="flex items-start gap-1.5">
+            <span className="font-bold text-slate-900">• Documento:</span>
+            <span>é indispensável apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.</span>
+          </li>
+          <li className="flex items-start gap-1.5 text-slate-500 text-[11px] pt-1">
+            <span>• Chegar com 15 minutos de antecedência e apresentar esta guia na recepção.</span>
+          </li>
         </ul>
       </div>
 
