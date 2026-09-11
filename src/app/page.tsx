@@ -12,6 +12,7 @@ import {
   MapPin,
   Search,
   ChevronRight,
+  ClipboardList,
 } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import { createClient } from '@/utils/supabase/server';
@@ -148,7 +149,7 @@ export default async function MainLandingPage() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Logo className="scale-95" />
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <Link
               href="/login"
               title="Painel Administrativo"
@@ -157,10 +158,17 @@ export default async function MainLandingPage() {
               <Settings className="w-4 h-4" />
             </Link>
             <Link
-              href="/resultados"
-              className="bg-[#1B8B3A] hover:bg-[#166b2d] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-md flex items-center gap-1.5"
+              href="/formularios"
+              className="bg-[#002855] hover:bg-[#0b3c7d] text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition shadow-xs flex items-center gap-1.5"
             >
-              <FileText className="w-4 h-4" />
+              <ClipboardList className="w-3.5 h-3.5 text-emerald-400" />
+              Solicitar Exame / ASO
+            </Link>
+            <Link
+              href="/resultados"
+              className="bg-[#1B8B3A] hover:bg-[#166b2d] text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition shadow-md flex items-center gap-1.5"
+            >
+              <FileText className="w-3.5 h-3.5" />
               Resultados de Exames
             </Link>
           </div>
@@ -192,6 +200,33 @@ export default async function MainLandingPage() {
           <div className="md:col-span-5">
             {/* Visual preview do carrossel no site principal */}
             <HomeCarousel slides={heroSlides} />
+          </div>
+        </div>
+      </section>
+
+      {/* BANNER CORPORATIVO: SOLICITAÇÃO DIGITAL DE ASO */}
+      <section className="bg-gradient-to-r from-emerald-50 via-slate-50 to-blue-50 py-10 px-4 border-b border-slate-200">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-6 md:p-8 rounded-3xl border border-emerald-200 shadow-sm">
+          <div className="space-y-2 text-center md:text-left">
+            <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#1B8B3A] uppercase tracking-wider bg-emerald-100/60 px-3 py-1 rounded-full">
+              <Shield className="w-3.5 h-3.5" /> Portal para Empresas & RH
+            </span>
+            <h2 className="text-2xl md:text-3xl font-black text-[#002855]">
+              Precisa encaminhar colaboradores para exame admissional ou periódico?
+            </h2>
+            <p className="text-slate-600 text-xs md:text-sm max-w-2xl">
+              Preencha a solicitação online em minutos. Gere a guia de encaminhamento oficial com protocolo para impressão ou envio direto no WhatsApp do trabalhador.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <Link
+              href="/formularios"
+              className="inline-flex items-center gap-2 bg-[#1B8B3A] hover:bg-[#166b2d] text-white font-extrabold px-6 py-3.5 rounded-2xl text-sm shadow-md transition transform hover:-translate-y-0.5"
+            >
+              <ClipboardList className="w-4 h-4" />
+              Solicitar Exame Online
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   MapPin, Phone, Mail, CalendarDays, FileText, Shield,
   Activity, ChevronLeft, ChevronRight, Settings,
-  MessageSquare, Clock
+  MessageSquare, Clock, ClipboardList
 } from 'lucide-react';
 import { Instagram, Facebook } from '@/components/icons/SocialIcons';
 import { tenantConfig } from '@/lib/tenant';
@@ -128,6 +128,13 @@ export default function UnitHomePage({ companyId }: { companyId: string }) {
             <h1 className="text-lg font-bold text-[#002855] leading-tight">{data.nome}</h1>
           </div>
           <div className="flex items-center gap-2">
+            <Link
+              href={`/formularios?unidade=${data.id}`}
+              className="bg-[#002855] text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-[#0b3c7d] transition flex items-center gap-1.5"
+            >
+              <ClipboardList className="w-3.5 h-3.5 text-emerald-400" />
+              Solicitar Exame
+            </Link>
             <a
               href={`https://wa.me/${(data.whatsapp || data.telefone || '').replace(/\D/g, '')}`}
               target="_blank"
@@ -157,8 +164,15 @@ export default function UnitHomePage({ companyId }: { companyId: string }) {
         {/* BOTÕES CTA */}
         <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
           <Link
+            href={`/formularios?unidade=${data.id}`}
+            className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-7 py-4 rounded-xl text-base shadow-xl transition transform hover:-translate-y-0.5"
+          >
+            <ClipboardList className="w-5 h-5 text-slate-950" />
+            Solicitar Exame em {data.cidade}
+          </Link>
+          <Link
             href="/portal/exames"
-            className="inline-flex items-center justify-center gap-2 bg-[#1B8B3A] hover:bg-[#166b2d] text-white font-bold px-8 py-4 rounded-xl text-base shadow-lg transition"
+            className="inline-flex items-center justify-center gap-2 bg-[#1B8B3A] hover:bg-[#166b2d] text-white font-bold px-7 py-4 rounded-xl text-base shadow-lg transition"
           >
             <FileText className="w-5 h-5" />
             Resultados de Exames
@@ -167,7 +181,7 @@ export default function UnitHomePage({ companyId }: { companyId: string }) {
             href={`https://wa.me/${(data.whatsapp || data.telefone || '').replace(/\D/g, '')}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-8 py-4 rounded-xl text-base transition"
+            className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-7 py-4 rounded-xl text-base transition"
           >
             <MessageSquare className="w-5 h-5 text-emerald-400" />
             Falar no WhatsApp

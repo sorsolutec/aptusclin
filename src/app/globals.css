@@ -128,3 +128,23 @@
     @apply font-sans;
   }
 }
+
+/* Regras de Impressão para Guias e Comprovantes */
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
+
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .no-print, header, footer, nav, aside {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}

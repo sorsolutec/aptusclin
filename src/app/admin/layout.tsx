@@ -13,6 +13,7 @@ import {
   MapPin,
   Home,
   MessageSquare,
+  ClipboardList,
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -24,6 +25,7 @@ import { LeadsHeaderAlert } from '@/components/admin/LeadsHeaderAlert'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/solicitacoes', label: 'Solicitações de ASO', icon: ClipboardList, solicitacoesBadge: true },
   { href: '/admin/leads', label: 'Leads / Contatos', icon: MessageSquare, hasBadge: true },
   { href: '/admin/unidades', label: 'Unidades', icon: MapPin },
   { href: '/admin/site-settings/home-banner', label: 'Banner da Home', icon: Home },
@@ -49,16 +51,24 @@ export default async function AdminLayout({
 
   // Busca a contagem de leads não lidos (status = 'novo')
   let unreadLeadsCount = 0;
+  let unreadSolicitacoesCount = 0;
   try {
     const { getAdminClient } = await import('@/utils/supabase/serverAdmin');
     const adminClient = getAdminClient();
-    const { count } = await adminClient
+    const { count: leadsCount } = await adminClient
       .from('leads')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'novo');
-    unreadLeadsCount = count || 0;
+    unreadLeadsCount = leadsCount || 0;
+
+    const { count: solCount } = await adminClient
+      .from('solicitacoes_exames')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'novo');
+    unreadSolicitacoesCount = solCount || 0;
   } catch {
     unreadLeadsCount = 0;
+    unreadSolicitacoesCount = 0;
   }
 
   const email = user.email ?? ''
@@ -80,20 +90,29 @@ export default async function AdminLayout({
 
         {/* Nav */}
         <nav className="flex-1 p-4 space-y-1">
-          {navItems.map(({ href, label, icon: Icon, hasBadge }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors group ${hasBadge && unreadLeadsCount > 0 ? 'ring-2 ring-amber-500' : ''}`}
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span className="text-sm font-medium">{label}</span>
-              {hasBadge && <LeadsNavBadge initialCount={unreadLeadsCount} />}
-              {!hasBadge && (
-                <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-              )}
-            </Link>
-          ))}
+          {navItems.map(({ href, label, icon: Icon, hasBadge, solicitacoesBadge }: any) => {
+            const hasAlert = (hasBadge && unreadLeadsCount > 0) || (solicitacoesBadge && unreadSolicitacoesCount > 0);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors group ${hasAlert ? 'ring-2 ring-amber-500' : ''}`}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span className="text-sm font-medium">{label}</span>
+                {hasBadge && <LeadsNavBadge initialCount={unreadLeadsCount} />}
+                {solicitacoesBadge && unreadSolicitacoesCount > 0 && (
+                  <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-[11px] font-extrabold text-white shadow-md">
+                    <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
+                    {unreadSolicitacoesCount > 99 ? '99+' : unreadSolicitacoesCount}
+                  </span>
+                )}
+                {!hasBadge && !solicitacoesBadge && (
+                  <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* User */}
