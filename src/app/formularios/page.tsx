@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -39,71 +39,72 @@ interface UnidadeInfo {
 const UNIDADES_DEFAULT: UnidadeInfo[] = [
   {
     id: 'sorriso',
-    nome: 'Aptusclin — Sorriso',
+    nome: 'Aptusclin â€” Sorriso',
     cidade: 'Sorriso',
     estado: 'MT',
     endereco: 'Rua das Videiras, 1047 - Centro Sul',
     telefone: '(66) 3544-0000',
     whatsapp: '66999990000',
-    horario_funcionamento: 'Segunda a Sexta: 07:00 às 17:30',
+    horario_funcionamento: 'Segunda a Sexta: 07:00 Ã s 17:30',
   },
   {
     id: 'nova-mutum',
-    nome: 'Aptusclin — Nova Mutum',
+    nome: 'Aptusclin â€” Nova Mutum',
     cidade: 'Nova Mutum',
     estado: 'MT',
     endereco: 'Av. das Seriemas, 123 - Centro',
     telefone: '(65) 3308-0000',
     whatsapp: '65999990000',
-    horario_funcionamento: 'Segunda a Sexta: 07:00 às 17:30',
+    horario_funcionamento: 'Segunda a Sexta: 07:00 Ã s 17:30',
   },
   {
     id: 'nova-ubirata',
-    nome: 'Aptusclin — Nova Ubiratã',
-    cidade: 'Nova Ubiratã',
+    nome: 'Aptusclin â€” Nova UbiratÃ£',
+    cidade: 'Nova UbiratÃ£',
     estado: 'MT',
     endereco: 'Av. Tancredo Neves, 456 - Centro',
     telefone: '(66) 3567-0000',
     whatsapp: '66999990000',
-    horario_funcionamento: 'Segunda a Sexta: 07:30 às 17:00',
+    horario_funcionamento: 'Segunda a Sexta: 07:30 Ã s 17:00',
   },
   {
     id: 'boa-esperanca',
-    nome: 'Aptusclin — Boa Esperança do Norte',
-    cidade: 'Boa Esperança do Norte',
+    nome: 'Aptusclin â€” Boa EsperanÃ§a do Norte',
+    cidade: 'Boa EsperanÃ§a do Norte',
     estado: 'MT',
     endereco: 'Av. Brasil, 789 - Centro',
     telefone: '(66) 3545-0000',
     whatsapp: '66999990000',
-    horario_funcionamento: 'Segunda a Sexta: 07:30 às 17:00',
+    horario_funcionamento: 'Segunda a Sexta: 07:30 Ã s 17:00',
   },
 ];
 
 const TIPOS_EXAME = [
   { id: 'Admissional', label: 'Admissional', desc: 'Para novos colaboradores admitidos' },
-  { id: 'Periódico', label: 'Periódico', desc: 'Renovação anual ou bienal obrigatória' },
-  { id: 'Demissional', label: 'Demissional', desc: 'Desligamento de funcionário' },
-  { id: 'Retorno ao Trabalho', label: 'Retorno ao Trabalho', desc: 'Afastamento previdenciário superior a 30 dias' },
-  { id: 'Mudança de Função', label: 'Mudança de Função', desc: 'Alteração de riscos ocupacionais' },
-  { id: 'Exames Complementares', label: 'Exames Complementares', desc: 'Somente exames específicos solicitados' },
+  { id: 'PeriÃ³dico', label: 'PeriÃ³dico', desc: 'RenovaÃ§Ã£o anual ou bienal obrigatÃ³ria' },
+  { id: 'Demissional', label: 'Demissional', desc: 'Desligamento de funcionÃ¡rio' },
+  { id: 'Retorno ao Trabalho', label: 'Retorno ao Trabalho', desc: 'Afastamento previdenciÃ¡rio superior a 30 dias' },
+  { id: 'MudanÃ§a de FunÃ§Ã£o', label: 'MudanÃ§a de FunÃ§Ã£o', desc: 'AlteraÃ§Ã£o de riscos ocupacionais' },
+  { id: 'Exames Complementares', label: 'Exames Complementares', desc: 'Somente exames especÃ­ficos solicitados' },
 ];
 
 const EXAMES_COMPLEMENTARES_LIST = [
   'Audiometria Ocupacional',
-  'Espirometria (Prova de Função Pulmonar)',
+  'Espirometria (Prova de FunÃ§Ã£o Pulmonar)',
   'Eletrocardiograma (ECG)',
   'Eletroencefalograma (EEG)',
   'Acuidade Visual',
-  'Raio-X de Tórax Padrão OIT',
-  'Exames de Sangue (Hemograma / Glicemia / Lipídico)',
-  'Exame Toxicológico',
-  'Avaliação Psicossocial',
+  'Raio-X de TÃ³rax PadrÃ£o OIT',
+  'Exames de Sangue (Hemograma / Glicemia / LipÃ­dico)',
+  'Exame ToxicolÃ³gico',
+  'AvaliaÃ§Ã£o Psicossocial',
+  'Exame Clínico',
 ];
 
-// Instruções obrigatórias que serão sempre incluídas no guia
+// InstruÃ§Ãµes obrigatÃ³rias que serÃ£o sempre incluÃ­das no guia
 const INSTRUCOES_PADRAO = [
-  'Jejum: para exames de sangue, é obrigatório estar em jejum conforme orientação médica.',
-  'Documento: é indispensável apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.',
+  'Jejum: para exames de sangue, Ã© obrigatÃ³rio estar em jejum conforme orientaÃ§Ã£o mÃ©dica.',
+  'Documento: Ã© indispensÃ¡vel apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.',
 ];
 
 function FormulariosContent() {
@@ -131,7 +132,7 @@ function FormulariosContent() {
 
   const [tipoExame, setTipoExame] = useState<string>('Admissional');
   const [examesComplementares, setExamesComplementares] = useState<string[]>([]);
-  // Instruções adicionais que o usuário pode marcar (já incluímos as padrão como fixas)
+  // InstruÃ§Ãµes adicionais que o usuÃ¡rio pode marcar (jÃ¡ incluÃ­mos as padrÃ£o como fixas)
   const [instrucoesSelecionadas, setInstrucoesSelecionadas] = useState<string[]>([...INSTRUCOES_PADRAO]);
   const [riscosFuncao, setRiscosFuncao] = useState<string>('');
   const [dataPretendida, setDataPretendida] = useState<string>('');
@@ -140,7 +141,7 @@ function FormulariosContent() {
   // Resultado
   const [resultado, setResultado] = useState<GuiaData | null>(null);
 
-  // Carrega unidades dinâmicas do banco se disponíveis
+  // Carrega unidades dinÃ¢micas do banco se disponÃ­veis
   useEffect(() => {
     fetch('/api/unidades')
       .then((res) => (res.ok ? res.json() : null))
@@ -154,7 +155,7 @@ function FormulariosContent() {
             endereco: u.endereco || '',
             telefone: u.telefone || '',
             whatsapp: u.whatsapp || '',
-            horario_funcionamento: u.horario_funcionamento || '07:00 às 17:30',
+            horario_funcionamento: u.horario_funcionamento || '07:00 Ã s 17:30',
           }));
           setUnidades(mapped);
         }
@@ -162,7 +163,7 @@ function FormulariosContent() {
       .catch(() => {});
   }, []);
 
-  // Se veio pré-selecionado na URL, avança suavemente para a etapa 2
+  // Se veio prÃ©-selecionado na URL, avanÃ§a suavemente para a etapa 2
   useEffect(() => {
     if (initialUnit) {
       setUnidadeId(initialUnit);
@@ -177,7 +178,7 @@ function FormulariosContent() {
     }
   };
 
-  // As instruções padrão já vêm selecionadas e não podem ser desmarcadas.
+  // As instruÃ§Ãµes padrÃ£o jÃ¡ vÃªm selecionadas e nÃ£o podem ser desmarcadas.
   const toggleInstrucao = (instrucao: string) => {
     if (INSTRUCOES_PADRAO.includes(instrucao)) return; // fixa
     if (instrucoesSelecionadas.includes(instrucao)) {
@@ -199,7 +200,7 @@ function FormulariosContent() {
       return;
     }
     if (!empresaNome || !solicitanteNome || !solicitanteTelefone) {
-      setErrorMsg('Preencha os dados de identificação da empresa e do solicitante.');
+      setErrorMsg('Preencha os dados de identificaÃ§Ã£o da empresa e do solicitante.');
       setStep(2);
       return;
     }
@@ -240,7 +241,7 @@ function FormulariosContent() {
       const data = await res.json();
 
       if (!res.ok || !data.ok) {
-        throw new Error(data.message || 'Erro ao enviar solicitação.');
+        throw new Error(data.message || 'Erro ao enviar solicitaÃ§Ã£o.');
       }
 
       const guiaData: GuiaData = {
@@ -286,26 +287,26 @@ function FormulariosContent() {
   const getWhatsAppShareUrl = () => {
     if (!resultado) return '#';
     const text = encodeURIComponent(
-      `*GUIA DE ENCAMINHAMENTO DE EXAME OCUPACIONAL — APTUSCLIN*\n\n` +
-      `Olá, *${resultado.colaborador_nome}*!\n` +
-      `Sua solicitação de *ASO ${resultado.tipo_exame}* foi emitida com sucesso.\n\n` +
-      `📋 *Protocolo:* ${resultado.protocolo}\n` +
-      `🏢 *Empresa:* ${resultado.empresa_nome}\n` +
-      `📍 *Unidade de Atendimento:* ${resultado.unidade?.nome}\n` +
-      `📌 *Endereço:* ${resultado.unidade?.endereco || 'Consulte a recepção'}\n` +
-      `📞 *Contato:* ${resultado.unidade?.telefone || ''}\n` +
-      `⏰ *Horário:* ${resultado.unidade?.horario_funcionamento || 'Seg a Sex das 07h às 17h'}\n\n` +
-      `⚠️ *INSTRUÇÕES OBRIGATÓRIAS:*\n` +
-      `• *Jejum:* para exames de sangue, é obrigatório estar em jejum conforme orientação médica.\n` +
-      `• *Documento:* é indispensável apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.\n\n` +
-      `Mais informações em: https://aptusclin.com.br`
+      `*GUIA DE ENCAMINHAMENTO DE EXAME OCUPACIONAL â€” APTUSCLIN*\n\n` +
+      `OlÃ¡, *${resultado.colaborador_nome}*!\n` +
+      `Sua solicitaÃ§Ã£o de *ASO ${resultado.tipo_exame}* foi emitida com sucesso.\n\n` +
+      `ðŸ“‹ *Protocolo:* ${resultado.protocolo}\n` +
+      `ðŸ¢ *Empresa:* ${resultado.empresa_nome}\n` +
+      `ðŸ“ *Unidade de Atendimento:* ${resultado.unidade?.nome}\n` +
+      `ðŸ“Œ *EndereÃ§o:* ${resultado.unidade?.endereco || 'Consulte a recepÃ§Ã£o'}\n` +
+      `ðŸ“ž *Contato:* ${resultado.unidade?.telefone || ''}\n` +
+      `â° *HorÃ¡rio:* ${resultado.unidade?.horario_funcionamento || 'Seg a Sex das 07h Ã s 17h'}\n\n` +
+      `âš ï¸ *INSTRUÃ‡Ã•ES OBRIGATÃ“RIAS:*\n` +
+      `â€¢ *Jejum:* para exames de sangue, Ã© obrigatÃ³rio estar em jejum conforme orientaÃ§Ã£o mÃ©dica.\n` +
+      `â€¢ *Documento:* Ã© indispensÃ¡vel apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.\n\n` +
+      `Mais informaÃ§Ãµes em: https://aptusclin.com.br`
     );
     return `https://api.whatsapp.com/send?text=${text}`;
   };
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
-      {/* NAVBAR PÚBLICA */}
+      {/* NAVBAR PÃšBLICA */}
       <nav className="no-print bg-white border-b border-slate-200 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -328,25 +329,25 @@ function FormulariosContent() {
         </div>
       </nav>
 
-      {/* COMPONENTE EXCLUSIVO DE IMPRESSÃO (Folha A4 formatada) */}
+      {/* COMPONENTE EXCLUSIVO DE IMPRESSÃƒO (Folha A4 formatada) */}
       {resultado && <GuiaEncaminhamentoPrint data={resultado} />}
 
       {/* CONTAINER PRINCIPAL NA TELA */}
       <main className="no-print max-w-4xl mx-auto px-4 py-10">
-        {/* HEADER DO FORMULÁRIO */}
+        {/* HEADER DO FORMULÃRIO */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 bg-[#002855]/10 text-[#002855] text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-2">
             <ShieldCheck className="w-4 h-4 text-[#1B8B3A]" /> Encaminhamento Digital Ocupacional
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-[#002855]">
-            Solicitação de Exames & ASO
+            SolicitaÃ§Ã£o de Exames & ASO
           </h1>
           <p className="text-slate-500 text-sm max-w-xl mx-auto mt-1">
-            Encaminhe colaboradores para exames admissionais, periódicos ou demissionais diretamente para as unidades da AptusClin.
+            Encaminhe colaboradores para exames admissionais, periÃ³dicos ou demissionais diretamente para as unidades da AptusClin.
           </p>
         </div>
 
-        {/* STEPPER PROGRESS BAR (Oculto se já concluiu) */}
+        {/* STEPPER PROGRESS BAR (Oculto se jÃ¡ concluiu) */}
         {step < 4 && (
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-8">
             <div className="grid grid-cols-3 gap-2 text-center text-xs font-medium">
@@ -399,7 +400,7 @@ function FormulariosContent() {
           </div>
         )}
 
-        {/* FORMULÁRIO STEP BY STEP */}
+        {/* FORMULÃRIO STEP BY STEP */}
         <form onSubmit={handleSubmit}>
           {/* ETAPA 1: ESCOLHA DA UNIDADE */}
           {step === 1 && (
@@ -409,7 +410,7 @@ function FormulariosContent() {
                   1. Selecione a Unidade de Atendimento
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Escolha em qual de nossas clínicas físicas o colaborador realizará os exames médicos.
+                  Escolha em qual de nossas clÃ­nicas fÃ­sicas o colaborador realizarÃ¡ os exames mÃ©dicos.
                 </p>
               </div>
 
@@ -436,7 +437,7 @@ function FormulariosContent() {
                                 : 'border border-slate-300 text-transparent'
                             }`}
                           >
-                            ✓
+                            âœ“
                           </span>
                         </div>
                         <p className="text-xs text-slate-600 line-clamp-2">{u.endereco || 'Atendimento local'}</p>
@@ -477,24 +478,24 @@ function FormulariosContent() {
             <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
               <div>
                 <h2 className="text-lg font-bold text-[#002855] mb-1">
-                  2. Identificação da Empresa & Solicitante (RH)
+                  2. IdentificaÃ§Ã£o da Empresa & Solicitante (RH)
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Informe a empresa cliente contratante e o contato do responsável pelo encaminhamento.
+                  Informe a empresa cliente contratante e o contato do responsÃ¡vel pelo encaminhamento.
                 </p>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Razão Social ou Nome Fantasia *
+                    RazÃ£o Social ou Nome Fantasia *
                   </label>
                   <input
                     type="text"
                     required
                     value={empresaNome}
                     onChange={(e) => setEmpresaNome(e.target.value)}
-                    placeholder="Ex: Fazenda Progresso Agropecuária Ltda"
+                    placeholder="Ex: Fazenda Progresso AgropecuÃ¡ria Ltda"
                     className="w-full text-sm border border-slate-300 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#002855] transition"
                   />
                 </div>
@@ -514,7 +515,7 @@ function FormulariosContent() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Nome do Responsável (RH / Solicitante) *
+                    Nome do ResponsÃ¡vel (RH / Solicitante) *
                   </label>
                   <input
                     type="text"
@@ -528,7 +529,7 @@ function FormulariosContent() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    E-mail para Confirmação e Laudos *
+                    E-mail para ConfirmaÃ§Ã£o e Laudos *
                   </label>
                   <input
                     type="email"
@@ -568,7 +569,7 @@ function FormulariosContent() {
                   type="button"
                   onClick={() => {
                     if (!empresaNome || !solicitanteNome || !solicitanteTelefone) {
-                      setErrorMsg('Por favor, preencha os campos obrigatórios (*).');
+                      setErrorMsg('Por favor, preencha os campos obrigatÃ³rios (*).');
                       return;
                     }
                     setErrorMsg('');
@@ -576,7 +577,7 @@ function FormulariosContent() {
                   }}
                   className="bg-[#002855] hover:bg-[#0b3c7d] text-white font-bold px-6 py-2.5 rounded-xl gap-2 text-sm"
                 >
-                  Avançar para o Colaborador <ArrowRight className="w-4 h-4" />
+                  AvanÃ§ar para o Colaborador <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
             </div>
@@ -590,7 +591,7 @@ function FormulariosContent() {
                   3. Dados do Trabalhador e Detalhes do Exame
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Preencha os dados do colaborador que comparecerá à clínica para a consulta médica.
+                  Preencha os dados do colaborador que comparecerÃ¡ Ã  clÃ­nica para a consulta mÃ©dica.
                 </p>
               </div>
 
@@ -605,7 +606,7 @@ function FormulariosContent() {
                     required
                     value={colaboradorNome}
                     onChange={(e) => setColaboradorNome(e.target.value)}
-                    placeholder="Ex: João da Silva Santos"
+                    placeholder="Ex: JoÃ£o da Silva Santos"
                     className="w-full text-sm border border-slate-300 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#002855] transition"
                   />
                 </div>
@@ -626,13 +627,13 @@ function FormulariosContent() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Função / Cargo Pretendido ou Atual
+                    FunÃ§Ã£o / Cargo Pretendido ou Atual
                   </label>
                   <input
                     type="text"
                     value={colaboradorCargo}
                     onChange={(e) => setColaboradorCargo(e.target.value)}
-                    placeholder="Ex: Operador de Máquinas / Motorista"
+                    placeholder="Ex: Operador de MÃ¡quinas / Motorista"
                     className="w-full text-sm border border-slate-300 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#002855] transition"
                   />
                 </div>
@@ -692,7 +693,7 @@ function FormulariosContent() {
               {/* EXAMES COMPLEMENTARES OPCIONAIS */}
               <div className="pt-4 border-t border-slate-100">
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Exames Complementares Necessários (Opcional)
+                  Exames Complementares (Opcional)
                 </label>
                 <div className="grid sm:grid-cols-2 gap-2 text-xs">
                   {EXAMES_COMPLEMENTARES_LIST.map((exame) => {
@@ -719,36 +720,36 @@ function FormulariosContent() {
                 </div>
               </div>
 
-              {/* RISCOS E OBSERVAÇÕES */}
+              {/* RISCOS E OBSERVAÃ‡Ã•ES */}
               <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Riscos da Função (conforme PGR/PCMSO)
+                    Riscos da FunÃ§Ã£o (conforme PGR/PCMSO)
                   </label>
                   <textarea
                     rows={2}
                     value={riscosFuncao}
                     onChange={(e) => setRiscosFuncao(e.target.value)}
-                    placeholder="Ex: Ruído, Poeiras minerais, Trabalho em Altura (NR-35)"
+                    placeholder="Ex: RuÃ­do, Poeiras minerais, Trabalho em Altura (NR-35)"
                     className="w-full text-xs border border-slate-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#002855]"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                    Observações Adicionais para a Clínica
+                    ObservaÃ§Ãµes Adicionais para a ClÃ­nica
                   </label>
-                  <textarea rows={2} value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Ex: Colaborador com necessidade de atendimento pela manhã" className="w-full text-xs border border-slate-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#002855]" />
+                  <textarea rows={2} value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Ex: Colaborador com necessidade de atendimento pela manhÃ£" className="w-full text-xs border border-slate-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#002855]" />
                 </div>
               </div>
 
-              {/* INSTRUÇÕES OBRIGATÓRIAS */}
+              {/* INSTRUÃ‡Ã•ES OBRIGATÃ“RIAS */}
               <div className="bg-blue-50/80 border border-blue-200 rounded-xl p-4 text-xs text-slate-800 space-y-1.5">
                 <span className="font-extrabold text-[#002855] uppercase text-xs flex items-center gap-1.5 tracking-wider">
-                  ⚠️ INSTRUÇÕES OBRIGATÓRIAS
+                  âš ï¸ INSTRUÃ‡Ã•ES OBRIGATÃ“RIAS
                 </span>
                 <ul className="space-y-1 text-xs text-slate-700">
-                  <li><strong>• Jejum:</strong> para exames de sangue, é obrigatório estar em jejum conforme orientação médica.</li>
-                  <li><strong>• Documento:</strong> é indispensável apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.</li>
+                  <li><strong>â€¢ Jejum:</strong> para exames de sangue, Ã© obrigatÃ³rio estar em jejum conforme orientaÃ§Ã£o mÃ©dica.</li>
+                  <li><strong>â€¢ Documento:</strong> Ã© indispensÃ¡vel apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.</li>
                 </ul>
               </div>
 
@@ -766,7 +767,7 @@ function FormulariosContent() {
                   disabled={loading}
                   className="bg-[#1B8B3A] hover:bg-[#166b2d] text-white font-extrabold px-8 py-3 rounded-xl gap-2 text-base shadow-md transition"
                 >
-                  {loading ? 'Transmitindo Solicitação...' : 'Confirmar e Gerar Guia de Exame'}
+                  {loading ? 'Transmitindo SolicitaÃ§Ã£o...' : 'Confirmar e Gerar Guia de Exame'}
                   <CheckCircle2 className="w-5 h-5" />
                 </Button>
               </div>
@@ -782,20 +783,20 @@ function FormulariosContent() {
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
                 <span className="text-xs font-bold uppercase tracking-wider text-[#1B8B3A] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                  Solicitação Registrada com Sucesso
+                  SolicitaÃ§Ã£o Registrada com Sucesso
                 </span>
                 <h2 className="text-2xl font-black text-[#002855] mt-3">
                   Guia de Encaminhamento Ocupacional Emitida!
                 </h2>
                 <p className="text-slate-500 text-sm max-w-lg mx-auto mt-1">
-                  Os dados foram recebidos pela nossa equipe médica da unidade{' '}
+                  Os dados foram recebidos pela nossa equipe mÃ©dica da unidade{' '}
                   <strong className="text-slate-800">{resultado.unidade?.nome}</strong>.
                 </p>
 
                 {/* PROTOCOLO */}
                 <div className="mt-6 inline-flex flex-col items-center bg-slate-50 border-2 border-dashed border-[#002855]/30 p-4 rounded-xl">
                   <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">
-                    Número do Protocolo
+                    NÃºmero do Protocolo
                   </span>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="font-mono text-2xl font-black text-[#002855] tracking-wider">
@@ -812,12 +813,12 @@ function FormulariosContent() {
                   </div>
                   {copied && (
                     <span className="text-[10px] text-[#1B8B3A] font-bold mt-1">
-                      Copiado para a área de transferência!
+                      Copiado para a Ã¡rea de transferÃªncia!
                     </span>
                   )}
                 </div>
 
-                {/* BOTÕES DE IMPRESSÃO & COMPARTILHAMENTO */}
+                {/* BOTÃ•ES DE IMPRESSÃƒO & COMPARTILHAMENTO */}
                 <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
                   <Button
                     type="button"
@@ -838,18 +839,18 @@ function FormulariosContent() {
                 </div>
               </div>
 
-              {/* PRÉVIA DOS DADOS NA TELA */}
+              {/* PRÃ‰VIA DOS DADOS NA TELA */}
               <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm text-xs space-y-4">
                 <h3 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-2 flex items-center justify-between">
                   <span>Resumo do Encaminhamento</span>
-                  <span className="text-slate-400 font-normal">Apresente esta tela ou a via impressa na recepção</span>
+                  <span className="text-slate-400 font-normal">Apresente esta tela ou a via impressa na recepÃ§Ã£o</span>
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <span className="text-slate-400 block">Colaborador:</span>
                     <strong className="text-slate-900 text-sm">{resultado.colaborador_nome}</strong>
                     <p className="text-slate-500">CPF: {resultado.colaborador_cpf}</p>
-                    <p className="text-slate-500">Cargo: {resultado.colaborador_cargo || 'Não informado'}</p>
+                    <p className="text-slate-500">Cargo: {resultado.colaborador_cargo || 'NÃ£o informado'}</p>
                   </div>
                   <div>
                     <span className="text-slate-400 block">Empresa Solicitante:</span>
@@ -859,16 +860,16 @@ function FormulariosContent() {
                   </div>
                 </div>
 
-                {/* INSTRUÇÕES OBRIGATÓRIAS */}
+                {/* INSTRUÃ‡Ã•ES OBRIGATÃ“RIAS */}
                 <div className="bg-blue-50/80 border border-blue-200 rounded-xl p-3.5 text-xs text-slate-800 space-y-1">
                   <span className="font-extrabold text-[#002855] uppercase text-[11px] block tracking-wider">
-                    ⚠️ INSTRUÇÕES OBRIGATÓRIAS AO TRABALHADOR
+                    âš ï¸ INSTRUÃ‡Ã•ES OBRIGATÃ“RIAS AO TRABALHADOR
                   </span>
                   <p className="text-slate-700">
-                    <strong>• Jejum:</strong> para exames de sangue, é obrigatório estar em jejum conforme orientação médica.
+                    <strong>â€¢ Jejum:</strong> para exames de sangue, Ã© obrigatÃ³rio estar em jejum conforme orientaÃ§Ã£o mÃ©dica.
                   </p>
                   <p className="text-slate-700">
-                    <strong>• Documento:</strong> é indispensável apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.
+                    <strong>â€¢ Documento:</strong> Ã© indispensÃ¡vel apresentar documento oficial com foto (RG, CNH ou Passaporte) no momento do atendimento.
                   </p>
                 </div>
 
@@ -887,7 +888,7 @@ function FormulariosContent() {
                     }}
                     className="text-xs text-[#002855] hover:underline font-bold"
                   >
-                    + Fazer outra solicitação de exame
+                    + Fazer outra solicitaÃ§Ã£o de exame
                   </button>
                 </div>
               </div>
@@ -901,8 +902,10 @@ function FormulariosContent() {
 
 export default function FormulariosPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center text-sm text-slate-500">Carregando formulário...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center text-sm text-slate-500">Carregando formulÃ¡rio...</div>}>
       <FormulariosContent />
     </Suspense>
   );
 }
+
+
